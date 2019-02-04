@@ -1,0 +1,31 @@
+{
+  "student00001": {
+    "question01": "0;0;0;1",
+    "question02": "0;0;0;1",
+    "question03": "0;0;0;1",
+    "question04": "0;0;0;1",
+    "question05": "0;0;0;1",
+  },
+  "student00002": {
+    "question01": "0;0;0;1",
+    "question02": "1;0;0;1",
+    "question03": "0;1;0;1",
+    "question04": "1;0;0;1",
+    "question05": "0;0;0;1",
+    "question06": "Answer text for open question"
+  },
+  "student00003": {
+    "question01": "0;0;0;1",
+    "question02": "1;0;0;1",
+    "question03": "0;1;0;1",
+    "question04": "1;0;0;1",
+    "question05": "0;0;0;1",
+  },
+  "student00004": {
+    "question01": "0;0;0;1",
+    "question02": "0;0;0;1",
+    "question03": "0;0;0;1",
+    "question04": "0;0;0;1",
+    "question05": "0;0;0;1",
+  },
+}
