@@ -5,12 +5,12 @@ Please use it when creating a view for the project so that it is simpler to
 read by everybody or to debug.
 
 * Each view should be in its own file.
-* Each view should be implemented as a class that herits from QWidget
+* Each view should be implemented as a class that inherits from QWidget
 * The aim of a view is to be later on integrated in a QMainWindow object
 * More info at that link: https://stackoverflow.com/questions/41290035/pyqt-change-gui-layout-after-button-is-clicked
 
 Example:
-```
+```python
 from PyQt5.QtWidgets import QWidget
 
 class MyView(QWidget):
