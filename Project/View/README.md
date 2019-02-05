@@ -27,3 +27,4 @@ class MyView(QWidget):
 ```
 
 * The navigation buttons (to go from a view to the other) should be set as class members and the clicked signal will be set in the QMainWindow  
+* Please break the creation of the view into functions as much as possible to make it easier to understand. For example, one function for each group of widget
