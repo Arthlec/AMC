@@ -37,7 +37,7 @@ def main():
   window.setCentralWidget(view)
   sys.exit(app.exec_())
 
-
+# Code executed when the file is launched as main program
 if __name__ == '__main__':
   main()
 ```
