@@ -8,10 +8,15 @@ read by everybody or to debug.
 * Each view should be implemented as a class that inherits from QWidget
 * The aim of a view is to be later on integrated in a QMainWindow object
 * More info at that link: https://stackoverflow.com/questions/41290035/pyqt-change-gui-layout-after-button-is-clicked
+* The navigation buttons (to go from a view to the other) should be set as class members and the clicked signal will be set in the QMainWindow  
+* Please break the creation of the view into functions as much as possible to make it easier to understand. For example, one function for each group of widget
+
+* Add a main function in the code, so that you can easily debug what you're doing
 
 Example:
 ```python
-from PyQt5.QtWidgets import QWidget
+import sys
+from PyQt5.QtWidgets import QApplication, QWidget
 
 class MyView(QWidget):
   def __init__(self, parent=None):
@@ -24,7 +29,11 @@ class MyView(QWidget):
       self.layout.addWidget(QLabel('World'))
 
       # No need for self.show() at the end
-```
 
-* The navigation buttons (to go from a view to the other) should be set as class members and the clicked signal will be set in the QMainWindow  
-* Please break the creation of the view into functions as much as possible to make it easier to understand. For example, one function for each group of widget
+def main():
+  app = QApplication(sys)
+  window = QMainWindow()
+  view = MyView(parent=window)
+  window.setCentralWidget(view)
+  sys.exit(app.exec_())
+```
