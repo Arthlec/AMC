@@ -36,4 +36,8 @@ def main():
   view = MyView(parent=window)
   window.setCentralWidget(view)
   sys.exit(app.exec_())
+
+
+if __name__ == '__main__':
+  main()
 ```
