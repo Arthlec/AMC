@@ -30,14 +30,12 @@ class MyView(QWidget):
 
       # No need for self.show() at the end
 
-def main():
+
+# Code executed when the file is launched as main program
+if __name__ == '__main__':
   app = QApplication(sys)
   window = QMainWindow()
   view = MyView(parent=window)
   window.setCentralWidget(view)
   sys.exit(app.exec_())
-
-# Code executed when the file is launched as main program
-if __name__ == '__main__':
-  main()
 ```
