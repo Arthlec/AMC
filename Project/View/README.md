@@ -33,9 +33,10 @@ class MyView(QWidget):
 
 # Code executed when the file is launched as main program
 if __name__ == '__main__':
-  app = QApplication(sys)
+  app = QApplication(sys.argv)
   window = QMainWindow()
   view = MyView(parent=window)
   window.setCentralWidget(view)
+  window.show()
   sys.exit(app.exec_())
 ```

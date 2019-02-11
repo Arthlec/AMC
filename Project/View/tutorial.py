@@ -6,8 +6,9 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
 class App(QWidget):
-    def __init__(self):
+    def __init__(self, changeStyleCallback):
         super(App, self).__init__()
+        self.changeStyleCallback = changeStyleCallback
         self.initUI()
 
 
@@ -28,6 +29,7 @@ class App(QWidget):
         label1 = QLabel('Style:')
         combo1 = QComboBox()
         combo1.addItems(['Fusion', 'Windows', 'WindowsVista', 'Macintosh'])
+        combo1.currentTextChanged.connect(self.changeStyleCallback)
         layout1 = QHBoxLayout()
         layout1.addWidget(label1)
         layout1.addWidget(combo1)
@@ -85,6 +87,7 @@ class App(QWidget):
 
         # Group 3
         wid3 = QGroupBox(title='Group 3')
+        wid3.setCheckable(True)
         layout3 = QVBoxLayout()
         line3 = QLineEdit()
         line3.setEchoMode(QLineEdit.Password)
@@ -114,7 +117,8 @@ class App(QWidget):
 def main():
     app = QApplication(sys.argv)
     app.setStyle('Fusion')
-    test = App()
+
+    test = App(changeStyleCallback=lambda newStyle : app.setStyle(newStyle))
     sys.exit(app.exec_())
 
 

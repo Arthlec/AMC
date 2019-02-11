@@ -1,0 +1,18 @@
+{
+  "question01": {
+    "weight": 1,
+    "answers": "0;0;1;0"
+  },
+  "question02": {
+    "weight": 2,
+    "answers": "0;1;1;0"
+  },
+  "question03": {
+    "weight": 1,
+    "answers": "0;1;0;0"
+  },
+  "question04": {
+    "weight": 3,
+    "answers": "1;0;1;0"
+  }
+}
