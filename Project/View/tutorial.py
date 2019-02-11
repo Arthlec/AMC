@@ -108,6 +108,8 @@ class App(QWidget):
         layout.addWidget(wid1, 0, 0)
         layout.addWidget(wid2, 0, 1)
         layout.addWidget(wid3, 1, 1)
+        for i in range(2): layout.setRowStretch(i, 1)
+        for i in range(2): layout.setColumnStretch(i, 1) 
         content = QWidget()
         content.setLayout(layout)
         return content
