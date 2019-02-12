@@ -1,6 +1,7 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QLabel
 
+class Home
 
 def window():
     app = QApplication(sys.argv)
