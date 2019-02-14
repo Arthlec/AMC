@@ -20,7 +20,7 @@ class ViewHome(QWidget):
         self.setLayout(layout)
         self.show()
 
-    def NewMCQ(self):
+    def MakeNewMCQ(self):
         # Generate a report for a new mcq
         wid1 = QGroupBox(title='Import a new MCQ')
         layout1 = QVBoxLayout()
@@ -31,8 +31,6 @@ class ViewHome(QWidget):
         # Content
         layout = QGridlayout()
         layout.addwidget(wid1, 0, 0)
-        for i in range(2): layout.setRowStretch(i,1)
-        for i in range(2): layout.setColumnStretch(i,1)
         content = QQwidget()
         content.setLayout(layout)
         return content
@@ -51,8 +49,8 @@ class ViewHome(QWidget):
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     window = QMainWindow()
-    # view = ViewHome(window)
-    # window.setCentralWidget(view)
-    # window.setGeometry(700, 300, 1800, 1400)
+    view = ViewHome(window)
+    window.setCentralWidget(view)
+    window.setGeometry(700, 300, 1800, 1400)
     window.show()
     sys.exit(app.exec_())
