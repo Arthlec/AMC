@@ -1,6 +1,7 @@
 #Parsing data (one function to compare student sheet / answer sheet)
 import json
 from pprint import pprint
+import Controller.computeData
 
 stdAnswers={}
 exmAnswers={}
@@ -42,6 +43,8 @@ for i in range(len(stdAnswers)):
         result["question_" + str(j)]["m"] = m
      stdScore["student_" + str(i)]=result
 
-pprint(stdScore)
-
-#compare
+# pprint(stdScore)
+stdQuestionsPoints = Controller.computeData.computeQuestionsPoints(stdScore)
+# pprint(stdQuestionsPoints)
+stdFinalMark = Controller.computeData.computeFinalMark(stdQuestionsPoints, stdScore)
+pprint(stdFinalMark)
