@@ -49,10 +49,13 @@ def main2():
         result ={}# ';'.join(str(random.randint(0, 1)) for k in range(4))
         for k in range(4):
             result[k] = str(random.randint(0, 1))
-        data[question_id]=result
+
+        data[question_id]["items"]=result
+        data[question_id]["b"] = 2
+        data[question_id]["m"] = -1
     # Once the data is generated, we save it in a file 'dataset.json' with
     # indentation so that the result is readable for a human
-    with open('dataset2.json', 'w') as out:
+    with open('dataset3.json', 'w') as out:
         json.dump(data, out, indent=2)
 
 if __name__ == '__main__':
