@@ -54,12 +54,12 @@ def main2():
             numberOfAnswers = random.randint(2,6) # number of answers in the question
             data["questions"][i]["answers"] = []
 
-            for k in range(numberOfAnswers):
+            for k in range(1):#numberOfAnswers):
                 answer = {}
                 answer["question"] = i
                 answer["answer"] = k
-                answer["correct"] = random.randint(0,1)
-                answer["ticked"] = random.randint(0,1)
+                answer["correct"] = random.randint(0,3)
+                answer["ticked"] = random.randint(0,3)
 
                 strategyForChoices = {}
                 strategyForChoices["e"] = 0 # non-coherent answer (multiple answer whereas simple solution)
@@ -81,7 +81,7 @@ def main2():
 
     # Once the data is generated, we save it in a file 'dataset.json' with
     # indentation so that the result is readable for a human
-    with open('dataset5.json', 'w') as out:
+    with open('dataset6.json', 'w') as out:
         json.dump(data, out, indent=2)
 
 if __name__ == '__main__':
