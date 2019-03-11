@@ -18,11 +18,11 @@ For example :
 
 ```python
 def main():
-	command = input('Enter a logic command:\n')
-	logic = Logic(command)
+    command = input('Enter a logic command:\n')
+    logic = Logic(command)
 
-  # To be later implemented
-  newResults = logic.checkResults(oldResults)
+    # To be later implemented
+    newResults = logic.checkResults(oldResults)
 ```
 
 
