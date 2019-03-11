@@ -131,10 +131,10 @@ class Logic:
 
 
 if __name__ == '__main__':
-    # command = input('Enter a logic command:\n')
-    # logic = Logic(command)
+    command = input('Enter a logic command:\n')
+    logic = Logic(command)
     # logic = Logic('Q1 == 1 AND Q2 == 0')
     # logic = Logic('Q1 == 1 AND Q2 IS 0')
     # logic = Logic('Q1 == 1 AND Q2 == 0 IS -2')
-    logic = Logic('Q1 == 1 AND Q2 == 0 IS 0')
+    # logic = Logic('Q1 == 1 AND Q2 == 0 IS 0')
     print(logic.printLogic())
