@@ -20,8 +20,8 @@ def parseAnswers(fileName):
         f.close()
     return data
 
-stdAnswers=parseAnswers('../Model/dataset1.json')
-exmAnswers=parseAnswers('../Model/dataset6.json')
+stdAnswers=parseAnswers('../Model (Useless now)/dataset1.json')
+exmAnswers=parseAnswers('../Model (Useless now)/dataset6.json')
 
 i=0;
 j=0;
