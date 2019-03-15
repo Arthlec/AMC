@@ -1,6 +1,6 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QLabel, QVBoxLayout, QGroupBox, QPushButton, \
-    QGridLayout, QHBoxLayout, QTextEdit, QComboBox
+    QGridLayout, QHBoxLayout, QTextEdit, QComboBox, QSlider
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont
 '''
@@ -89,7 +89,37 @@ class Example(QWidget):
         self.show()
 
 
+class sliderdemo(QWidget):
+    def __init__(self, parent=None):
+        super(sliderdemo, self).__init__(parent)
+
+        layout = QVBoxLayout()
+        self.l1 = QLabel("Poids des questions")
+        self.l1.setAlignment(Qt.AlignCenter)
+        layout.addWidget(self.l1)
+
+        self.createSlider(layout, 0)
+
+        self.setLayout(layout)
+        self.setWindowTitle("Module AMC")
+
+    def valuechange(self):
+        self.l1.setText(str(self.sl.value()))
+
+    def createSlider(self, layout,initialValue):
+        self.sl = QSlider(Qt.Horizontal)
+        self.sl.setMinimum(-5)
+        self.sl.setMaximum(5)
+        self.sl.setValue(initialValue)
+        self.sl.setTickPosition(QSlider.TicksBelow)
+        self.sl.setTickInterval(0.1)
+
+        layout.addWidget(self.sl)
+        self.sl.valueChanged.connect(self.valuechange)
+
+
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    ex = Example()
+    ex = sliderdemo()
+    ex.show()
     sys.exit(app.exec_())

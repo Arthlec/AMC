@@ -124,13 +124,6 @@ def MarkingQuestions1(NbPointsQuestions, boxes, avoidNeg=True):
 
             # then avoid negative points for questions
     if avoidNeg: resultat[resultat < 0] = 0
-    #     else :
-    #         studentGroupBy = boxes.groupby('student')['student' == 1]
-    #         print(studentGroupBy)
-    #         for i, row in resultat.iterrows():
-    #             print(row.name)
-
-    #         print(studentGroupBy['question'].value_counts())
 
     # Taking into account points per question
     maxPoints = NbPointsQuestions['Points'].sum()
@@ -162,7 +155,7 @@ def MarkingQuestions1(NbPointsQuestions, boxes, avoidNeg=True):
 # In[5]:
 
 
-dataPath = "/home/bercherj/JFB/Ens/Examens/Projets-QCM/PPMD_18_1/data/"
+dataPath = "C:/Users/Arthur/PycharmProjects/AMC/Project/Real Data/"
 
 
 # In[6]:
@@ -170,6 +163,7 @@ dataPath = "/home/bercherj/JFB/Ens/Examens/Projets-QCM/PPMD_18_1/data/"
 
 zone, answer, association, var = readAMCTables(dataPath)
 boxes = makeBoxes(zone, answer, var )
+boxes["weight"] = 1.0
 schemeMarkingInQuestion1(boxes, 1, 0., -0.2, -0.2) 
 
 
@@ -204,5 +198,7 @@ studentIdToNameMapper = {association.loc[k,'student']: association.loc[k,'manual
 # In[16]:
 
 
-resultatsPoints.rename(studentIdToNameMapper, axis=1)
+resultatsPoints = resultatsPoints.rename(studentIdToNameMapper, axis=1)
 
+print(boxes.head())
+print(resultatsPoints.head())
