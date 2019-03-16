@@ -3,6 +3,9 @@ from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QLabel, QVBoxLay
     QGridLayout, QHBoxLayout, QTextEdit, QComboBox, QSlider
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont
+
+from Project.Controller.readAMC import *
+
 '''
 class ViewHome(QWidget):
     def __init__(self, parent=None):
@@ -89,27 +92,37 @@ class Example(QWidget):
         self.show()
 
 
-class sliderdemo(QWidget):
-    def __init__(self, parent=None):
-        super(sliderdemo, self).__init__(parent)
+class window(QWidget):
+    def __init__(self, parent=None, initialValue=1.0):
+        super(window, self).__init__(parent)
 
         layout = QVBoxLayout()
-        self.l1 = QLabel("Poids des questions")
-        self.l1.setAlignment(Qt.AlignCenter)
-        layout.addWidget(self.l1)
+        self.title = QLabel("Poids des questions")
+        self.title.setAlignment(Qt.AlignCenter)
+        layout.addWidget(self.title)
 
-        self.createSlider(layout, 0)
+        self.createSlider(layout, initialValue)
+
+        self.weight = QLabel(str(initialValue))
+        self.weight.setAlignment(Qt.AlignCenter)
+        layout.addWidget(self.weight)
+
+        self.b1 = QPushButton("Save weight")
+        self.b1.setCheckable(True)
+        self.b1.toggle()
+        self.b1.clicked.connect(self.writeWeights)
+        layout.addWidget(self.b1)
 
         self.setLayout(layout)
         self.setWindowTitle("Module AMC")
 
     def valuechange(self):
-        self.l1.setText(str(self.sl.value()))
+        self.weight.setText(str(self.sl.value()))
 
     def createSlider(self, layout,initialValue):
-        self.sl = QSlider(Qt.Horizontal)
-        self.sl.setMinimum(-5)
-        self.sl.setMaximum(5)
+        self.sl = DoubleSlider(Qt.Horizontal)
+        self.sl.setMinimum(0.0)
+        self.sl.setMaximum(1.0)
         self.sl.setValue(initialValue)
         self.sl.setTickPosition(QSlider.TicksBelow)
         self.sl.setTickInterval(0.1)
@@ -117,9 +130,55 @@ class sliderdemo(QWidget):
         layout.addWidget(self.sl)
         self.sl.valueChanged.connect(self.valuechange)
 
+    def writeWeights(self):
+        changeWeight(self.sl.value())
+
+class DoubleSlider(QSlider):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.decimals = 1
+        self._max_int = 10 ** self.decimals
+
+        super().setMinimum(0)
+        super().setMaximum(self._max_int)
+
+        self._min_value = 0.0
+        self._max_value = 1.0
+
+    @property
+    def _value_range(self):
+        return self._max_value - self._min_value
+
+    def value(self):
+        return float(super().value()) / self._max_int * self._value_range + self._min_value
+
+    def setValue(self, value):
+        super().setValue(int((value - self._min_value) / self._value_range * self._max_int))
+
+    def setMinimum(self, value):
+        if value > self._max_value:
+            raise ValueError("Minimum limit cannot be higher than maximum")
+
+        self._min_value = value
+        self.setValue(self.value())
+
+    def setMaximum(self, value):
+        if value < self._min_value:
+            raise ValueError("Minimum limit cannot be higher than maximum")
+
+        self._max_value = value
+        self.setValue(self.value())
+
+    def minimum(self):
+        return self._min_value
+
+    def maximum(self):
+        return self._max_value
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    ex = sliderdemo()
+    ex = window(initialValue=computeData())
     ex.show()
     sys.exit(app.exec_())

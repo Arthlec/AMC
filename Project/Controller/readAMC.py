@@ -3,10 +3,11 @@
 
 # In[1]:
 
+import sqlite3
+import pandas as pd
+import json
 
 def readAMCTables(dataPath):
-    import sqlite3
-    import pandas as pd
     # Create your connection.
     cnx = sqlite3.connect(dataPath + 'capture.sqlite')
     zone = pd.read_sql_query("SELECT * FROM capture_zone", cnx)
@@ -105,7 +106,8 @@ def schemeMarkingInQuestion1(boxes, TP, TN, FP, FN ):
 # In[4]:
 
 
-def MarkingQuestions1(NbPointsQuestions, boxes, avoidNeg=True):
+def MarkingQuestions1(NbPointsQuestions, boxes,penalty="def", avoidNeg=True):
+    from collections import Counter
     # computes the sum of points per student and question
     # result is a a dataframe of the number of points per question (row) 
     # and per student (column)
@@ -115,24 +117,40 @@ def MarkingQuestions1(NbPointsQuestions, boxes, avoidNeg=True):
     resultat = pd.DataFrame(index=listQuestions, columns=listStudents)
     resultatsPoints = pd.DataFrame(index=listQuestions, columns=listStudents)
 
+
     for student in listStudents:
         for question in listQuestions:
-            K = (boxes['student'] == student) & (boxes['question'] == question)
+            K = (boxes['student']==student) & (boxes['question'] == question)
             # resultat as a proportion of the possible max
-            resultat.loc[question, student] = boxes.loc[K, 'points'].sum() / boxes.loc[K, 'maxPoints'].sum()
-            resultatsPoints.loc[question, student] = boxes.loc[K, 'points'].sum() / boxes.loc[K, 'maxPoints'].sum()
+            resultat.loc[question, student] = boxes.loc[K,'points'].sum()/boxes.loc[K,'maxPoints'].sum()
+            resultatsPoints.loc[question, student] = boxes.loc[K,'points'].sum()/boxes.loc[K,'maxPoints'].sum()
 
-            # then avoid negative points for questions
+    # compute number of choice for each question use in penalty
+    c = boxes.groupby(['student'])['question'].value_counts().to_frame('count')  # .apply(list).to_dict()
+    c2 = pd.DataFrame(c).reset_index()
+    c3 = c2.loc[c2['student'] == listStudents[0]]
+    # print(resultat)
+    # then avoid negative points for questions
     if avoidNeg: resultat[resultat < 0] = 0
+    else:#penalty 1/(n-1) default or get by teacher as entry
+        if(penalty=="def"):
+            for q in c3['question']:
+                for std in listStudents:
+                    if resultat.loc[q,std]<0:
+                        count=c3.loc[c3['question'] == q, 'count'].iloc[0]
+                        resultat.loc[q,std]=round(1/(count -1), 1)
+        else:
+             resultat[resultat < 0] = penalty
 
     # Taking into account points per question
     maxPoints = NbPointsQuestions['Points'].sum()
     for question in listQuestions:
-        resultatsPoints.loc[question, :] = resultat.loc[question, :] * NbPointsQuestions.loc[question, 'Points']
+        resultatsPoints.loc[question,:] = resultat.loc[question,:]*NbPointsQuestions.loc[question,'Points']
 
-        # Then computes the points per student
-    resultatsPoints.loc['Note', :] = resultatsPoints.sum()
-    resultatsPoints.loc['Note/20', :] = 20 / maxPoints * resultatsPoints.loc['Note', :]
+    # Then computes the points per student
+
+    resultatsPoints.loc['Note',:] = resultatsPoints.sum()
+    resultatsPoints.loc['Note/20',:] = 20/maxPoints*resultatsPoints.loc['Note',:]
     return resultat, resultatsPoints
 
 
@@ -154,51 +172,73 @@ def MarkingQuestions1(NbPointsQuestions, boxes, avoidNeg=True):
 
 # In[5]:
 
-
-dataPath = "C:/Users/Arthur/PycharmProjects/AMC/Project/Real Data/"
-
-
-# In[6]:
+def computeData():
+    dataPath = "C:/Users/Arthur/PycharmProjects/AMC/Project/Real Data/"
 
 
-zone, answer, association, var = readAMCTables(dataPath)
-boxes = makeBoxes(zone, answer, var )
-boxes["weight"] = 1.0
-schemeMarkingInQuestion1(boxes, 1, 0., -0.2, -0.2) 
+    # In[6]:
 
 
-# In[8]:
+    zone, answer, association, var = readAMCTables(dataPath)
+    boxes = makeBoxes(zone, answer, var )
+    boxes["weight"] = 0.5
+    schemeMarkingInQuestion1(boxes, 1, 0., -0.2, -0.2)
 
 
-# Example of marking scheme per question
-import pandas as pd
-listQuestions = boxes['question'].unique()
-NbPointsQuestions = pd.DataFrame(index=range(1,listQuestions.shape[0]+1), columns=['Points']  )
-NbPointsQuestions['Points'] = 1
+    # In[8]:
 
 
-# In[9]:
+    # Example of marking scheme per question
+    # import pandas as pd
+    listQuestions = boxes['question'].unique()
+    NbPointsQuestions = pd.DataFrame(index=range(1,listQuestions.shape[0]+1), columns=['Points']  )
+    NbPointsQuestions['Points'] = 1
 
 
-resultat, resultatsPoints = MarkingQuestions1(NbPointsQuestions, boxes, avoidNeg=True)
+    # In[9]:
+    #get by user or default
+    resultat, resultatsPoints = MarkingQuestions1(NbPointsQuestions, boxes,penalty="def",avoidNeg=False)
 
 
-# In[10]:
+    # In[10]:
 
 
-resultatsPoints
+    # resultatsPoints
 
 
-# In[13]:
+    # In[13]:
 
 
-studentIdToNameMapper = {association.loc[k,'student']: association.loc[k,'manual'] for k in association.index}
+    studentIdToNameMapper = {association.loc[k,'student']: association.loc[k,'manual'] for k in association.index}
 
 
-# In[16]:
+    # In[16]:
 
 
-resultatsPoints = resultatsPoints.rename(studentIdToNameMapper, axis=1)
+    resultatsPoints = resultatsPoints.rename(studentIdToNameMapper, axis=1)
 
-print(boxes.head())
-print(resultatsPoints.head())
+    # print(boxes)
+    # print(resultatsPoints.head())
+    # print(boxes.loc[(boxes['question'] == 1) & (boxes['student'] == 26)].iloc[0])
+
+    weights = boxes[['question', 'student', 'weight']]
+    writeWeights(weights)
+
+    return boxes.loc[(boxes['question'] == 1) & (boxes['student'] == 26)].iloc[0]['weight']
+
+def changeWeight(value):
+    rawWeights = parseWeights('../View/weights.json')
+    weights = pd.read_json(rawWeights)
+    weights['weight'] = value
+    print(weights)
+    writeWeights(weights)
+
+def parseWeights(fileName):
+    with open(fileName) as f:
+        data = json.load(f)
+        f.close()
+    return data
+
+def writeWeights(data):
+    with open('weights.json', 'w') as out:
+        json.dump(data.to_json(), out, indent=2)
