@@ -93,45 +93,50 @@ class Example(QWidget):
 
 
 class window(QWidget):
-    def __init__(self, parent=None, initialValue=1.0):
+    def __init__(self, parent=None, initialValue=1.0, numberOfQuestions = 1):
         super(window, self).__init__(parent)
 
-        layout = QVBoxLayout()
-        self.title = QLabel("Poids des questions")
-        self.title.setAlignment(Qt.AlignCenter)
-        layout.addWidget(self.title)
-
-        self.createSlider(layout, initialValue)
-
-        self.weight = QLabel(str(initialValue))
-        self.weight.setAlignment(Qt.AlignCenter)
-        layout.addWidget(self.weight)
+        self.layout = QVBoxLayout()
+        for i in range(1, numberOfQuestions + 1):
+            self.addSlider(QLabel("Question " + str(i)), QLabel(str(initialValue)), initialValue)
 
         self.b1 = QPushButton("Save weight")
         self.b1.setCheckable(True)
         self.b1.toggle()
         self.b1.clicked.connect(self.writeWeights)
-        layout.addWidget(self.b1)
+        self.layout.addWidget(self.b1)
 
-        self.setLayout(layout)
+        self.setLayout(self.layout)
         self.setWindowTitle("Module AMC")
 
-    def valuechange(self):
-        self.weight.setText(str(self.sl.value()))
+    def addSlider(self, title, weightText, initialValue):
+        title.setAlignment(Qt.AlignCenter)
+        self.layout.addWidget(title)
 
-    def createSlider(self, layout,initialValue):
-        self.sl = DoubleSlider(Qt.Horizontal)
-        self.sl.setMinimum(0.0)
-        self.sl.setMaximum(1.0)
-        self.sl.setValue(initialValue)
-        self.sl.setTickPosition(QSlider.TicksBelow)
-        self.sl.setTickInterval(0.1)
+        weightText.setAlignment(Qt.AlignCenter)
+        self.layout.addWidget(weightText)
 
-        layout.addWidget(self.sl)
-        self.sl.valueChanged.connect(self.valuechange)
+        slider = DoubleSlider(Qt.Horizontal)
+        slider.setMinimum(0.0)
+        slider.setMaximum(1.0)
+        slider.setValue(initialValue)
+        slider.setTickPosition(QSlider.TicksBelow)
+        slider.setTickInterval(0.1)
+
+        self.layout.addWidget(slider)
+        slider.valueChanged.connect(lambda: self.valuechange(weightText, slider))
+
+    def valuechange(self, weightText, slider):
+        weightText.setText(str(slider.value()))
 
     def writeWeights(self):
-        changeWeight(self.sl.value())
+        n = 1
+        for i in range(2, self.layout.count(), 3):
+            # print(n)
+            # print(self.layout.itemAt(i).widget().value())
+            changeWeight(n , self.layout.itemAt(i).widget().value())
+            n += 1
+        print(getWeights())
 
 class DoubleSlider(QSlider):
 
@@ -178,7 +183,8 @@ class DoubleSlider(QSlider):
 
 
 if __name__ == '__main__':
+    computeData()
     app = QApplication(sys.argv)
-    ex = window(initialValue=computeData())
+    ex = window(numberOfQuestions=getNumberOfQuestions())
     ex.show()
     sys.exit(app.exec_())

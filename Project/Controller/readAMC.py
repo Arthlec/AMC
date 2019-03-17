@@ -67,6 +67,7 @@ def makeBoxes(zone, answer, var ):
         for question in listQuestions:
             K = (answer['student']==student) & (answer['question'] == question)
             listAnswers = answer.loc[K, 'answer'].values
+
             for answ in listAnswers:
                 J = (answer['student']==student) & (answer['question'] == question) & (answer['answer'] == answ)
                 out = answer.loc[J,'correct']
@@ -181,7 +182,11 @@ def computeData():
 
     zone, answer, association, var = readAMCTables(dataPath)
     boxes = makeBoxes(zone, answer, var )
-    boxes["weight"] = 0.5
+
+    boxes["weight"] = 1.0 # default weight
+    weights = boxes[['question', 'student', 'weight']]
+    writeWeights(weights)
+
     schemeMarkingInQuestion1(boxes, 1, 0., -0.2, -0.2)
 
 
@@ -217,20 +222,34 @@ def computeData():
 
     resultatsPoints = resultatsPoints.rename(studentIdToNameMapper, axis=1)
 
-    # print(boxes)
-    # print(resultatsPoints.head())
-    # print(boxes.loc[(boxes['question'] == 1) & (boxes['student'] == 26)].iloc[0])
+    return boxes, resultatsPoints
 
-    weights = boxes[['question', 'student', 'weight']]
-    writeWeights(weights)
-
-    return boxes.loc[(boxes['question'] == 1) & (boxes['student'] == 26)].iloc[0]['weight']
-
-def changeWeight(value):
+def getWeights():
     rawWeights = parseWeights('../View/weights.json')
     weights = pd.read_json(rawWeights)
-    weights['weight'] = value
-    print(weights)
+
+    # weights = boxes.loc[boxes['student'] == 26]
+    # weights = weights[['question', 'weight']]
+    # weights = weights.drop_duplicates('question')
+    # weights = weights.sort_values(by=['question'])
+
+    # print(weights)
+    return weights #['weight']
+
+def getNumberOfQuestions():
+    boxes, _ = computeData()
+
+    questions = boxes.loc[boxes['student'] == 26]
+    questions = questions[['question']]
+    questions = questions.drop_duplicates('question')
+    numberOfQuestions = len(questions)
+
+    # print(numberOfQuestions)
+    return numberOfQuestions
+
+def changeWeight(indexOfQuestion, value):
+    weights = getWeights()
+    weights.loc[weights['question'] == indexOfQuestion, 'weight'] = value
     writeWeights(weights)
 
 def parseWeights(fileName):
