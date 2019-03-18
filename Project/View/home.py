@@ -98,6 +98,7 @@ class window(QWidget):
         super(window, self).__init__(parent)
 
         self.layout = QVBoxLayout()
+        self.listOfQuestions = []
         for i in range(1, numberOfQuestions + 1):
             self.addSlider(QLabel("Question " + str(i)), QLabel(str(initialValue)), initialValue)
 
@@ -127,16 +128,14 @@ class window(QWidget):
         self.layout.addWidget(slider)
         slider.valueChanged.connect(lambda: self.valuechange(weightText, slider))
 
+        self.listOfQuestions.append(slider)
+
     def valuechange(self, weightText, slider):
         weightText.setText(str(slider.value()))
 
     def writeWeights(self):
-        n = 1
-        for i in range(2, self.layout.count(), 3):
-            # print(n)
-            # print(self.layout.itemAt(i).widget().value())
-            changeWeight(n , self.layout.itemAt(i).widget().value())
-            n += 1
+        for i, slider in enumerate(self.listOfQuestions):
+            changeWeight(i+1, slider.value())
         print(getWeights())
 
 class DoubleSlider(QSlider):
@@ -201,7 +200,7 @@ if __name__ == '__main__':
     button = QPushButton('run coherence')
 
     button.clicked.connect(on_click)
-     button.clicked.connect(on_click)
+    button.clicked.connect(on_click)
 
     layout.addWidget(text)
     layout.addWidget(button)
