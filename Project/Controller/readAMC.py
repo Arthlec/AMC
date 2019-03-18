@@ -166,7 +166,8 @@ def MarkingQuestions1(NbPointsQuestions, boxes,penalty="def", avoidNeg=True):
 
 
 def showPoint():
-    dataPath = "D:/Travail/AMC/Project/Real Data/"
+    dataPath = "C:/Users/roman/Documents/ESIEE/E4 S2/AMC/Project/Real Data/"
+    #datapath = "Project/Real Data/"
 
     # In[6]:
 
@@ -195,8 +196,8 @@ def showPoint():
 # In[5]:
 
 def computeData():
-    dataPath = "D:/Travail/AMC/Project/Real Data/"
-    # dataPath = "Project/Real Data/"
+    dataPath = "C:/Users/roman/Documents/ESIEE/E4 S2/AMC/Project/Real Data/"
+
 
     # In[6]:
 
