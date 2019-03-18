@@ -97,10 +97,10 @@ class AppMain(QMainWindow):
 
         self.show()
 
-class App(QDialog):
+class App(QWidget):
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, parent=None):
+        super(App, super).__init__(parent)
         self.title = 'AMC Result'
         self.left = 10
         self.top = 10
@@ -156,9 +156,8 @@ class App(QDialog):
 
 
 class Example(QWidget):
-
-    def __init__(self):
-        super().__init__()
+    def __init__(self, parent=None):
+        super(Example, self).__init__(parent)
 
         self.initUI()
 
@@ -319,7 +318,7 @@ def on_click():
     print(textboxValue)
     print("run coherence")
 if __name__ == '__main__':
-    
+
     computeData()
     app = QApplication(sys.argv)
    # ex = window(numberOfQuestions=getNumberOfQuestions())
