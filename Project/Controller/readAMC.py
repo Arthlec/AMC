@@ -2,10 +2,12 @@
 # coding: utf-8
 
 # In[1]:
-
+from pathlib import Path
 import sqlite3
 import pandas as pd
 import json
+
+dataPath = str(Path(__file__).resolve().parent.parent).replace("\\", "/") + "/Real Data/"
 
 def readAMCTables(dataPath):
     # Create your connection.
@@ -108,7 +110,6 @@ def schemeMarkingInQuestion1(boxes, TP, TN, FP, FN ):
 
 
 def MarkingQuestions1(NbPointsQuestions, boxes,penalty="def", avoidNeg=True):
-    from collections import Counter
     # computes the sum of points per student and question
     # result is a a dataframe of the number of points per question (row) 
     # and per student (column)
@@ -130,7 +131,6 @@ def MarkingQuestions1(NbPointsQuestions, boxes,penalty="def", avoidNeg=True):
     c = boxes.groupby(['student'])['question'].value_counts().to_frame('count')  # .apply(list).to_dict()
     c2 = pd.DataFrame(c).reset_index()
     c3 = c2.loc[c2['student'] == listStudents[0]]
-    # print(resultat)
     # then avoid negative points for questions
     if avoidNeg: resultat[resultat < 0] = 0
     else:#penalty 1/(n-1) default or get by teacher as entry
@@ -166,7 +166,7 @@ def MarkingQuestions1(NbPointsQuestions, boxes,penalty="def", avoidNeg=True):
 
 
 def showPoint():
-    dataPath = "D:/Travail/AMC/Project/Real Data/"
+    # dataPath = "D:/Travail/AMC/Project/Real Data/"
 
     # In[6]:
 
@@ -178,7 +178,6 @@ def showPoint():
     # In[8]:
 
     # Example of marking scheme per question
-    # import pandas as pd
     listQuestions = boxes['question'].unique()
     NbPointsQuestions = pd.DataFrame(index=range(1, listQuestions.shape[0] + 1), columns=['Points'])
     NbPointsQuestions['Points'] = 1
@@ -195,8 +194,7 @@ def showPoint():
 # In[5]:
 
 def computeData():
-    dataPath = "D:/Travail/AMC/Project/Real Data/"
-    # dataPath = "Project/Real Data/"
+    # dataPath = "D:/Travail/AMC/Project/Real Data/"
 
     # In[6]:
 
@@ -215,7 +213,6 @@ def computeData():
 
 
     # Example of marking scheme per question
-    # import pandas as pd
     listQuestions = boxes['question'].unique()
     NbPointsQuestions = pd.DataFrame(index=range(1,listQuestions.shape[0]+1), columns=['Points']  )
     NbPointsQuestions['Points'] = 1
