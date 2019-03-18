@@ -193,6 +193,7 @@ class window(QWidget):
         self.outerL.setColumnStretch(2, 4)
         #---------------------weight
         self.layout = QVBoxLayout()
+        self.listOfQuestions = []
         for i in range(1, numberOfQuestions + 1):
             self.addSlider(QLabel("Question " + str(i)), QLabel(str(initialValue)), initialValue)
 
@@ -257,18 +258,14 @@ class window(QWidget):
         self.layout.addWidget(slider)
         slider.valueChanged.connect(lambda: self.valuechange(weightText, slider))
 
+        self.listOfQuestions.append(slider)
+
     def valuechange(self, weightText, slider):
         weightText.setText(str(slider.value()))
 
     def writeWeights(self):
-        n = 1
-        print("writeWeights 1")
-        print(self.layout.count())
-        for i in range(2, self.layout.count(), 3):
-            # print(n)
-            # print(self.layout.itemAt(i).widget().value())
-            changeWeight(n , self.layout.itemAt(i).widget().value())
-            n += 1
+        for i, slider in enumerate(self.listOfQuestions):
+            changeWeight(i + 1, slider.value())
         print(getWeights())
 
 class DoubleSlider(QSlider):
