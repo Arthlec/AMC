@@ -12,6 +12,7 @@ import nltk
 class _KeyWords(Enum):
     AND = 'AND'
     OR = 'OR'
+    XOR = 'XOR'
     EQUAL = '=='
     IS = 'IS'
 
@@ -51,7 +52,7 @@ class Logic:
         for i in range(n):
             if tokens[i] == _KeyWords.EQUAL.value:
                 firstRes.append(_QuestionResult(id=tokens[i - 1], res=tokens[i + 1]))
-            if tokens[i] in [_KeyWords.AND.value, _KeyWords.OR.value]:
+            if tokens[i] in [_KeyWords.AND.value, _KeyWords.OR.value, _KeyWords.XOR.value]:
                 firstRes.append(tokens[i])
             if tokens[i] == _KeyWords.IS.value:
                 self.result = int(tokens[i + 1])
@@ -93,7 +94,7 @@ class Logic:
                     raise SyntaxError('Missing statement before "' + token + '" keyword in : ' + self.command)
                 nextToken = tokens[i + 1]
 
-                if token in [_KeyWords.AND.value, _KeyWords.OR.value]:
+                if token in [_KeyWords.AND.value, _KeyWords.OR.value, _KeyWords.XOR.value]:
                     if nextToken[0] != 'Q':
                         raise SyntaxError('Keyword "' + token + '" must be followed by a question statement in : ' + self.command)
 
@@ -131,10 +132,11 @@ class Logic:
 
 
 if __name__ == '__main__':
-    command = input('Enter a logic command:\n')
-    logic = Logic(command)
+    # command = input('Enter a logic command:\n')
+    # logic = Logic(command)
     # logic = Logic('Q1 == 1 AND Q2 == 0')
     # logic = Logic('Q1 == 1 AND Q2 IS 0')
     # logic = Logic('Q1 == 1 AND Q2 == 0 IS -2')
-    # logic = Logic('Q1 == 1 AND Q2 == 0 IS 0')
+    logic = Logic('Q1 == 1 XOR Q2 == 0 IS -4')
+    # add xor
     print(logic.printLogic())
