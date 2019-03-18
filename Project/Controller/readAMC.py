@@ -165,7 +165,28 @@ def MarkingQuestions1(NbPointsQuestions, boxes,penalty="def", avoidNeg=True):
 
 
 
+def showPoint():
+    dataPath = "E:/project/AMC/venv/Controller/data/"  # "data/"
 
+    # In[6]:
+
+    zone, answer, association, var = readAMCTables(dataPath)
+    boxes = makeBoxes(zone, answer, var)
+    boxes["weight"] = 0.5
+    schemeMarkingInQuestion1(boxes, 1, 0., -0.2, -0.2)
+
+    # In[8]:
+
+    # Example of marking scheme per question
+    # import pandas as pd
+    listQuestions = boxes['question'].unique()
+    NbPointsQuestions = pd.DataFrame(index=range(1, listQuestions.shape[0] + 1), columns=['Points'])
+    NbPointsQuestions['Points'] = 1
+
+    # In[9]:
+    # get by user or default
+    resultat, resultatsPoints = MarkingQuestions1(NbPointsQuestions, boxes, penalty="def", avoidNeg=False)
+    return resultat,resultatsPoints
 
 # ## Example
 # 
