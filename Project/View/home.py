@@ -1,10 +1,11 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QLabel, QVBoxLayout, QGroupBox, QPushButton, \
+from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtWidgets import  QScrollArea, QApplication, QTableWidget,QTableWidgetItem, QWidget, QMainWindow, QLabel, QVBoxLayout, QGroupBox, QPushButton, \
     QGridLayout, QHBoxLayout, QTextEdit, QComboBox, QSlider
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont
 
-from Project.Controller.readAMC import *
+from Controller.readAMC import *
 
 '''
 class ViewHome(QWidget):
@@ -183,8 +184,28 @@ class DoubleSlider(QSlider):
 
 
 if __name__ == '__main__':
+    
     computeData()
+    
     app = QApplication(sys.argv)
+    #-----------------dipslay data result in table widget
+    win = QWidget()
+    scroll = QScrollArea()
+    layout = QVBoxLayout()
+    table = QTableWidget()
+    scroll.setWidget(table)
+    layout.addWidget(table)
+    win.setLayout(layout)
+    std,points=showPoint()
+    df = points
+    table.setColumnCount(len(df.columns))
+    table.setRowCount(len(df.index))
+    for i in range(len(df.index)):
+        for j in range(len(df.columns)):
+            table.setItem(i, j, QTableWidgetItem(str(df.iloc[i, j])))
+
+    win.show()
+    #-----------------end display in table view
     ex = window(numberOfQuestions=getNumberOfQuestions())
     ex.show()
     sys.exit(app.exec_())
