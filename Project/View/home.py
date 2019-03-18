@@ -182,7 +182,10 @@ class DoubleSlider(QSlider):
     def maximum(self):
         return self._max_value
 
-
+def on_click():
+    textboxValue = self.textbox.text()
+    print(textboxValue)
+    print("run coherence")
 if __name__ == '__main__':
     
     computeData()
@@ -193,8 +196,21 @@ if __name__ == '__main__':
     scroll = QScrollArea()
     layout = QVBoxLayout()
     table = QTableWidget()
+    text = QTextEdit()
+    button=QPushButton()
+    button = QPushButton('run coherence')
+
+    button.clicked.connect(on_click)
+     button.clicked.connect(on_click)
+
+    layout.addWidget(text)
+    layout.addWidget(button)
     scroll.setWidget(table)
     layout.addWidget(table)
+    text.move(20, 20)
+    text.resize(280, 40)
+    button.move(20, 80)
+    table.move(20,100)
     win.setLayout(layout)
     std,points=showPoint()
     df = points
