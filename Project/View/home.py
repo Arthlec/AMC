@@ -1,3 +1,4 @@
+
 import sys
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import  QScrollArea, QApplication, QDialog,QAction, QTableWidget,QTableWidgetItem, QWidget, QMainWindow, QLabel, QVBoxLayout, QGroupBox, QPushButton, \
@@ -8,7 +9,8 @@ from PyQt5.QtGui import QFont,QPolygonF, QPainter, QIcon
 
 from Controller.readAMC import *
 
-'''
+
+
 class ViewHome(QWidget):
     def __init__(self, parent=None):
         # def __init__(self):
@@ -65,7 +67,7 @@ if __name__ == '__main__':
     sys.exit(app.exec_())
 '''
 
-
+'''
 class AppMain(QMainWindow):
 
     def __init__(self):
@@ -236,9 +238,9 @@ class window(QWidget):
          # self.horizontalGroupBox.setLayout(outerL)
         self.setLayout(self.layout)
         self.setWindowTitle("Module AMC")
-        '''windowLayout = QVBoxLayout()
-        windowLayout.addWidget(self.horizontalGroupBox)
-        self.setLayout(windowLayout)'''
+        # windowLayout = QVBoxLayout()
+        # windowLayout.addWidget(self.horizontalGroupBox)
+        # self.setLayout(windowLayout)
 
     def addSlider(self, title, weightText, initialValue):
         title.setAlignment(Qt.AlignCenter)
@@ -314,6 +316,165 @@ def on_click():
     textboxValue = self.textbox.text()
     print(textboxValue)
     print("run coherence")
+
+'''
+# --------------------- Roman's try-------------------------
+import json
+from pandas.io.json import json_normalize
+import random
+import numpy as np
+import pandas as pd
+import scipy.stats as stats
+import matplotlib.pyplot as plt
+from scipy import stats
+from scipy.stats import t
+from pprint import pprint
+import Controller.computeData
+
+import sys
+
+from PyQt5.QtWidgets import QApplication, QMainWindow, QMenu, QVBoxLayout, QSizePolicy, QMessageBox, QWidget, QPushButton
+from PyQt5.QtGui import QIcon
+
+
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.figure import Figure
+import matplotlib.pyplot as plt
+
+import random
+
+dataPath = str(Path(__file__).resolve().parent.parent).replace("\\", "/") + "/Real Data/"
+
+
+def readAMCTables(dataPath):
+    # Create your connection.
+    cnx = sqlite3.connect(dataPath + 'capture.sqlite')
+    zone = pd.read_sql_query("SELECT * FROM capture_zone", cnx)
+    cnx.close()
+
+    cnx = sqlite3.connect(dataPath + 'scoring.sqlite')
+    answer = pd.read_sql_query("SELECT * FROM scoring_answer", cnx)
+    variables = pd.read_sql_query("SELECT * FROM scoring_variables", cnx)
+    cnx.close()
+
+    cnx = sqlite3.connect(dataPath + 'association.sqlite')
+    association = pd.read_sql_query("SELECT * FROM association_association", cnx)
+    cnx.close()
+
+    return zone, answer, association, variables
+
+def computeData():
+    # dataPath = "D:/Travail/AMC/Project/Real Data/"
+
+    # In[6]:
+
+
+    zone, answer, association, var = readAMCTables(dataPath)
+    boxes = makeBoxes(zone, answer, var )
+
+    boxes["weight"] = 1.0 # default weight
+    weights = boxes[['question', 'student', 'weight']]
+    writeWeights(weights)
+
+    schemeMarkingInQuestion1(boxes, 1, 0., -0.2, -0.2)
+
+
+    # In[8]:
+
+
+    # Example of marking scheme per question
+    listQuestions = boxes['question'].unique()
+    NbPointsQuestions = pd.DataFrame(index=range(1,listQuestions.shape[0]+1), columns=['Points']  )
+    NbPointsQuestions['Points'] = 1
+
+
+    # In[9]:
+    #get by user or default
+    resultat, resultatsPoints = MarkingQuestions1(NbPointsQuestions, boxes,penalty="def",avoidNeg=False)
+
+
+    # In[10]:
+
+
+    # resultatsPoints
+
+
+    # In[13]:
+
+
+    studentIdToNameMapper = {association.loc[k,'student']: association.loc[k,'manual'] for k in association.index}
+
+
+    # In[16]:
+
+
+    resultatsPoints = resultatsPoints.rename(studentIdToNameMapper, axis=1)
+
+    return boxes, resultatsPoints
+
+
+class App(QMainWindow):
+
+    def __init__(self):
+        super().__init__()
+        self.left = 10
+        self.top = 10
+        self.title = 'PyQt5 matplotlib example - pythonspot.com'
+        self.width = 640
+        self.height = 400
+        self.initUI()
+
+    def initUI(self):
+        self.setWindowTitle(self.title)
+        self.setGeometry(self.left, self.top, self.width, self.height)
+
+        m = PlotCanvas(self, width=5, height=4)
+        m.move(0,0)
+
+        button = QPushButton('PyQt5 button', self)
+        button.setToolTip('This s an example button')
+        button.move(500,0)
+        button.resize(140,100)
+
+        self.show()
+
+
+class PlotCanvas(FigureCanvas):
+
+    def __init__(self, parent=None, width=5, height=4, dpi=100):
+        fig = Figure(figsize=(width, height), dpi=dpi)
+        self.axes = fig.add_subplot(111)
+
+        FigureCanvas.__init__(self, fig)
+        self.setParent(parent)
+
+        FigureCanvas.setSizePolicy(self,
+                QSizePolicy.Expanding,
+                QSizePolicy.Expanding)
+        FigureCanvas.updateGeometry(self)
+        self.plot()
+
+
+    def plot(self):
+        dataPath = "D:/Travail/AMC/Project/Real Data/"
+
+        data, answer, association, var = readAMCTables(dataPath)
+
+        ax = self.figure.add_subplot(111)
+        ax.plot(data, 'r-')
+        ax.set_title('PyQt Matplotlib Example')
+        self.draw()
+
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    computeData()
+
+    ex = App()
+    sys.exit(app.exec_())
+
+# --------------------------------------------------------------------
+'''
+
 if __name__ == '__main__':
 
     computeData()
