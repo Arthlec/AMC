@@ -10,64 +10,6 @@ from PyQt5.QtGui import QFont,QPolygonF, QPainter, QIcon
 from Controller.readAMC import *
 
 
-
-class ViewHome(QWidget):
-    def __init__(self, parent=None):
-        # def __init__(self):
-        super(ViewHome, self).__init__()
-        self.initUI()
-
-    def initUI(self):
-        # title = self.makeTitle()
-        newmcq = self.MakeNewMCQ()
-        # prevmcq = self.makePreviousMCQ()
-        layout = QVBoxLayout()
-        # layout.addWidget(title)
-        layout.addWidget(newmcq)
-        # layout.addWidget(prevmcq)
-        self.setLayout(layout)
-        self.show()
-        return newmcq
-
-    def MakeNewMCQ(self):
-        # Generate a report for a new mcq
-        # wid1 = QGroupBox(title='Import a new MCQ')
-        wid1 = QWidget()
-        button = QPushButton('Import a new MCQ to create a report')
-        layout1 = QHBoxLayout()
-        layout1.addWidget(button)
-        wid1.setLayout(layout1)
-        return button
-
-        # Content
-        layout = QHBoxLayout()
-        layout.addwidget(wid1, 0, 0)
-        content = QWidget()
-        content.setLayout(layout)
-        return content
-
-
-    def makeTitle(self):
-        titleFont = QFont()
-        titleFont.setBold(True)
-        titleFont.setPointSize(20)
-        title = QLabel('Bienvenue dans l\'outil de correction de QCM')
-        title.setAlignment(Qt.AlignCenter)
-        title.setFont(titleFont)
-        return title
-
-
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    window = QMainWindow()
-    view = ViewHome(window)
-    window.setCentralWidget(view)
-    window.setGeometry(700, 300, 1800, 1400)
-    window.show()
-    sys.exit(app.exec_())
-'''
-
-'''
 class AppMain(QMainWindow):
 
     def __init__(self):
@@ -318,18 +260,11 @@ def on_click():
     print("run coherence")
 
 '''
+
 # --------------------- Roman's try-------------------------
-import json
-from pandas.io.json import json_normalize
-import random
-import numpy as np
-import pandas as pd
-import scipy.stats as stats
-import matplotlib.pyplot as plt
-from scipy import stats
-from scipy.stats import t
-from pprint import pprint
-import Controller.computeData
+
+
+from Controller.readAMC import *
 
 import sys
 
@@ -340,87 +275,36 @@ from PyQt5.QtGui import QIcon
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
+import numpy as np
 
 import random
 
-dataPath = str(Path(__file__).resolve().parent.parent).replace("\\", "/") + "/Real Data/"
+std, points = showPoint()
+df = points
+df = df.as_matrix()
+score_chart = df[10,:].astype(int)
+print(score_chart)
+mark_chart = np.unique(score_chart)
+print(mark_chart)
+eff_chart = []
+
+for i in range(len(mark_chart)):
+    effective_chart = []
+    effective_chart = np.count_nonzero(score_chart == mark_chart[i])
+    eff_chart = np.append(eff_chart, effective_chart)
+print(eff_chart.astype(int))
+X = mark_chart
+Y = eff_chart
 
 
-def readAMCTables(dataPath):
-    # Create your connection.
-    cnx = sqlite3.connect(dataPath + 'capture.sqlite')
-    zone = pd.read_sql_query("SELECT * FROM capture_zone", cnx)
-    cnx.close()
-
-    cnx = sqlite3.connect(dataPath + 'scoring.sqlite')
-    answer = pd.read_sql_query("SELECT * FROM scoring_answer", cnx)
-    variables = pd.read_sql_query("SELECT * FROM scoring_variables", cnx)
-    cnx.close()
-
-    cnx = sqlite3.connect(dataPath + 'association.sqlite')
-    association = pd.read_sql_query("SELECT * FROM association_association", cnx)
-    cnx.close()
-
-    return zone, answer, association, variables
-
-def computeData():
-    # dataPath = "D:/Travail/AMC/Project/Real Data/"
-
-    # In[6]:
-
-
-    zone, answer, association, var = readAMCTables(dataPath)
-    boxes = makeBoxes(zone, answer, var )
-
-    boxes["weight"] = 1.0 # default weight
-    weights = boxes[['question', 'student', 'weight']]
-    writeWeights(weights)
-
-    schemeMarkingInQuestion1(boxes, 1, 0., -0.2, -0.2)
-
-
-    # In[8]:
-
-
-    # Example of marking scheme per question
-    listQuestions = boxes['question'].unique()
-    NbPointsQuestions = pd.DataFrame(index=range(1,listQuestions.shape[0]+1), columns=['Points']  )
-    NbPointsQuestions['Points'] = 1
-
-
-    # In[9]:
-    #get by user or default
-    resultat, resultatsPoints = MarkingQuestions1(NbPointsQuestions, boxes,penalty="def",avoidNeg=False)
-
-
-    # In[10]:
-
-
-    # resultatsPoints
-
-
-    # In[13]:
-
-
-    studentIdToNameMapper = {association.loc[k,'student']: association.loc[k,'manual'] for k in association.index}
-
-
-    # In[16]:
-
-
-    resultatsPoints = resultatsPoints.rename(studentIdToNameMapper, axis=1)
-
-    return boxes, resultatsPoints
-
-
-class App(QMainWindow):
+class Chart(QMainWindow):
 
     def __init__(self):
         super().__init__()
-        self.left = 10
-        self.top = 10
-        self.title = 'PyQt5 matplotlib example - pythonspot.com'
-        self.width = 640
+        self.left = 100
+        self.top = 100
+        self.title = 'Repartition of score for this MCQ'
+        self.width = 600
         self.height = 400
         self.initUI()
 
@@ -430,11 +314,6 @@ class App(QMainWindow):
 
         m = PlotCanvas(self, width=5, height=4)
         m.move(0,0)
-
-        button = QPushButton('PyQt5 button', self)
-        button.setToolTip('This s an example button')
-        button.move(500,0)
-        button.resize(140,100)
 
         self.show()
 
@@ -456,25 +335,22 @@ class PlotCanvas(FigureCanvas):
 
 
     def plot(self):
-        dataPath = "D:/Travail/AMC/Project/Real Data/"
-
-        data, answer, association, var = readAMCTables(dataPath)
-
+        #data = [random.random() for i in range(25)]
+        data = score_chart
         ax = self.figure.add_subplot(111)
-        ax.plot(data, 'r-')
-        ax.set_title('PyQt Matplotlib Example')
+        ax.plot(X,Y)
+        ax.set_title('Repartition of score in the class')
         self.draw()
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    computeData()
-
-    ex = App()
+    ex = Chart()
     sys.exit(app.exec_())
 
-# --------------------------------------------------------------------
-'''
 
+# --------------------------------------------------------------------
+
+'''
 if __name__ == '__main__':
 
     computeData()
@@ -482,4 +358,5 @@ if __name__ == '__main__':
    # ex = window(numberOfQuestions=getNumberOfQuestions())
    # ex.show()
     ex1 = AppMain()
+    # ex = Chart()
     sys.exit(app.exec_())
