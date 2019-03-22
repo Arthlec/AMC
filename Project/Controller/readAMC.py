@@ -147,13 +147,15 @@ def MarkingQuestions1(NbPointsQuestions, boxes,penalty="def", avoidNeg=True):
     maxPoints = NbPointsQuestions['Points'].sum()
     weights = getWeights()
     for question in listQuestions:
-        # print(question)
         resultatsPoints.loc[question,:] = resultat.loc[question,:]*NbPointsQuestions.loc[question,'Points']\
                                           *weights.loc[weights['question'] == question, 'weight'].item()
 
     # Then computes the points per student
     resultatsPoints.loc['Note',:] = resultatsPoints.sum()
-    resultatsPoints.loc['Note/20',:] = 20/maxPoints*resultatsPoints.loc['Note',:]
+    # resultatsPoints.loc['Note/20',:] = 20/maxPoints*resultatsPoints.loc['Note',:] # old formula
+    max_mark = resultatsPoints.loc['Note'].max()
+    min_mark = resultatsPoints.loc['Note'].min()
+    resultatsPoints.loc['Note/20', :] = (resultatsPoints.loc['Note',:] / maxPoints) * (max_mark - min_mark) + min_mark
     return resultat, resultatsPoints
 
 
