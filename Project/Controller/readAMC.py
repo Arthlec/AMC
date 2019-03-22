@@ -289,15 +289,18 @@ def getWeights():
     return weights #['weight']
 
 def getNumberOfQuestions():
-    boxes, _ = computeData()
+     boxes, point = computeData()
 
     questions = boxes.loc[boxes['student'] == 26]
     questions = questions[['question']]
     questions = questions.drop_duplicates('question')
     numberOfQuestions = len(questions)
+    #add by SAHAR TO RETURN PEERCENTAGE
+    correctAns=[]
+    for i in range(len(questions)):
+        correctAns.append(round((np.sum(point.iloc[i]) * 100) / 26,0))
 
-    # print(numberOfQuestions)
-    return numberOfQuestions
+    return numberOfQuestions, correctAns
 
 def changeWeight(indexOfQuestion, value):
     weights = getWeights()
