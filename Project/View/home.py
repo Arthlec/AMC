@@ -9,7 +9,7 @@ from PyQt5.QtGui import QFont,QPolygonF, QPainter, QIcon
 
 from Controller.readAMC import *
 '''
-
+'''
 class AppMain(QMainWindow):
 
     def __init__(self):
@@ -332,7 +332,8 @@ class PlotCanvas(FigureCanvas):
                 QSizePolicy.Expanding)
         FigureCanvas.updateGeometry(self)
         # self.plot_histogram()
-        self.plot_pie()
+        # self.plot_pie()
+        self.plot_box()
 
 
     def plot_histogram(self):
@@ -344,6 +345,12 @@ class PlotCanvas(FigureCanvas):
     def plot_pie(self):
         ax = self.figure.add_subplot(111)
         ax.pie(Y, labels=X_pie)
+        ax.set_title('Repartition of score in the class')
+        self.draw()
+
+    def plot_box(self):
+        ax = self.figure.add_subplot(111)
+        ax.boxplot(X)
         ax.set_title('Repartition of score in the class')
         self.draw()
 
@@ -366,4 +373,5 @@ if __name__ == '__main__':
     # ex = Chart()
     sys.exit(app.exec_())
 
+'''
 '''
