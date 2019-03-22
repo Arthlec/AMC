@@ -209,7 +209,8 @@ class window(QWidget):
     def writeWeights(self):
         for i, slider in enumerate(self.listOfQuestions):
             changeWeight(i + 1, slider.value())
-        print(getWeights())
+        updateData()
+        # print(getWeights())
 
 class DoubleSlider(QSlider):
 
@@ -365,13 +366,17 @@ if __name__ == '__main__':
 '''
 if __name__ == '__main__':
 
-    computeData()
-    app = QApplication(sys.argv)
-   # ex = window(numberOfQuestions=getNumberOfQuestions())
-   # ex.show()
-    ex1 = AppMain()
+    boxes , resultatsPoints = computeData()
+    print(resultatsPoints)
+    boxes, resultatsPoints = updateData()
+    print(resultatsPoints)
+    # print(getWeights())
+    # app = QApplication(sys.argv)
+    # ex = window(numberOfQuestions=getNumberOfQuestions())
+    # ex.show()
+    #  ex1 = AppMain()
     # ex = Chart()
-    sys.exit(app.exec_())
+    # sys.exit(app.exec_())
 
 '''
 '''

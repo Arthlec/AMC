@@ -145,11 +145,13 @@ def MarkingQuestions1(NbPointsQuestions, boxes,penalty="def", avoidNeg=True):
 
     # Taking into account points per question
     maxPoints = NbPointsQuestions['Points'].sum()
+    weights = getWeights()
     for question in listQuestions:
-        resultatsPoints.loc[question,:] = resultat.loc[question,:]*NbPointsQuestions.loc[question,'Points']
+        # print(question)
+        resultatsPoints.loc[question,:] = resultat.loc[question,:]*NbPointsQuestions.loc[question,'Points']\
+                                          *weights.loc[weights['question'] == question, 'weight'].item()
 
     # Then computes the points per student
-
     resultatsPoints.loc['Note',:] = resultatsPoints.sum()
     resultatsPoints.loc['Note/20',:] = 20/maxPoints*resultatsPoints.loc['Note',:]
     return resultat, resultatsPoints
@@ -203,7 +205,9 @@ def computeData():
     boxes = makeBoxes(zone, answer, var )
 
     boxes["weight"] = 1.0 # default weight
-    weights = boxes[['question', 'student', 'weight']]
+    # weights = boxes[['question', 'student', 'weight']]
+    weights = boxes[['question', 'weight']]
+    weights = weights.drop_duplicates('question')
     writeWeights(weights)
 
     schemeMarkingInQuestion1(boxes, 1, 0., -0.2, -0.2)
@@ -222,13 +226,6 @@ def computeData():
     #get by user or default
     resultat, resultatsPoints = MarkingQuestions1(NbPointsQuestions, boxes,penalty="def",avoidNeg=False)
 
-
-    # In[10]:
-
-
-    # resultatsPoints
-
-
     # In[13]:
 
 
@@ -237,6 +234,41 @@ def computeData():
 
     # In[16]:
 
+
+    resultatsPoints = resultatsPoints.rename(studentIdToNameMapper, axis=1)
+
+    return boxes, resultatsPoints
+
+def updateData():
+    zone, answer, association, var = readAMCTables(dataPath)
+    boxes = makeBoxes(zone, answer, var)
+
+    rawWeights = parseWeights('../View/weights.json')
+    weights = pd.read_json(rawWeights)
+    boxes["weight"] = weights['weight']  # default weight
+    # weights = boxes[['question', 'student', 'weight']]
+    weights = boxes[['question', 'weight']]
+    weights = weights.drop_duplicates('question')
+    writeWeights(weights)
+
+    schemeMarkingInQuestion1(boxes, 1, 0., -0.2, -0.2)
+
+    # In[8]:
+
+    # Example of marking scheme per question
+    listQuestions = boxes['question'].unique()
+    NbPointsQuestions = pd.DataFrame(index=range(1, listQuestions.shape[0] + 1), columns=['Points'])
+    NbPointsQuestions['Points'] = 1
+
+    # In[9]:
+    # get by user or default
+    resultat, resultatsPoints = MarkingQuestions1(NbPointsQuestions, boxes, penalty="def", avoidNeg=False)
+
+    # In[13]:
+
+    studentIdToNameMapper = {association.loc[k, 'student']: association.loc[k, 'manual'] for k in association.index}
+
+    # In[16]:
 
     resultatsPoints = resultatsPoints.rename(studentIdToNameMapper, axis=1)
 
