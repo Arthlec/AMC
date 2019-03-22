@@ -8,7 +8,7 @@ from PyQt5.QtGui import QFont,QPolygonF, QPainter, QIcon
 #from PyQt5.QtChart import QChart, QChartView, QLineSeries
 
 from Controller.readAMC import *
-
+'''
 
 class AppMain(QMainWindow):
 
@@ -296,7 +296,7 @@ print(eff_chart.astype(int))
 X = mark_chart
 Y = eff_chart
 
-
+X_pie = ['8','9','12','13','14','15','16']
 class Chart(QMainWindow):
 
     def __init__(self):
@@ -331,14 +331,19 @@ class PlotCanvas(FigureCanvas):
                 QSizePolicy.Expanding,
                 QSizePolicy.Expanding)
         FigureCanvas.updateGeometry(self)
-        self.plot()
+        # self.plot_histogram()
+        self.plot_pie()
 
 
-    def plot(self):
-        #data = [random.random() for i in range(25)]
-        data = score_chart
+    def plot_histogram(self):
         ax = self.figure.add_subplot(111)
-        ax.plot(X,Y)
+        ax.plot(X, Y)
+        ax.set_title('Repartition of score in the class')
+        self.draw()
+
+    def plot_pie(self):
+        ax = self.figure.add_subplot(111)
+        ax.pie(Y, labels=X_pie)
         ax.set_title('Repartition of score in the class')
         self.draw()
 
@@ -360,3 +365,5 @@ if __name__ == '__main__':
     ex1 = AppMain()
     # ex = Chart()
     sys.exit(app.exec_())
+
+'''
