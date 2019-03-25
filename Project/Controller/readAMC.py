@@ -15,17 +15,17 @@ def readAMCTables(dataPath):
     cnx = sqlite3.connect(dataPath + 'capture.sqlite')
     zone = pd.read_sql_query("SELECT * FROM capture_zone", cnx)
     cnx.close()
-    
+
     cnx = sqlite3.connect(dataPath +'scoring.sqlite')
     answer = pd.read_sql_query("SELECT * FROM scoring_answer", cnx)
     variables = pd.read_sql_query("SELECT * FROM scoring_variables", cnx)
     cnx.close()
-    
+
     cnx = sqlite3.connect(dataPath +'association.sqlite')
     association = pd.read_sql_query("SELECT * FROM association_association", cnx)
     cnx.close()
-    
-    
+
+
     return zone, answer, association, variables
 
 
@@ -209,7 +209,7 @@ def updateData():
     zone, answer, association, var = readAMCTables(dataPath)
     boxes = makeBoxes(zone, answer, var)
 
-    rawWeights = parseWeights('../View/weights.json')
+    rawWeights = parseWeights('weights.json')
     weights = pd.read_json(rawWeights)
     boxes["weight"] = weights['weight']  # default weight
     # weights = boxes[['question', 'student', 'weight']]
@@ -241,7 +241,7 @@ def updateData():
     return boxes, resultatsPoints
 
 def getWeights():
-    rawWeights = parseWeights('../View/weights.json')
+    rawWeights = parseWeights('weights.json')
     weights = pd.read_json(rawWeights)
 
     # weights = boxes.loc[boxes['student'] == 26]
