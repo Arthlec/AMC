@@ -16,20 +16,19 @@ class _KeyWords(Enum):
     EQUAL = '=='
     IS = 'IS'
 
-class _QuestionResult:
+class _Result:
     def __init__(self, id, res):
         self.id = id
         self.result = res
 
     def _printElement(self):
-        return "QuestionResult {id: " + str(self.id) + ", result: " + str(self.result) + "}"
+        return "Result {id: " + str(self.id) + ", result: " + str(self.result) + "}"
 
     def __repr__(self):
         return self._printElement()
 
     def __str__(self):
         return self._printElement()
-
 
 class _LogicElement:
     def __init__(self, questions, ops, malus):
@@ -38,8 +37,15 @@ class _LogicElement:
         self.malus = malus
 
 
+class LogicElement(Enum):
+    Q = 'Q'
+    R = 'R'
+
 class Logic:
-    def __init__(self, command=""):
+    def __init__(self, command="", selectionToken=LogicElement.Q):
+        if not isinstance(selectionToken, LogicElement):
+            raise AssertionError('The parameter selectionToken should be an instance of LogicElement')
+        self.selectionToken = selectionToken.value
         if command != "" :
             self.command = command
             self.interpretCommand()
@@ -50,18 +56,19 @@ class Logic:
 
     def interpretCommand(self):
         tokens = self.command.split(' ')
-        # tokens = nltk.word_tokenize(self.command)
+
         self.checkSyntaxErrors(tokens)
         firstRes = []
         n = len(tokens)
         for i in range(n):
             if tokens[i] == _KeyWords.EQUAL.value:
-                firstRes.append(_QuestionResult(id=tokens[i - 1], res=tokens[i + 1]))
+                firstRes.append(_Result(id=tokens[i - 1], res=tokens[i + 1]))
             if tokens[i] in [_KeyWords.AND.value, _KeyWords.OR.value, _KeyWords.XOR.value]:
                 firstRes.append(tokens[i])
             if tokens[i] == _KeyWords.IS.value:
                 self.result = int(tokens[i + 1])
 
+        self.tokens = firstRes
         print('PASS !')
 
     def checkSyntaxErrors(self, tokens):
@@ -76,7 +83,7 @@ class Logic:
             containIS = containIS or token == _KeyWords.IS.value
 
             # Checks if a Question statement is correctly written
-            if token[0] == 'Q':
+            if token[0] == self.selectionToken:
                 try:
                     int(token[1:])
                 except ValueError:
@@ -100,7 +107,7 @@ class Logic:
                 nextToken = tokens[i + 1]
 
                 if token in [_KeyWords.AND.value, _KeyWords.OR.value, _KeyWords.XOR.value]:
-                    if nextToken[0] != 'Q':
+                    if nextToken[0] != self.selectionToken:
                         raise SyntaxError('Keyword "' + token + '" must be followed by a question statement in : ' + self.command)
 
                 elif token == _KeyWords.IS.value:
@@ -112,7 +119,7 @@ class Logic:
 
 
             # If the token is a digit, it must be
-            elif self._is_digit(token) and i != n - 1 and tokens[i + 1][0] == 'Q':
+            elif self._is_digit(token) and i != n - 1 and tokens[i + 1][0] == self.selectionToken:
                 raise SyntaxError('Missing keyword in : ' + self.command)
 
             # If the token is not a digit, not a keyword and is not a question
@@ -136,12 +143,12 @@ class Logic:
 
 
 
-# if __name__ == '__main__':
+if __name__ == '__main__':
 #     # command = input('Enter a logic command:\n')
 #     # logic = Logic(command)
 #     # logic = Logic('Q1 == 1 AND Q2 == 0')
 #     # logic = Logic('Q1 == 1 AND Q2 IS 0')
 #     # logic = Logic('Q1 == 1 AND Q2 == 0 IS -2')
-#     logic = Logic('Q1 == 1 XOR Q2 == 0 IS -4')
+    logic = Logic('R1 == 1 XOR R2 == 0 IS -4', LogicElement.R)
 #     # add xor
-#     print(logic.printLogic())
+    print(logic.printLogic())
