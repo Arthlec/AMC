@@ -4,8 +4,8 @@ from PyQt5.QtWidgets import QWidget, QAction
 from PyQt5.QtGui import QIcon
 
 from Controller.readAMC import *
-'''
-'''
+
+
 class HomePage(QWidget):
     def initUI(self, mainWindow):
         mainWindow.setWindowTitle('AMC Module')
@@ -110,9 +110,7 @@ class Example(QWidget):
         self.resize(400, 400)
         self.show()
 
-'''
 
-'''
 if __name__ == '__main__':
 
     boxes , resultatsPoints = computeData()
@@ -126,6 +124,3 @@ if __name__ == '__main__':
     # ex1 = AppMain()
     # ex = Chart()
     # sys.exit(app.exec_())
-
-'''
-'''
