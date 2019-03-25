@@ -124,7 +124,8 @@ class buildSlider(QWidget):
 
         # ---------------------weight
         self.layout = QVBoxLayout()
-        for i in range(numberOfQuestions):#(1, numberOfQuestions + 1):
+        self.listOfQuestions = []
+        for i in range(numberOfQuestions):
             self.addSlider(QLabel("Question " + str(i+1) +"  correctness: " + str(arrCorrectAns[i]) + "  %"), QLabel(str(initialValue)), initialValue)
 
         self.b1 = QPushButton("Save weight")
@@ -153,19 +154,16 @@ class buildSlider(QWidget):
         self.layout.addWidget(slider)
         slider.valueChanged.connect(lambda: self.valuechange(weightText, slider))
 
+        self.listOfQuestions.append(slider)
+
     def valuechange(self, weightText, slider):
         weightText.setText(str(slider.value()))
 
     def writeWeights(self):
-        n = 1
-        print("writeWeights 1")
-        print(self.layout.count())
-        for i in range(2, self.layout.count(), 3):
-            # print(n)
-            # print(self.layout.itemAt(i).widget().value())
-            changeWeight(n, self.layout.itemAt(i).widget().value())
-            n += 1
-        print(getWeights())
+        for i, slider in enumerate(self.listOfQuestions):
+            changeWeight(i + 1, slider.value())
+        updateData()
+        # print(getWeights())
 
 
 class DoubleSlider(QSlider):

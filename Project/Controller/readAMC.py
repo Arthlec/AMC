@@ -157,7 +157,8 @@ def MarkingQuestions1(NbPointsQuestions, boxes,penalty="def", avoidNeg=True):
     # resultatsPoints.loc['Note/20',:] = 20/maxPoints*resultatsPoints.loc['Note',:] # old formula
     max_mark = resultatsPoints.loc['Note'].max()
     min_mark = resultatsPoints.loc['Note'].min()
-    resultatsPoints.loc['Note/20', :] = (resultatsPoints.loc['Note',:] / maxPoints) * (max_mark - min_mark) + min_mark
+    resultatsPoints.loc['Note/' + str(maxPoints), :] = (resultatsPoints.loc['Note',:] / maxPoints) * (max_mark - min_mark) + min_mark
+    resultatsPoints.loc['Note/20', :] = (resultatsPoints.loc['Note/' + str(maxPoints)]*20) / maxPoints
     return resultat, resultatsPoints
 
 # In[5]:
@@ -246,8 +247,7 @@ def getWeights():
     # weights = weights.drop_duplicates('question')
     # weights = weights.sort_values(by=['question'])
 
-    # print(weights)
-    return weights #['weight']
+    return weights
 
 def getNumberOfQuestions():
     boxes, point = updateData()
