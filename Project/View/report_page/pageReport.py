@@ -5,10 +5,7 @@
 #| report data as a table, chart and teachers enable to apply coherence, weight and penalty
 #+----------------------------------------------------+
 import sys
-from PyQt5.QtWidgets import QScrollArea, QApplication, QDialog, QLineEdit, QAction, QTableWidget, QTableWidgetItem, QWidget, \
-    QMainWindow, QLabel, QVBoxLayout, QGroupBox, QPushButton, \
-    QGridLayout, QHBoxLayout, QTextEdit, QComboBox, QSizePolicy, QSlider
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QWidget, QSlider
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 from Controller.readAMC import *
