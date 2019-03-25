@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import (QWidget, QLabel, QLineEdit, QPushButton,
                              QCheckBox, QMessageBox, QComboBox,  QGridLayout, QApplication)
 
 
-class SETTING(QWidget):
+class Setting(QWidget):
 
     def __init__(self):
         super().__init__()
@@ -168,18 +168,18 @@ class SETTING(QWidget):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    ex = SETTING()
+    ex = Setting()
     sys.exit(app.exec_())
 
 
 ''' --------------sample how to read csv files
 params = []
 values = []
- 
+
 # open file
 with open('params.csv', 'rb') as f:
     reader = csv.reader(f)
- 
+
     # read file row by row
     rowNr = 0
     for row in reader:
@@ -187,11 +187,11 @@ with open('params.csv', 'rb') as f:
         if rowNr >= 1:
             params.append(row[0])
             values.append(row[1])
- 
+
         # Increase the row number
         rowNr = rowNr + 1
- 
-# Print data 
+
+# Print data
 print params
 print values
 '''

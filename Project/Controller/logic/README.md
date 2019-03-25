@@ -21,7 +21,7 @@ def main():
     command = input('Enter a logic command:\n')
     logic = Logic(command)
 
-    # To be later implemented
+    # TODO: Implement the check result part
     newResults = logic.checkResults(oldResults)
 ```
 

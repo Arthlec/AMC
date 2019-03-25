@@ -32,7 +32,6 @@ class MainWindow(QMainWindow):
         self.initUI()
 
     def initUI(self):
-        self.setGeometry(300, 100, 2000, 1500)
         self.showFirst()
 
     def showFirst(self):
@@ -51,4 +50,5 @@ class MainWindow(QMainWindow):
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     w = MainWindow()
+    w.showMaximized()
     sys.exit(app.exec_())
