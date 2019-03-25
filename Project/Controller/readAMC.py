@@ -9,6 +9,7 @@ import json
 import numpy as np
 
 dataPath = str(Path(__file__).resolve().parent.parent).replace("\\", "/") + "/Real Data/"
+weightPath = str(Path(__file__).resolve().parent).replace("\\", "/") + "/"
 
 def readAMCTables(dataPath):
     # Create your connection.
@@ -212,10 +213,6 @@ def updateData():
     rawWeights = parseWeights('weights.json')
     weights = pd.read_json(rawWeights)
     boxes["weight"] = weights['weight']  # default weight
-    # weights = boxes[['question', 'student', 'weight']]
-    weights = boxes[['question', 'weight']]
-    weights = weights.drop_duplicates('question')
-    writeWeights(weights)
 
     schemeMarkingInQuestion1(boxes, 1, 0., -0.2, -0.2)
 
@@ -253,7 +250,7 @@ def getWeights():
     return weights #['weight']
 
 def getNumberOfQuestions():
-    boxes, point = computeData()
+    boxes, point = updateData()
 
     questions = boxes.loc[boxes['student'] == 26]
     questions = questions[['question']]
@@ -272,11 +269,11 @@ def changeWeight(indexOfQuestion, value):
     writeWeights(weights)
 
 def parseWeights(fileName):
-    with open(fileName) as f:
+    with open(weightPath + fileName) as f:
         data = json.load(f)
         f.close()
     return data
 
 def writeWeights(data):
-    with open('weights.json', 'w') as out:
+    with open(weightPath + 'weights.json', 'w') as out:
         json.dump(data.to_json(), out, indent=2)

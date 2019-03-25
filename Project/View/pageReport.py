@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 #+----------------------------------------------------+
 #| 23/03/2019 - Report page for teachers
 #| Created by Sahar Hosseini - Roman Blond
@@ -235,7 +234,6 @@ if __name__ == '__main__':
     #ex.show()
     ex1 = App()
     sys.exit(app.exec_())
-=======
 #+----------------------------------------------------+
 #| 23/03/2019 - Report page for teachers
 #| Created by Sahar Hosseini - Roman Blond
@@ -497,8 +495,6 @@ class PlotCanvas(FigureCanvas):
         self.draw()
 
 if __name__ == '__main__':
-
-
     app = QApplication(sys.argv)
     # numberOfQuestions = getNumberOfQuestions()
     # print(numberOfQuestions)
@@ -506,4 +502,3 @@ if __name__ == '__main__':
     #ex.show()
     ex1 = App()
     sys.exit(app.exec_())
->>>>>>> f2a2b75a432b7a15883316a1337969bc04ade6eb
