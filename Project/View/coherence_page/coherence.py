@@ -14,16 +14,18 @@ class CoherencePage(QWidget):
         self.height = 100
         self.setGeometry(self.left, self.top, self.width, self.height)
 
+        self.listOfQuestions = []
+
         self.layout = QVBoxLayout()
         self.layout.setSpacing(20)
 
-        title = QLabel("Please Enter your Coherence Formula for the exam")
+        title = QLabel("Please enter your coherence formulas for the exam and the questions")
         title.setAlignment(Qt.AlignCenter)
         self.layout.addWidget(title)
 
-        self.coherenceFormula = QLineEdit("")
-        self.coherenceFormula.resize(40, 40)
-        self.layout.addWidget(self.coherenceFormula)
+        self.generalCoherenceFormula = QLineEdit("")
+        self.generalCoherenceFormula.resize(40, 40)
+        self.layout.addWidget(self.generalCoherenceFormula)
 
         self.sublayout = QGridLayout()
         self.sublayout.setColumnStretch(1, 2)
@@ -52,9 +54,14 @@ class CoherencePage(QWidget):
         coherenceFormula.resize(20, 20)
         self.sublayout.addWidget(coherenceFormula)
 
+        self.listOfQuestions.append(coherenceFormula)
+
     def computeLogic(self):
-        print(self.coherenceFormula.text())
-        logic = Logic(self.coherenceFormula.text())
+        print(self.generalCoherenceFormula.text())
+        logic = Logic(self.generalCoherenceFormula.text(), LogicElement.Q)
+        for i, coherenceFormula in enumerate(self.listOfQuestions):
+            print(coherenceFormula.text())
+            logic = Logic(self.coherenceFormula.text(), LogicElement.R)
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
