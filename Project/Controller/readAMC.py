@@ -6,6 +6,7 @@ from pathlib import Path
 import sqlite3
 import pandas as pd
 import json
+import numpy as np
 
 dataPath = str(Path(__file__).resolve().parent.parent).replace("\\", "/") + "/Real Data/"
 
@@ -158,43 +159,6 @@ def MarkingQuestions1(NbPointsQuestions, boxes,penalty="def", avoidNeg=True):
     resultatsPoints.loc['Note/20', :] = (resultatsPoints.loc['Note',:] / maxPoints) * (max_mark - min_mark) + min_mark
     return resultat, resultatsPoints
 
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-def showPoint():
-    # dataPath = "D:/Travail/AMC/Project/Real Data/"
-
-    # In[6]:
-
-    zone, answer, association, var = readAMCTables(dataPath)
-    boxes = makeBoxes(zone, answer, var)
-    boxes["weight"] = 0.5
-    schemeMarkingInQuestion1(boxes, 1, 0., -0.2, -0.2)
-
-    # In[8]:
-
-    # Example of marking scheme per question
-    listQuestions = boxes['question'].unique()
-    NbPointsQuestions = pd.DataFrame(index=range(1, listQuestions.shape[0] + 1), columns=['Points'])
-    NbPointsQuestions['Points'] = 1
-
-    # In[9]:
-    # get by user or default
-    resultat, resultatsPoints = MarkingQuestions1(NbPointsQuestions, boxes, penalty="def", avoidNeg=False)
-    return resultat,resultatsPoints
-
-# ## Example
-# 
-# Data are given as an example in data.zip
-
 # In[5]:
 
 def computeData():
@@ -289,7 +253,7 @@ def getWeights():
     return weights #['weight']
 
 def getNumberOfQuestions():
-     boxes, point = computeData()
+    boxes, point = computeData()
 
     questions = boxes.loc[boxes['student'] == 26]
     questions = questions[['question']]
