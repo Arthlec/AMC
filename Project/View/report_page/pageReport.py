@@ -11,9 +11,9 @@ from PyQt5.QtWidgets import QScrollArea, QApplication, QDialog, QLineEdit, QActi
 from PyQt5.QtCore import Qt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
-from Project.Controller.readAMC import *
+from Controller.readAMC import *
 import numpy as np
-from Project.View.Charts import *
+from View.Charts import *
 
 #+--------------global data that uses in this page
 points, stdname = computeData()
@@ -34,25 +34,14 @@ Y = eff_chart
 X_pie = ['8','9','12','13','14','15','16']
 
 #+--------------main class
-class App(QDialog):
-
-    def __init__(self):
-        super().__init__()
-        self.title = 'AMC Report'
-        self.left = 10
-        self.top = 10
-        self.width = 1000
-        self.height = 400
-        self.initUI()
-
-    def initUI(self):
-        self.setWindowTitle(self.title)
-        self.setGeometry(self.left, self.top, self.width, self.height)
+class ReportPage(QWidget):
+    def initUI(self, mainWindow):
+        mainWindow.title = 'AMC Report'
         self.createGridLayout()
         windowLayout = QVBoxLayout()
         windowLayout.addWidget(self.horizontalGroupBox)
         self.setLayout(windowLayout)
-        self.show()
+        mainWindow.setCentralWidget(self)
 
     def createGridLayout(self):
         self.horizontalGroupBox = QGroupBox("AMC report for teachers")
