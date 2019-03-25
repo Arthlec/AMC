@@ -1,11 +1,7 @@
 
 import sys
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import  QScrollArea, QApplication, QDialog,QAction, QTableWidget,QTableWidgetItem, QWidget, QMainWindow, QLabel, QVBoxLayout, QGroupBox, QPushButton, \
-    QGridLayout, QHBoxLayout, QTextEdit, QComboBox, QSlider
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QFont,QPolygonF, QPainter, QIcon
-#from PyQt5.QtChart import QChart, QChartView, QLineSeries
+from PyQt5.QtWidgets import QWidget, QAction
+from PyQt5.QtGui import QIcon
 
 from Controller.readAMC import *
 '''
