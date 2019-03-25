@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 #+----------------------------------------------------+
 #| 23/03/2019 - Report page for teachers
 #| Created by Sahar Hosseini - Roman Blond
@@ -68,8 +67,8 @@ class App(QDialog):
         txtCoherence.resize(20, 20)
         layout.addWidget(txtCoherence, 0, 0)
         cbChart = QComboBox()
-        cbChart.addItem("Plot Chart")
-        cbChart.addItem("Bar Chart")
+        cbChart.addItem("Box Chart")
+        cbChart.addItem("Violin Chart")
         cbChart.addItem("Line Chart")
         cbChart.addItem("Pie Chart")
         cbChart.resize(140, 30)
@@ -105,7 +104,10 @@ class App(QDialog):
         layout.addWidget(buildSlider(arrCorrectAns=arrCorrectAns,numberOfQuestions=numberOfQuestions), 1, 1)
 
         # ---------------------chart view --------------------
-        layout.addWidget(PlotCanvas.plot_box(), 1, 2)
+        self.plot = PlotCanvas()
+        self.plot.plot_box()
+
+        layout.addWidget(self.plot, 1, 2)
 
         self.horizontalGroupBox.setLayout(layout)
 
@@ -115,13 +117,13 @@ class App(QDialog):
     def OnChangeCbChart(self,i):
         print(i)
         if i == 0:
-            return PlotCanvas.plot_box()
+            self.plot.plot_box()
         if i == 1:
-            return PlotCanvas.plot_violin()
+            self.plot.plot_violin()
         if i == 2:
-            return PlotCanvas.plot_histogram()
+            self.plot.plot_histogram()
         if i == 3:
-            return PlotCanvas.plot_pie()
+            self.plot.plot_pie()
             print("click: display your chart related to seelcted option ")
 
 #+--------------builder slider has written by Arthur Lecert
@@ -235,7 +237,6 @@ if __name__ == '__main__':
     #ex.show()
     ex1 = App()
     sys.exit(app.exec_())
-=======
 #+----------------------------------------------------+
 #| 23/03/2019 - Report page for teachers
 #| Created by Sahar Hosseini - Roman Blond
@@ -446,55 +447,6 @@ class DoubleSlider(QSlider):
 #        print(textboxValue)
 #        print("run coherence")
 #+--------------chart class has written by Roman Blond
-class Chart(QMainWindow):
-
-    def __init__(self):
-        super().__init__()
-        self.left = 100
-        self.top = 100
-        self.title = 'Repartition of score for this MCQ'
-        self.width = 600
-        self.height = 400
-        self.initUI()
-
-    def initUI(self):
-        self.setWindowTitle(self.title)
-        self.setGeometry(self.left, self.top, self.width, self.height)
-
-        m = PlotCanvas(self, width=5, height=4)
-        m.move(0,0)
-
-        self.show()
-
-
-class PlotCanvas(FigureCanvas):
-    def __init__(self, parent=None, width=5, height=4, dpi=100):
-        fig = Figure(figsize=(width, height), dpi=dpi)
-        self.axes = fig.add_subplot(111)
-        FigureCanvas.__init__(self, fig)
-        self.setParent(parent)
-        FigureCanvas.setSizePolicy(self,
-                QSizePolicy.Expanding,
-                QSizePolicy.Expanding)
-        FigureCanvas.updateGeometry(self)
-        # self.plot_histogram()
-        # self.plot_pie()
-        self.plot_box()
-    def plot_histogram(self):
-        ax = self.figure.add_subplot(111)
-        ax.plot(X, Y)
-        ax.set_title('Repartition of score in the class')
-        self.draw()
-    def plot_pie(self):
-        ax = self.figure.add_subplot(111)
-        ax.pie(Y, labels=X_pie)
-        ax.set_title('Repartition of score in the class')
-        self.draw()
-    def plot_box(self):
-        ax = self.figure.add_subplot(111)
-        ax.boxplot(X)
-        ax.set_title('Repartition of score in the class')
-        self.draw()
 
 if __name__ == '__main__':
 
@@ -506,4 +458,3 @@ if __name__ == '__main__':
     #ex.show()
     ex1 = App()
     sys.exit(app.exec_())
->>>>>>> f2a2b75a432b7a15883316a1337969bc04ade6eb
