@@ -289,7 +289,7 @@ def getWeights():
     return weights #['weight']
 
 def getNumberOfQuestions():
-     boxes, point = computeData()
+    boxes, point = computeData()
 
     questions = boxes.loc[boxes['student'] == 26]
     questions = questions[['question']]
