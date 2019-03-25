@@ -1,6 +1,6 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QPushButton, QVBoxLayout
-import home_page
+from View.home_page.home import AppMain
 
 class FirstWindow(QWidget):
     def initUI(self, mainWindow):
