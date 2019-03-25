@@ -32,7 +32,7 @@ class MainWindow(QMainWindow):
         self.initUI()
 
     def initUI(self):
-        
+        self.setGeometry(300, 100, 2000, 1500)
         self.showFirst()
 
     def showFirst(self):
