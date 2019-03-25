@@ -57,8 +57,8 @@ def makeBoxes(zone, answer, var ):
     boxes['ticked'] = boxes['ticked'].astype('bool')
 
     # This is to take into accound manual correction of detected ticked boxes
-    I = boxes['manual'] != -1 
-    boxes.loc[I,'manual'] = boxes.loc[I, 'manual'].map({0:False, 1:True}) 
+    I = boxes['manual'] != -1
+    boxes.loc[I,'manual'] = boxes.loc[I, 'manual'].map({0:False, 1:True})
     boxes.loc[I, 'ticked'] = boxes.loc[I,'manual']
     #boxes.loc[:,'ticked']
 
@@ -77,15 +77,15 @@ def makeBoxes(zone, answer, var ):
                 J =  (boxes['question'] == question) &  (boxes['answer'] == answ)
                 boxes.loc[J, 'correct'] = bool(out.values)
 
-    return boxes            
+    return boxes
 
 
 # In[3]:
 
 
 def schemeMarkingInQuestion1(boxes, TP, TN, FP, FN ):
-    
-# Une Stratégie de notation : 
+
+# Une Stratégie de notation :
 #
 #       |Ticked | Non ticked |
 # True  |  1    |   -0.2     |
@@ -102,7 +102,7 @@ def schemeMarkingInQuestion1(boxes, TP, TN, FP, FN ):
     boxes.loc[ ~boxes['ticked'] & boxes['correct'], 'points'  ] = FN
     boxes.loc[ ~boxes['ticked'] & ~boxes['correct'], 'points'  ] = TN
     boxes.loc[ boxes['ticked'] & ~boxes['correct'], 'points'  ] = FP
-    
+
     boxes.loc[ boxes['correct'], 'maxPoints' ] = TP
     boxes.loc[ ~boxes['correct'], 'maxPoints'  ] = TN
 
@@ -112,7 +112,7 @@ def schemeMarkingInQuestion1(boxes, TP, TN, FP, FN ):
 
 def MarkingQuestions1(NbPointsQuestions, boxes,penalty="def", avoidNeg=True):
     # computes the sum of points per student and question
-    # result is a a dataframe of the number of points per question (row) 
+    # result is a a dataframe of the number of points per question (row)
     # and per student (column)
 
     listStudents = boxes['student'].unique()
