@@ -39,9 +39,14 @@ class _LogicElement:
 
 
 class Logic:
-    def __init__(self, command):
-        self.command = command
-        self.interpretCommand()
+    def __init__(self, command=""):
+        if command != "" :
+            self.command = command
+            self.interpretCommand()
+
+    def setCommand(self, command=""):
+        if command != "":
+            self.command = command
 
     def interpretCommand(self):
         tokens = self.command.split(' ')
