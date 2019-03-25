@@ -125,7 +125,7 @@ class Example(QWidget):
         self.resize(400, 400)
         self.show()
 
-
+'''
 class window(QWidget):
     def __init__(self, parent=None, initialValue=1.0, numberOfQuestions = 1):
         super(window, self).__init__(parent)
@@ -262,7 +262,7 @@ def on_click():
 
 '''
 
-'''
+
 if __name__ == '__main__':
 
     boxes , resultatsPoints = computeData()

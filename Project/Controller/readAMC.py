@@ -6,6 +6,8 @@ from pathlib import Path
 import sqlite3
 import pandas as pd
 import json
+import numpy as np
+
 
 dataPath = str(Path(__file__).resolve().parent.parent).replace("\\", "/") + "/Real Data/"
 
@@ -245,7 +247,7 @@ def updateData():
     zone, answer, association, var = readAMCTables(dataPath)
     boxes = makeBoxes(zone, answer, var)
 
-    rawWeights = parseWeights('../View/weights.json')
+    rawWeights = parseWeights('weights.json')
     weights = pd.read_json(rawWeights)
     boxes["weight"] = weights['weight']  # default weight
     # weights = boxes[['question', 'student', 'weight']]
@@ -277,7 +279,7 @@ def updateData():
     return boxes, resultatsPoints
 
 def getWeights():
-    rawWeights = parseWeights('../View/weights.json')
+    rawWeights = parseWeights('weights.json')
     weights = pd.read_json(rawWeights)
 
     # weights = boxes.loc[boxes['student'] == 26]
