@@ -37,6 +37,10 @@ class MainWindow(QMainWindow):
         self.showHome()
 
     def showHome(self):
+        self.home.initUI(self)
+        self.show()
+
+    def showReportPage(self):
         self.reportPage.initUI(self)
         self.show()
 
