@@ -17,4 +17,7 @@ All the files related to the GUI are in the `Project/` folder.
 
 ## Dependencies
 
+* `PyQt5`
+* `numpy`
 * `matplotlib`
+* `pandas`
