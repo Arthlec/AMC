@@ -5,7 +5,11 @@
 #| report data as a table, chart and teachers enable to apply coherence, weight and penalty
 #+----------------------------------------------------+
 import sys
-from PyQt5.QtWidgets import QWidget, QSlider
+from PyQt5.QtWidgets import QWidget, QSlider, QGroupBox, QGridLayout, QLineEdit, \
+                            QComboBox, QPushButton, QScrollArea, QTableWidget, QTableWidgetItem,  \
+                            QVBoxLayout, QLabel
+
+from PyQt5.QtCore import Qt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 from Controller.readAMC import *
@@ -45,6 +49,7 @@ class ReportPage(QWidget):
 
         # ---------------------grid layout --------------------
         layout = QGridLayout()
+        layout.setColumnStretch(0, 3)
         layout.setColumnStretch(1, 3)
         layout.setColumnStretch(2, 3)
 
@@ -214,12 +219,9 @@ def on_click(self):
 #+--------------chart class has written by Roman Blond
 
 if __name__ == '__main__':
-
-
     app = QApplication(sys.argv)
-    numberOfQuestions = getNumberOfQuestions()
-    print(numberOfQuestions)
-    #ex = window(numberOfQuestions=getNumberOfQuestions())
-    #ex.show()
-    ex1 = App()
+    window = QMainWindow()
+    report = ReportPage(window)
+    report.initUI(window)
+    window.showMaximized()
     sys.exit(app.exec_())
