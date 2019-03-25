@@ -39,9 +39,14 @@ class _LogicElement:
 
 
 class Logic:
-    def __init__(self, command):
-        self.command = command
-        self.interpretCommand()
+    def __init__(self, command=""):
+        if command != "" :
+            self.command = command
+            self.interpretCommand()
+
+    def setCommand(self, command=""):
+        if command != "":
+            self.command = command
 
     def interpretCommand(self):
         tokens = self.command.split(' ')
@@ -82,7 +87,7 @@ class Logic:
                 if tokens[i + 1] != _KeyWords.EQUAL.value:
                     raise SyntaxError('Missing statement "' + _KeyWords.EQUAL.value + '" after token "' + token + '" in : ' + self.command)
 
-                if not self.is_digit(tokens[i + 2]):
+                if not self._is_digit(tokens[i + 2]):
                     raise SyntaxError('Missing value for question "' + token + '" in : ' + self.command)
 
 
@@ -102,16 +107,16 @@ class Logic:
                     if i != n - 2:
                         raise SyntaxError('"' + _KeyWords.IS.value + '" keyword should be the last statement in : ' + self.command)
 
-                    if not self.is_digit(nextToken):
+                    if not self._is_digit(nextToken):
                         raise SyntaxError('Keyword "' + _KeyWords.IS.value + '" must be followed by an interger in : ' + self.command)
 
 
             # If the token is a digit, it must be
-            elif self.is_digit(token) and i != n - 1 and tokens[i + 1][0] == 'Q':
+            elif self._is_digit(token) and i != n - 1 and tokens[i + 1][0] == 'Q':
                 raise SyntaxError('Missing keyword in : ' + self.command)
 
             # If the token is not a digit, not a keyword and is not a question
-            elif not self.is_digit(token):
+            elif not self._is_digit(token):
                 raise SyntaxError('Undefined keyword "' + token + '" in : ' + self.command)
 
         # If there is no IS keyword in the command
@@ -122,7 +127,7 @@ class Logic:
     def printLogic(self):
         return self.command
 
-    def is_digit(self, value):
+    def _is_digit(self, value):
         try:
             int(value)
             return True
