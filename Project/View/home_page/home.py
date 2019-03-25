@@ -10,22 +10,11 @@ from PyQt5.QtGui import QFont,QPolygonF, QPainter, QIcon
 from Controller.readAMC import *
 '''
 '''
-class AppMain(QMainWindow):
+class AppMain(QWidget):
+    def initUI(self, mainWindow):
+        mainWindow.setWindowTitle('AMC Module')
 
-    def __init__(self):
-        super().__init__()
-        self.title = 'AMC Module'
-        self.left = 10
-        self.top = 10
-        self.width = 640
-        self.height = 400
-        self.initUI()
-
-    def initUI(self):
-        self.setWindowTitle(self.title)
-        self.setGeometry(self.left, self.top, self.width, self.height)
-
-        mainMenu = self.menuBar()
+        mainMenu = mainWindow.menuBar()
         fileMenu = mainMenu.addMenu('File')
         editMenu = mainMenu.addMenu('Edit')
         viewMenu = mainMenu.addMenu('View')

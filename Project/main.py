@@ -27,16 +27,15 @@ class SecondWindow(QWidget):
 class MainWindow(QMainWindow):
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
-        self.first = FirstWindow(self)
+        self.home = AppMain(self)
         self.second = SecondWindow(self)
         self.initUI()
 
     def initUI(self):
-        self.showFirst()
+        self.showHome()
 
-    def showFirst(self):
-        self.first.initUI(self)
-        self.first.button.clicked.connect(self.showSecond)
+    def showHome(self):
+        self.home.initUI(self)
         self.show()
 
     def showSecond(self):
