@@ -12,7 +12,7 @@ import numpy as np
 
 import seaborn as sns
 
-std, points = showPoint()
+std, points = computeData()
 df = points
 df = df.as_matrix()
 score_chart = df[10,:].astype(int)

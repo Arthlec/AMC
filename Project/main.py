@@ -1,10 +1,11 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QPushButton, QVBoxLayout
 from View.home_page.home import HomePage
+from View.report_page.pageReport import ReportPage
 
 class FirstWindow(QWidget):
     def initUI(self, mainWindow):
-        mainWindow.setWindowTitle('Fentre 1')
+        mainWindow.setWindowTitle('Fenetre 1')
         self.centralWidget = QWidget(mainWindow)
 
         self.button = QPushButton('Aloha', self.centralWidget)
@@ -15,7 +16,7 @@ class FirstWindow(QWidget):
 
 class SecondWindow(QWidget):
     def initUI(self, mainWindow):
-        mainWindow.setWindowTitle('Fentre 2')
+        mainWindow.setWindowTitle('Fenetre 2')
         self.centralWidget = QWidget(mainWindow)
 
         self.button = QPushButton('Wesh', self.centralWidget)
@@ -28,6 +29,7 @@ class MainWindow(QMainWindow):
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
         self.home = HomePage(self)
+        self.reportPage = ReportPage(self)
         self.second = SecondWindow(self)
         self.initUI()
 
@@ -35,7 +37,7 @@ class MainWindow(QMainWindow):
         self.showHome()
 
     def showHome(self):
-        self.home.initUI(self)
+        self.reportPage.initUI(self)
         self.show()
 
     def showSecond(self):
