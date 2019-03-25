@@ -10,7 +10,7 @@ from PyQt5.QtGui import QFont,QPolygonF, QPainter, QIcon
 from Controller.readAMC import *
 '''
 '''
-class AppMain(QWidget):
+class HomePage(QWidget):
     def initUI(self, mainWindow):
         mainWindow.setWindowTitle('AMC Module')
 
@@ -25,7 +25,7 @@ class AppMain(QWidget):
         exitButton = QAction(QIcon('exit24.png'), 'Exit', self)
         exitButton.setShortcut('Ctrl+Q')
         exitButton.setStatusTip('Exit application')
-        exitButton.triggered.connect(self.close)
+        exitButton.triggered.connect(mainWindow.close)
         fileMenu.addAction(exitButton)
 
         self.show()
