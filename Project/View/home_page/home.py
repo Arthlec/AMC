@@ -113,9 +113,9 @@ class Example(QWidget):
 
 if __name__ == '__main__':
     boxes , resultatsPoints = computeData()
-    print(resultatsPoints)
+    # print(resultatsPoints)
     boxes, resultatsPoints = updateData()
-    print(resultatsPoints)
+    # print(resultatsPoints)
     # print(getWeights())
     # app = QApplication(sys.argv)
     # ex = window(numberOfQuestions=getNumberOfQuestions())

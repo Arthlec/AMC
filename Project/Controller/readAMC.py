@@ -9,7 +9,9 @@ import json
 import numpy as np
 
 dataPath = str(Path(__file__).resolve().parent.parent).replace("\\", "/") + "/Real Data/"
-weightPath = str(Path(__file__).resolve().parent).replace("\\", "/") + "/"
+weightPath = str(Path(__file__).resolve().parent.parent).replace("\\", "/") + "/Real Data/weights.json"
+print("dataPath : " + str(dataPath))
+print("weightPath : " + str(weightPath))
 
 def readAMCTables(dataPath):
     # Create your connection.
@@ -211,7 +213,7 @@ def updateData():
     zone, answer, association, var = readAMCTables(dataPath)
     boxes = makeBoxes(zone, answer, var)
 
-    rawWeights = parseWeights('weights.json')
+    rawWeights = parseWeights()
     weights = pd.read_json(rawWeights)
     boxes["weight"] = weights['weight']  # default weight
 
@@ -239,7 +241,7 @@ def updateData():
     return boxes, resultatsPoints
 
 def getWeights():
-    rawWeights = parseWeights('weights.json')
+    rawWeights = parseWeights()
     weights = pd.read_json(rawWeights)
 
     # weights = boxes.loc[boxes['student'] == 26]
@@ -268,12 +270,12 @@ def changeWeight(indexOfQuestion, value):
     weights.loc[weights['question'] == indexOfQuestion, 'weight'] = value
     writeWeights(weights)
 
-def parseWeights(fileName):
-    with open(weightPath + fileName) as f:
+def parseWeights():
+    with open(weightPath) as f:
         data = json.load(f)
         f.close()
     return data
 
 def writeWeights(data):
-    with open(weightPath + 'weights.json', 'w') as out:
+    with open(weightPath, 'w') as out:
         json.dump(data.to_json(), out, indent=2)
