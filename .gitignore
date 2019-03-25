@@ -1,4 +1,4 @@
 # Ignore all the __pycache__ directories.
 # Those directories are updated whenever the program is ran.
 # They do not need to be pushed in the git project.
-*/__pycache__/
+**/__pycache__
