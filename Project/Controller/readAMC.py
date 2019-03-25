@@ -7,10 +7,6 @@ import sqlite3
 import pandas as pd
 import json
 import numpy as np
-<<<<<<< HEAD
-
-=======
->>>>>>> f2a2b75a432b7a15883316a1337969bc04ade6eb
 
 dataPath = str(Path(__file__).resolve().parent.parent).replace("\\", "/") + "/Real Data/"
 
@@ -19,17 +15,17 @@ def readAMCTables(dataPath):
     cnx = sqlite3.connect(dataPath + 'capture.sqlite')
     zone = pd.read_sql_query("SELECT * FROM capture_zone", cnx)
     cnx.close()
-    
+
     cnx = sqlite3.connect(dataPath +'scoring.sqlite')
     answer = pd.read_sql_query("SELECT * FROM scoring_answer", cnx)
     variables = pd.read_sql_query("SELECT * FROM scoring_variables", cnx)
     cnx.close()
-    
+
     cnx = sqlite3.connect(dataPath +'association.sqlite')
     association = pd.read_sql_query("SELECT * FROM association_association", cnx)
     cnx.close()
-    
-    
+
+
     return zone, answer, association, variables
 
 

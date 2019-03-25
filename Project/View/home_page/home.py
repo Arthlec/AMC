@@ -110,7 +110,6 @@ class Example(QWidget):
         self.resize(400, 400)
         self.show()
 
-<<<<<<< HEAD
 '''
 class window(QWidget):
     def __init__(self, parent=None, initialValue=1.0, numberOfQuestions = 1):
@@ -248,11 +247,8 @@ def on_click():
 
 '''
 
-=======
->>>>>>> f2a2b75a432b7a15883316a1337969bc04ade6eb
 
 if __name__ == '__main__':
-
     boxes , resultatsPoints = computeData()
     print(resultatsPoints)
     boxes, resultatsPoints = updateData()
