@@ -120,7 +120,7 @@ class buildSlider(QWidget):
 
         # ---------------------weight
         self.layout = QVBoxLayout()
-        for i in range(numberOfQuestions):#(1, numberOfQuestions + 1):
+        for i in range(numberOfQuestions):
             self.addSlider(QLabel("Question " + str(i+1) +"  correctness: " + str(arrCorrectAns[i]) + "  %"), QLabel(str(initialValue)), initialValue)
 
         self.b1 = QPushButton("Save weight")
@@ -153,15 +153,10 @@ class buildSlider(QWidget):
         weightText.setText(str(slider.value()))
 
     def writeWeights(self):
-        n = 1
-        print("writeWeights 1")
-        print(self.layout.count())
-        for i in range(2, self.layout.count(), 3):
-            # print(n)
-            # print(self.layout.itemAt(i).widget().value())
-            changeWeight(n, self.layout.itemAt(i).widget().value())
-            n += 1
-        print(getWeights())
+        for i, slider in enumerate(self.listOfQuestions):
+            changeWeight(i + 1, slider.value())
+        updateData()
+        # print(getWeights())
 
 
 class DoubleSlider(QSlider):
@@ -208,10 +203,10 @@ class DoubleSlider(QSlider):
         return self._max_value
 
 
-def on_click(self):
-       textboxValue = self.textbox.text()
-       print(textboxValue)
-       print("run coherence")
+# def on_click(self):
+#        textboxValue = self.textbox.text()
+#        print(textboxValue)
+#        print("run coherence")
 #+--------------chart class has written by Roman Blond
 class Chart(QMainWindow):
 
@@ -267,8 +262,8 @@ if __name__ == '__main__':
 
 
     app = QApplication(sys.argv)
-    numberOfQuestions = getNumberOfQuestions()
-    print(numberOfQuestions)
+    # numberOfQuestions = getNumberOfQuestions()
+    # print(numberOfQuestions)
     #ex = window(numberOfQuestions=getNumberOfQuestions())
     #ex.show()
     ex1 = App()
