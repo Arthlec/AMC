@@ -7,7 +7,10 @@ import sqlite3
 import pandas as pd
 import json
 import numpy as np
+<<<<<<< HEAD
 
+=======
+>>>>>>> f2a2b75a432b7a15883316a1337969bc04ade6eb
 
 dataPath = str(Path(__file__).resolve().parent.parent).replace("\\", "/") + "/Real Data/"
 
@@ -58,8 +61,8 @@ def makeBoxes(zone, answer, var ):
     boxes['ticked'] = boxes['ticked'].astype('bool')
 
     # This is to take into accound manual correction of detected ticked boxes
-    I = boxes['manual'] != -1 
-    boxes.loc[I,'manual'] = boxes.loc[I, 'manual'].map({0:False, 1:True}) 
+    I = boxes['manual'] != -1
+    boxes.loc[I,'manual'] = boxes.loc[I, 'manual'].map({0:False, 1:True})
     boxes.loc[I, 'ticked'] = boxes.loc[I,'manual']
     #boxes.loc[:,'ticked']
 
@@ -78,15 +81,15 @@ def makeBoxes(zone, answer, var ):
                 J =  (boxes['question'] == question) &  (boxes['answer'] == answ)
                 boxes.loc[J, 'correct'] = bool(out.values)
 
-    return boxes            
+    return boxes
 
 
 # In[3]:
 
 
 def schemeMarkingInQuestion1(boxes, TP, TN, FP, FN ):
-    
-# Une Stratégie de notation : 
+
+# Une Stratégie de notation :
 #
 #       |Ticked | Non ticked |
 # True  |  1    |   -0.2     |
@@ -103,7 +106,7 @@ def schemeMarkingInQuestion1(boxes, TP, TN, FP, FN ):
     boxes.loc[ ~boxes['ticked'] & boxes['correct'], 'points'  ] = FN
     boxes.loc[ ~boxes['ticked'] & ~boxes['correct'], 'points'  ] = TN
     boxes.loc[ boxes['ticked'] & ~boxes['correct'], 'points'  ] = FP
-    
+
     boxes.loc[ boxes['correct'], 'maxPoints' ] = TP
     boxes.loc[ ~boxes['correct'], 'maxPoints'  ] = TN
 
@@ -113,7 +116,7 @@ def schemeMarkingInQuestion1(boxes, TP, TN, FP, FN ):
 
 def MarkingQuestions1(NbPointsQuestions, boxes,penalty="def", avoidNeg=True):
     # computes the sum of points per student and question
-    # result is a a dataframe of the number of points per question (row) 
+    # result is a a dataframe of the number of points per question (row)
     # and per student (column)
 
     listStudents = boxes['student'].unique()
@@ -159,43 +162,6 @@ def MarkingQuestions1(NbPointsQuestions, boxes,penalty="def", avoidNeg=True):
     min_mark = resultatsPoints.loc['Note'].min()
     resultatsPoints.loc['Note/20', :] = (resultatsPoints.loc['Note',:] / maxPoints) * (max_mark - min_mark) + min_mark
     return resultat, resultatsPoints
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-def showPoint():
-    # dataPath = "D:/Travail/AMC/Project/Real Data/"
-
-    # In[6]:
-
-    zone, answer, association, var = readAMCTables(dataPath)
-    boxes = makeBoxes(zone, answer, var)
-    boxes["weight"] = 0.5
-    schemeMarkingInQuestion1(boxes, 1, 0., -0.2, -0.2)
-
-    # In[8]:
-
-    # Example of marking scheme per question
-    listQuestions = boxes['question'].unique()
-    NbPointsQuestions = pd.DataFrame(index=range(1, listQuestions.shape[0] + 1), columns=['Points'])
-    NbPointsQuestions['Points'] = 1
-
-    # In[9]:
-    # get by user or default
-    resultat, resultatsPoints = MarkingQuestions1(NbPointsQuestions, boxes, penalty="def", avoidNeg=False)
-    return resultat,resultatsPoints
-
-# ## Example
-# 
-# Data are given as an example in data.zip
 
 # In[5]:
 

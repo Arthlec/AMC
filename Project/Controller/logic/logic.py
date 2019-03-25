@@ -136,12 +136,12 @@ class Logic:
 
 
 
-if __name__ == '__main__':
-    # command = input('Enter a logic command:\n')
-    # logic = Logic(command)
-    # logic = Logic('Q1 == 1 AND Q2 == 0')
-    # logic = Logic('Q1 == 1 AND Q2 IS 0')
-    # logic = Logic('Q1 == 1 AND Q2 == 0 IS -2')
-    logic = Logic('Q1 == 1 XOR Q2 == 0 IS -4')
-    # add xor
-    print(logic.printLogic())
+# if __name__ == '__main__':
+#     # command = input('Enter a logic command:\n')
+#     # logic = Logic(command)
+#     # logic = Logic('Q1 == 1 AND Q2 == 0')
+#     # logic = Logic('Q1 == 1 AND Q2 IS 0')
+#     # logic = Logic('Q1 == 1 AND Q2 == 0 IS -2')
+#     logic = Logic('Q1 == 1 XOR Q2 == 0 IS -4')
+#     # add xor
+#     print(logic.printLogic())

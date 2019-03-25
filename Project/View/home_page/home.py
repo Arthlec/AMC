@@ -1,31 +1,16 @@
 
 import sys
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import  QScrollArea, QApplication, QDialog,QAction, QTableWidget,QTableWidgetItem, QWidget, QMainWindow, QLabel, QVBoxLayout, QGroupBox, QPushButton, \
-    QGridLayout, QHBoxLayout, QTextEdit, QComboBox, QSlider
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QFont,QPolygonF, QPainter, QIcon
-#from PyQt5.QtChart import QChart, QChartView, QLineSeries
+from PyQt5.QtWidgets import QWidget, QAction
+from PyQt5.QtGui import QIcon
 
 from Controller.readAMC import *
-'''
-'''
-class AppMain(QMainWindow):
 
-    def __init__(self):
-        super().__init__()
-        self.title = 'AMC Module'
-        self.left = 10
-        self.top = 10
-        self.width = 640
-        self.height = 400
-        self.initUI()
 
-    def initUI(self):
-        self.setWindowTitle(self.title)
-        self.setGeometry(self.left, self.top, self.width, self.height)
+class HomePage(QWidget):
+    def initUI(self, mainWindow):
+        mainWindow.setWindowTitle('AMC Module')
 
-        mainMenu = self.menuBar()
+        mainMenu = mainWindow.menuBar()
         fileMenu = mainMenu.addMenu('File')
         editMenu = mainMenu.addMenu('Edit')
         viewMenu = mainMenu.addMenu('View')
@@ -36,7 +21,7 @@ class AppMain(QMainWindow):
         exitButton = QAction(QIcon('exit24.png'), 'Exit', self)
         exitButton.setShortcut('Ctrl+Q')
         exitButton.setStatusTip('Exit application')
-        exitButton.triggered.connect(self.close)
+        exitButton.triggered.connect(mainWindow.close)
         fileMenu.addAction(exitButton)
 
         self.show()
@@ -125,6 +110,7 @@ class Example(QWidget):
         self.resize(400, 400)
         self.show()
 
+<<<<<<< HEAD
 '''
 class window(QWidget):
     def __init__(self, parent=None, initialValue=1.0, numberOfQuestions = 1):
@@ -262,6 +248,8 @@ def on_click():
 
 '''
 
+=======
+>>>>>>> f2a2b75a432b7a15883316a1337969bc04ade6eb
 
 if __name__ == '__main__':
 
@@ -276,6 +264,3 @@ if __name__ == '__main__':
     # ex1 = AppMain()
     # ex = Chart()
     # sys.exit(app.exec_())
-
-'''
-'''
