@@ -15,7 +15,7 @@ from matplotlib.figure import Figure
 from Controller.readAMC import *
 import numpy as np
 from View.Charts import *
-
+'''
 #+--------------global data that uses in this page
 points, stdname = computeData()
 df = stdname.as_matrix()
@@ -33,7 +33,7 @@ print(eff_chart.astype(int))
 X = mark_chart
 Y = eff_chart
 X_pie = ['8','9','12','13','14','15','16']
-
+'''
 #+--------------main class
 class ReportPage(QWidget):
     def initUI(self, mainWindow):

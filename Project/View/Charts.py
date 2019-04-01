@@ -64,8 +64,8 @@ class PlotCanvas(FigureCanvas):
         FigureCanvas.updateGeometry(self)
         # self.plot_histogram()
         # self.plot_pie()
-        # self.plot_box()
-        self.plot_violin()
+        self.plot_box()
+        # self.plot_violin()
 
     def plot_histogram(self):
         ax = self.figure.add_subplot(111)
