@@ -8,52 +8,32 @@ import sys
 
 from PyQt5.QtCore import pyqtSignal, Qt
 from PyQt5.QtWidgets import (QWidget, QLabel, QLineEdit, QPushButton,
-                             QCheckBox, QMessageBox, QComboBox,QSlider,  QGridLayout, QApplication)
+                             QCheckBox, QMessageBox, QComboBox,QSlider,QGroupBox, QVBoxLayout, QGridLayout, QApplication)
+
+from Project.Controller.logic.logic import *
+from Project.Controller.readAMC import *
 
 #+--------------main class
 class lstQuestion(QWidget):
+    b, c, v = computeData2()
+    print(b)  # include questions and number of choices
+    print(c)
+    print(v)  # use this one
 
     def __init__(self):
         super().__init__()
         self.title = 'AMC Question Report'
-        self.left = 10
-        self.top = 10
+        self.left = 30
+        self.top = 30
         self.width = 600
         self.height = 400
+        self.currentIndex = 0
         self.initUI()
 
     def initUI(self):
+        print("---------initUI---------")
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
-        #---------------questions label
-        self.lblQuestion = QLabel('Question1: How new marking module works?  ')
-        self.slider = QSlider(Qt.Horizontal)
-        self.slider.setFocusPolicy(Qt.StrongFocus)
-        self.slider.setTickPosition(QSlider.TicksBothSides)
-        self.slider.setTickInterval(20)
-
-        self.slider.setSingleStep(1)
-
-        self.txtCoher = QLineEdit("Coherence Formula")
-        self.txtCoher.resize(20, 20)
-        #---------------question choices
-        ''' self.listCheckBox = ["Checkbox_1", "Checkbox_2", "Checkbox_3", "Checkbox_4", "Checkbox_5",
-                      "Checkbox_6", "Checkbox_7", "Checkbox_8", "Checkbox_9", "Checkbox_10"]
- self.listLabel = ['', '', '', '', '', '', '', '', '', '', ]
- grid = QGridLayout()
-
- for i, v in enumerate(self.listCheckBox):
-     self.listCheckBox[i] = QCheckBox(v)
-     self.listLabel[i] = QLabel()
-     grid.addWidget(self.listCheckBox[i], i, 0)
-     grid.addWidget(self.listLabel[i], i, 1)'''
-
-        self.chAuto1 = QCheckBox("Good quality")
-        self.chAuto2 = QCheckBox("Poor quality")
-        self.chAuto3 = QCheckBox("Avarage")
-        self.chAuto4 = QCheckBox("No idea")
-
-        #---------------navigation buttons
 
         btnFirst = QPushButton("First")
         btnPre = QPushButton("Previous")
@@ -64,33 +44,84 @@ class lstQuestion(QWidget):
         btnNext.clicked.connect(self.goNext)
         btnLast.clicked.connect(self.goLast)
 
-        #---------------main grid
 
-        grid = QGridLayout()
-        grid.setSpacing(5)
-
-        grid.addWidget(self.lblQuestion, 0, 0)
-        grid.addWidget(self.slider, 0, 1)
-        grid.addWidget(self.txtCoher, 0, 2)
-        grid.addWidget(self.chAuto1, 1, 0)
-        grid.addWidget(self.chAuto2, 2, 0)
-        grid.addWidget(self.chAuto3, 3, 0)
-        grid.addWidget(self.chAuto4, 4, 0)
-
-        grid.addWidget(btnFirst, 5, 0)
-        grid.addWidget(btnPre, 5, 1)
-        grid.addWidget(btnNext, 5, 2)
-        grid.addWidget(btnLast, 5, 3)
-        # -------------call layout
-        self.setLayout(grid)
+        self.createQuestionView(self.currentIndex)
+        self.windowLayout = QGridLayout()
+        self.windowLayout.addWidget(self.horizontalGroupBox,0,0)
+        self.windowLayout.addWidget(btnFirst,  1, 0)
+        self.windowLayout.addWidget(btnPre, 1, 1)
+        self.windowLayout.addWidget(btnNext, 1, 2)
+        self.windowLayout.addWidget(btnLast,  1, 3)
+        self.setLayout(self.windowLayout)
         self.show()
+    def createQuestionView(self,Index):
+        print("Index")
+        print(Index)
+        self.horizontalGroupBox = QGroupBox("AMC report for teachers")
+
+        # ---------------------grid layout --------------------
+        self.layout = QGridLayout()
+        self.layout.setColumnStretch(0, 3)
+        self.layout.setColumnStretch(1, 3)
+        self.layout.setColumnStretch(2, 3)
+        #main part
+        # ---------------questions label
+        row = self.v.iloc[Index]
+        qNum = row[1]
+        qChoices = row[2]
+        print(row)
+        print(qNum)
+        self.lblQuestion = QLabel('Question ' + str(qNum) + ': How new marking module works?  ')
+        self.lblQuestion1 = QLabel('!!!!show correctness of perecentage of this question %%% or chart ')
+
+        self.slider = QSlider(Qt.Horizontal)
+        self.slider.setFocusPolicy(Qt.StrongFocus)
+        self.slider.setTickPosition(QSlider.TicksBothSides)
+        self.slider.setTickInterval(20)
+
+        self.slider.setSingleStep(1)
+
+        self.txtCoher = QLineEdit("Coherence Formula")
+        self.txtCoher.resize(20, 20)
+        # ---------------question choices
+        self.chkList = []
+
+        for i in range(qChoices):
+            self.chkList.append(QCheckBox("Option " + str(i + 1)))
+
+        self.layout.addWidget(self.lblQuestion, 0, 0)
+        #layout.addWidget(self.lblQuestion1, 1, 2)
+        self.layout.addWidget(self.slider, 1, 1)
+        self.layout.addWidget(self.txtCoher, 0, 1)
+        for i in range(qChoices):
+            self.layout.addWidget(self.chkList[i], i + 1, 0)
+
+
+        self.horizontalGroupBox.setLayout(self.layout)
     def goFirst(self):
-         print("")
+         if self.currentIndex==0:
+             print("your are in first ")
+         else:
+             self.currentIndex=0
+
+         self.initUI()
+
     def goPre(self):
          print("")
 
     def goNext(self):
-        print("")
+        print("next1")
+        if self.currentIndex == len(self.v):
+            print("next2")
+            print("your are in last ")
+        else:
+            print("next3")
+            self.currentIndex = self.currentIndex +1
+            print(" self current index value next4")
+        print(self.currentIndex)
+        print("next5")
+        self.createQuestionView(self.currentIndex)
+        #self.initUI()
 
     def goLast(self):
         print("")
