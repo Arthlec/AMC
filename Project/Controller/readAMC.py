@@ -9,9 +9,11 @@ import json
 import numpy as np
 
 dataPath = str(Path(__file__).resolve().parent.parent).replace("\\", "/") + "/Real Data/"
-weightPath = str(Path(__file__).resolve().parent.parent).replace("\\", "/") + "/Real Data/weights.json"
+weightPath = dataPath + "weights.json"
+coherenceFormulaPath = dataPath + "coherenceFormula.json"
 print("dataPath : " + str(dataPath))
 print("weightPath : " + str(weightPath))
+print("coherenceFormulaPath : " + str(coherenceFormulaPath))
 
 def readAMCTables(dataPath):
     # Create your connection.
@@ -240,6 +242,11 @@ def updateData():
 
     return boxes, resultatsPoints
 
+def updateCoherence():
+    boxes, resultatsPoints = updateData()
+    listOfModifiers = parseCoherenceFormula()
+
+
 def getWeights():
     rawWeights = parseWeights()
     weights = pd.read_json(rawWeights)
@@ -283,23 +290,52 @@ def writeWeights(data):
 def getAllStudentQuestions():
     boxes, point = updateData()
     allStudentQuestions = []
-    for i in range(len(boxes)):
-        allStudentQuestions.append(tuple((list(boxes.index)[i], list(boxes['question'])[i])))
+
+    listStudents = boxes['student'].unique()
+    listQuestions = boxes['question'].unique()
+
+    for student in listStudents:
+        for question in listQuestions:
+            value = True
+            boxes_onestudent_onequestion = boxes.loc[(boxes['student'] == student) & (boxes['question'] == question)]
+
+            for i in range(len(boxes_onestudent_onequestion)):
+                value = value and ((boxes_onestudent_onequestion['correct'].iloc[i] and boxes_onestudent_onequestion['ticked'].iloc[i])
+                                   or (not(boxes_onestudent_onequestion['correct'].iloc[i]) and not(boxes_onestudent_onequestion['ticked'].iloc[i])))
+            for index in list(boxes_onestudent_onequestion.index):
+                allStudentQuestions.append(tuple((index, int(value))))
     return allStudentQuestions
 
 def getAllStudentAnswers():
     boxes, point = updateData()
     allStudentAnswers = []
     for i in range(len(boxes)):
-        allStudentAnswers.append(tuple((list(boxes.index)[i], list(boxes['answer'])[i])))
+        allStudentAnswers.append(tuple((list(boxes.index)[i], int(boxes['correct'].iloc[i] and boxes['ticked'].iloc[i]))))
     return allStudentAnswers
 
-# boxes , resultatsPoints = computeData()
+def writeCoherence(data):
+    with open(coherenceFormulaPath, 'w') as out:
+        json.dump(data.to_json(), out, indent=2)
+
+def parseCoherenceFormula():
+    with open(coherenceFormulaPath) as f:
+        data = json.load(f)
+        f.close()
+    return data
+
+boxes , resultatsPoints = computeData()
 # print(boxes.columns)
-# print(boxes)
-# print(boxes['answer'])
+print(boxes)
+# print(boxes['total'])
 # print(boxes['ticked'])
+
+# boxes_by_student = boxes.groupby('student')
+# boxes_by_student_by_question = boxes_by_student.groupby('question')
+# print(boxes_by_student_by_question)
+# print(int(boxes['correct'].iloc[3] and boxes['ticked'].iloc[3]))
 # print(list(boxes['question']))
-# print(boxes.index)
-# print(getAllStudentQuestions())
+# print(boxes.loc[(boxes['student'] == 26) & (boxes['question'] == 4) ])
+# print(boxes.loc[boxes['student'] == 26, boxes['question'] == 4])
+# getAllStudentQuestions()
+print(getAllStudentQuestions())
 # print(getAllStudentAnswers())
