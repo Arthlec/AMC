@@ -21,6 +21,9 @@ class _Result:
         self.id = id
         self.result = res
 
+    def isCorrect(self, res):
+        return self.result == res
+
     def _printElement(self):
         return "Result {id: " + str(self.id) + ", result: " + str(self.result) + "}"
 
@@ -62,7 +65,7 @@ class Logic:
         n = len(tokens)
         for i in range(n):
             if tokens[i] == _KeyWords.EQUAL.value:
-                firstRes.append(_Result(id=tokens[i - 1], res=tokens[i + 1]))
+                firstRes.append(_Result(id=tokens[i - 1], res=int(tokens[i + 1])))
             if tokens[i] in [_KeyWords.AND.value, _KeyWords.OR.value, _KeyWords.XOR.value]:
                 firstRes.append(tokens[i])
             if tokens[i] == _KeyWords.IS.value:
@@ -141,6 +144,33 @@ class Logic:
         except ValueError:
             return False
 
+    # [(id, result)] correctedAnswers
+    # id : the id of the question / answer
+    # result : [0 or 1], if the question / answer is correct
+    def checkResults(self, correctedAnswers):
+        isError = True
+        results = [None] * len(correctedAnswers)
+        errorArray = [None] * len(self.tokens)
+        for id, res in correctedAnswers:
+            results[id - 1] = res
+        print('Results: ', results)
+
+        for i in range(len(self.tokens)):
+            if isinstance(self.tokens[i], str):
+                operator = self.tokens[i]
+                firstRes = isError if i > 1 else self.tokens[i - 1].isCorrect(results[int(self.tokens[i - 1].id[1:]) - 1])
+                secondRes = self.tokens[i + 1].isCorrect(results[int(self.tokens[i + 1].id[1:]) - 1])
+                if operator == _KeyWords.AND.value:
+                    isError = firstRes and secondRes
+                elif operator == _KeyWords.OR.value:
+                    isError = firstRes or secondRes
+                elif operator == _KeyWords.XOR.value:
+                    isError = (firstRes or secondRes) and not (firstRes and secondRes)
+                else:
+                    raise Error('Unknown operator: ' + token)
+
+        return self.result if isError else 0
+
 
 
 if __name__ == '__main__':
@@ -149,6 +179,10 @@ if __name__ == '__main__':
 #     # logic = Logic('Q1 == 1 AND Q2 == 0')
 #     # logic = Logic('Q1 == 1 AND Q2 IS 0')
 #     # logic = Logic('Q1 == 1 AND Q2 == 0 IS -2')
-    logic = Logic('R1 == 1 XOR R2 == 0 IS -4', LogicElement.R)
+    logic = Logic('R2 == 1 AND R3 == 0 IS -4', LogicElement.R)
+    results = [(1, 1), (2, 1), (3, 0), (4, 5)]
+    # results = [(1, 1), (2, 1), (3, 2)]
+    newRes = logic.checkResults(results)
+    print(newRes)
 #     # add xor
-    print(logic.printLogic())
+    # print(logic.printLogic())

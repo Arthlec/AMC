@@ -279,3 +279,27 @@ def parseWeights():
 def writeWeights(data):
     with open(weightPath, 'w') as out:
         json.dump(data.to_json(), out, indent=2)
+
+def getAllStudentQuestions():
+    boxes, point = updateData()
+    allStudentQuestions = []
+    for i in range(len(boxes)):
+        allStudentQuestions.append(tuple((list(boxes.index)[i], list(boxes['question'])[i])))
+    return allStudentQuestions
+
+def getAllStudentAnswers():
+    boxes, point = updateData()
+    allStudentAnswers = []
+    for i in range(len(boxes)):
+        allStudentAnswers.append(tuple((list(boxes.index)[i], list(boxes['answer'])[i])))
+    return allStudentAnswers
+
+# boxes , resultatsPoints = computeData()
+# print(boxes.columns)
+# print(boxes)
+# print(boxes['answer'])
+# print(boxes['ticked'])
+# print(list(boxes['question']))
+# print(boxes.index)
+# print(getAllStudentQuestions())
+# print(getAllStudentAnswers())
