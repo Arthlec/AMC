@@ -3,9 +3,12 @@ import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QSizePolicy
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
-import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
+import matplotlib.pyplot as plt
+
+import matplotlib.mlab as mlab
+
 
 std, points = computeData()
 df = points
@@ -61,9 +64,8 @@ class PlotCanvas(FigureCanvas):
         FigureCanvas.updateGeometry(self)
         # self.plot_histogram()
         # self.plot_pie()
-        self.plot_box()
-        # self.plot_violin()
-
+        # self.plot_box()
+        self.plot_violin()
 
     def plot_histogram(self):
         ax = self.figure.add_subplot(111)
@@ -84,8 +86,14 @@ class PlotCanvas(FigureCanvas):
         self.draw()
 
     def plot_violin(self):
-        sns.set
-        sns.violinplot(data=X)
+        # sns.set
+        # sns.violinplot(data=X)
+        sns.set()
+        tips = sns.load_dataset("tips")
+        ax = sns.violinplot(x=tips["total_bill"])
+        self.sns.plt.show()
+
+        # self.draw()
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
