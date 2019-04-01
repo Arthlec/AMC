@@ -113,7 +113,8 @@ class Example(QWidget):
 
 if __name__ == '__main__':
     boxes , resultatsPoints = computeData()
-    # print(resultatsPoints)
+    print(boxes)
+    print(resultatsPoints)
     boxes, resultatsPoints = updateData()
     # print(resultatsPoints)
     # print(getWeights())
