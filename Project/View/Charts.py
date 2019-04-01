@@ -1,31 +1,26 @@
 from Controller.readAMC import *
-
 import sys
-
 from PyQt5.QtWidgets import QApplication, QMainWindow, QSizePolicy
-
-
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 import numpy as np
-
 import seaborn as sns
 
 std, points = computeData()
 df = points
 df = df.as_matrix()
 score_chart = df[10,:].astype(int)
-print(score_chart)
+# print(score_chart)
 mark_chart = np.unique(score_chart)
-print(mark_chart)
+# print(mark_chart)
 eff_chart = []
 
 for i in range(len(mark_chart)):
     effective_chart = []
     effective_chart = np.count_nonzero(score_chart == mark_chart[i])
     eff_chart = np.append(eff_chart, effective_chart)
-print(eff_chart.astype(int))
+# print(eff_chart.astype(int))
 X = mark_chart
 Y = eff_chart
 
