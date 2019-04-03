@@ -61,12 +61,12 @@ class CoherencePage(QWidget):
         logic = Logic(self.generalCoherenceFormula.text(), LogicElement.Q)
         modifier = logic.checkResults(getAllStudentQuestions())
         listOfModifiers = []
-        listOfModifiers.append(modifier)
+        listOfModifiers.append(tuple(-1, modifier))
         for i, coherenceFormula in enumerate(self.listOfQuestions):
             # print(coherenceFormula.text())
             logic = Logic(coherenceFormula.text(), LogicElement.R)
             modifier = logic.checkResults(getAllStudentAnswers())
-            listOfModifiers.append(modifier)
+            listOfModifiers.append(tuple(i, modifier))
 
         writeCoherence(listOfModifiers)
 
