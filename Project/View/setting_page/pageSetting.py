@@ -6,9 +6,10 @@
 #+----------------------------------------------------+
 import sys
 from PyQt5.QtWidgets import (QWidget, QLabel, QLineEdit, QPushButton,
-                             QCheckBox, QMessageBox, QComboBox,  QGridLayout, QApplication)
+                             QCheckBox, QMessageBox,QTableWidgetItem,QHeaderView, QTableWidget,QFileDialog, QComboBox,  QGridLayout, QApplication, QFileDialog)
 
-
+import pandas as pd
+from pathlib import Path
 class Setting(QWidget):
 
     def __init__(self):
@@ -22,15 +23,15 @@ class Setting(QWidget):
 
     def initUI(self):
         #-------------define labels
-        self.lblB = QLabel('B: ')
-        self.lblM = QLabel('M: ')
-        self.lblP = QLabel('P: ')
-        self.lblD = QLabel('D: ')
-        self.lblE = QLabel('E: ')
-        self.lblV = QLabel('V: ')
+        self.lblB = QLabel('B: Good Response ')
+        self.lblM = QLabel('M: Bad Response ')
+        self.lblP = QLabel('P: Bottom Score ')
+        self.lblD = QLabel('D: Offset ')
+        self.lblE = QLabel('E: Incoherent Response ')
+        self.lblV = QLabel('V: No Response ')
         self.lblMax = QLabel('Max: ')
         self.lblHaut = QLabel('Haut: ')
-        self.lblMZ = QLabel('MZ: ')
+        self.lblMZ = QLabel('MZ: Maximum or Zero ')
         self.lblPenalty= QLabel('Initial Penalty: ')
         self.lblWeight = QLabel('Initial Weight: ')
 
@@ -78,52 +79,58 @@ class Setting(QWidget):
         btnOK.clicked.connect(self.saveParams)
         btnCancel.clicked.connect(self.cancelParams)
 
+        # -------------upload dialog file
+        self.btnImport = QPushButton('Import CSV', self)
+        self.btnImport.clicked.connect(self.getCSV)
+
+        self.df = pd.DataFrame()
+        self.table = QTableWidget()
         # -------------arrange UI with labels, textboxes and buttons
-        grid = QGridLayout()
-        grid.setSpacing(10)
+        self.grid = QGridLayout()
+        self.grid.setSpacing(10)
 
-        grid.addWidget(self.cbExams, 0, 0)
+        self.grid.addWidget(self.cbExams, 0, 0)
+        self.grid.addWidget(self.btnImport, 0, 1)
 
+        self.grid.addWidget(self.lblB, 2, 0)
+        self.grid.addWidget(self.txtB, 2, 1)
 
-        grid.addWidget(self.lblB, 1, 0)
-        grid.addWidget(self.txtB, 1, 1)
+        self.grid.addWidget(self.lblM, 2, 7)
+        self.grid.addWidget(self.txtM, 2, 8)
 
-        grid.addWidget(self.lblM, 1, 7)
-        grid.addWidget(self.txtM, 1, 8)
+        self.grid.addWidget(self.lblP, 3, 0)
+        self.grid.addWidget(self.txtP, 3, 1)
 
-        grid.addWidget(self.lblP, 2, 0)
-        grid.addWidget(self.txtP, 2, 1)
+        self.grid.addWidget(self.lblD, 3, 7)
+        self.grid.addWidget(self.txtD, 3, 8)
 
-        grid.addWidget(self.lblD, 2, 7)
-        grid.addWidget(self.txtD, 2, 8)
+        self.grid.addWidget(self.lblPenalty, 2, 9)
+        self.grid.addWidget(self.txtPenalty, 2, 10)
 
-        grid.addWidget(self.lblPenalty, 1, 9)
-        grid.addWidget(self.txtPenalty, 1, 10)
+        self.grid.addWidget(self.lblWeight, 3, 9)
+        self.grid.addWidget(self.txtWeight, 3, 10)
 
-        grid.addWidget(self.lblWeight, 2, 9)
-        grid.addWidget(self.txtWeight, 2, 10)
+        self.grid.addWidget(self.lblE, 4, 0)
+        self.grid.addWidget(self.txtE, 4, 1)
 
-        grid.addWidget(self.lblE, 3, 0)
-        grid.addWidget(self.txtE, 3, 1)
+        self.grid.addWidget(self.lblV, 4, 7)
+        self.grid.addWidget(self.txtV, 4, 8)
 
-        grid.addWidget(self.lblV, 3, 7)
-        grid.addWidget(self.txtV, 3, 8)
+        self.grid.addWidget(self.lblMax, 5, 0)
+        self.grid.addWidget(self.txtMax, 5, 1)
 
-        grid.addWidget(self.lblMax, 4, 0)
-        grid.addWidget(self.txtMax, 4, 1)
+        self.grid.addWidget(self.lblHaut, 5, 7)
+        self.grid.addWidget(self.txtHaut, 5, 8)
 
-        grid.addWidget(self.lblHaut, 4, 7)
-        grid.addWidget(self.txtHaut, 4, 8)
+        self.grid.addWidget(self.lblMZ, 6, 0)
+        self.grid.addWidget(self.txtMZ, 6, 1)
 
-        grid.addWidget(self.lblMZ, 5, 0)
-        grid.addWidget(self.txtMZ, 5, 1)
-
-        grid.addWidget(self.chAuto, 5, 8)
-        grid.addWidget(btnOK, 9, 9)
-        grid.addWidget(btnCancel, 9, 10)
+        self.grid.addWidget(self.chAuto, 6, 8)
+        self.grid.addWidget(btnOK, 9, 9)
+        self.grid.addWidget(btnCancel, 9, 10)
 
         # -------------call layout
-        self.setLayout(grid)
+        self.setLayout(self.grid)
         self.setGeometry(300, 300, 350, 300)
         self.setWindowTitle('Setting')
         self.show()
@@ -165,6 +172,37 @@ class Setting(QWidget):
     def cancelParams(self):
         print("click: cancelParams")
         self.close()
+
+    def getCSV(self):
+        filePath,_ = QFileDialog.getOpenFileName(self,
+                                                     'CSV File',
+                                                     '~/Desktop',
+                                                     '*.csv')
+        print(filePath)
+        filename = Path(filePath).name
+        fileName2 = self.cbExams.currentText()
+        with open(str(filePath)) as f:
+            with open(str(fileName2), "w") as f1:
+                for line in f:
+                        f1.write(line)
+
+        f1.close()
+        f.close()
+
+        #self.close()
+        '''self.table.setColumnCount(len(self.df.columns))
+        self.table.setRowCount(len(self.df.index))
+        rowName = []  # row name
+        for i in range(len(self.df.index)):
+            for j in range(len(self.df.columns)):
+                rowName.append(self.df.columns[j])
+                self.table.setItem(i, j, QTableWidgetItem(str(self.df.iloc[i, j])))
+
+        print(rowName)
+        self.table.setHorizontalHeaderLabels(rowName)
+        self.table.resizeRowsToContents()
+        self.table.resizeColumnsToContents()
+        self.grid.addWidget(self.table,1,0)'''
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
