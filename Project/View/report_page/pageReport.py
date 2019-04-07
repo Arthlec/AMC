@@ -15,7 +15,7 @@ from matplotlib.figure import Figure
 from Controller.readAMC import *
 import numpy as np
 from View.Charts import *
-'''
+
 #+--------------global data that uses in this page
 points, stdname = computeData()
 df = stdname.as_matrix()
@@ -33,7 +33,7 @@ print(eff_chart.astype(int))
 X = mark_chart
 Y = eff_chart
 X_pie = ['8','9','12','13','14','15','16']
-'''
+
 #+--------------main class
 class ReportPage(QWidget):
     def initUI(self, mainWindow):
@@ -117,7 +117,7 @@ class ReportPage(QWidget):
             self.plot.plot_pie()
             print("click: display your chart related to seelcted option ")
 
-#+--------------builder slider has written by Arthur Lecert
+#+--------------builder slider has been written by Arthur Lecert
 class buildSlider(QWidget):
     def __init__(self, parent=None, initialValue=1.0, arrCorrectAns=[], numberOfQuestions=1):
         super(buildSlider, self).__init__(parent)
@@ -146,10 +146,10 @@ class buildSlider(QWidget):
 
         slider = DoubleSlider(Qt.Horizontal)
         slider.setMinimum(0.0)
-        slider.setMaximum(1.0)
+        slider.setMaximum(2.0)
         slider.setValue(initialValue)
         slider.setTickPosition(QSlider.TicksBelow)
-        slider.setTickInterval(0.1)
+        slider.setTickInterval(20)
 
         self.layout.addWidget(slider)
         slider.valueChanged.connect(lambda: self.valuechange(weightText, slider))
@@ -170,7 +170,7 @@ class DoubleSlider(QSlider):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.decimals = 1
+        self.decimals = 2
         self._max_int = 10 ** self.decimals
 
         super().setMinimum(0)
@@ -214,7 +214,7 @@ def on_click(self):
        textboxValue = self.textbox.text()
        print(textboxValue)
        print("run coherence")
-#+--------------chart class has written by Roman Blond
+#+--------------chart class has been written by Roman Blond
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
