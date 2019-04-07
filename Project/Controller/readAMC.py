@@ -1,19 +1,8 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[1]:
 from pathlib import Path
 import sqlite3
 import pandas as pd
 import json
 import numpy as np
-
-dataPath = str(Path(__file__).resolve().parent.parent).replace("\\", "/") + "/Real Data/"
-weightPath = dataPath + "weights.json"
-coherenceFormulaPath = dataPath + "coherenceFormula.json"
-print("dataPath : " + str(dataPath))
-print("weightPath : " + str(weightPath))
-print("coherenceFormulaPath : " + str(coherenceFormulaPath))
 
 def readAMCTables(dataPath):
     # Create your connection.
@@ -33,14 +22,6 @@ def readAMCTables(dataPath):
 
     return zone, answer, association, variables
 
-
-# In[ ]:
-
-
-
-
-
-# In[2]:
 
 
 def makeBoxes(zone, answer, var ):
@@ -85,9 +66,6 @@ def makeBoxes(zone, answer, var ):
     return boxes
 
 
-# In[3]:
-
-
 def schemeMarkingInQuestion1(boxes, TP, TN, FP, FN ):
 
 # Une Stratégie de notation :
@@ -110,9 +88,6 @@ def schemeMarkingInQuestion1(boxes, TP, TN, FP, FN ):
 
     boxes.loc[ boxes['correct'], 'maxPoints' ] = TP
     boxes.loc[ ~boxes['correct'], 'maxPoints'  ] = TN
-
-
-# In[4]:
 
 
 def MarkingQuestions1(NbPointsQuestions, boxes,penalty="def", avoidNeg=True):
@@ -222,11 +197,6 @@ def MarkingQuestionsWithCoherence(NbPointsQuestions, boxes,penalty="def", avoidN
     return resultat, resultatsPoints
 
 def computeData():
-    # dataPath = "D:/Travail/AMC/Project/Real Data/"
-
-    # In[6]:
-
-
     zone, answer, association, var = readAMCTables(dataPath)
     boxes = makeBoxes(zone, answer, var )
 
@@ -238,29 +208,14 @@ def computeData():
 
     schemeMarkingInQuestion1(boxes, 1, 0., -0.2, -0.2)
 
-
-    # In[8]:
-
-
     # Example of marking scheme per question
     listQuestions = boxes['question'].unique()
     NbPointsQuestions = pd.DataFrame(index=range(1,listQuestions.shape[0]+1), columns=['Points']  )
     NbPointsQuestions['Points'] = 1
 
-
-    # In[9]:
     #get by user or default
     resultat, resultatsPoints = MarkingQuestions1(NbPointsQuestions, boxes,penalty="def",avoidNeg=False)
-
-    # In[13]:
-
-
     studentIdToNameMapper = {association.loc[k,'student']: association.loc[k,'manual'] for k in association.index}
-
-
-    # In[16]:
-
-
     resultatsPoints = resultatsPoints.rename(studentIdToNameMapper, axis=1)
 
     return boxes, resultatsPoints
@@ -271,27 +226,18 @@ def updateData():
 
     rawWeights = parseWeights()
     weights = pd.read_json(rawWeights)
-    boxes["weight"] = weights['weight']  # default weight
+    boxes["weight"] = weights['weight']
 
     schemeMarkingInQuestion1(boxes, 1, 0., -0.2, -0.2)
-
-    # In[8]:
 
     # Example of marking scheme per question
     listQuestions = boxes['question'].unique()
     NbPointsQuestions = pd.DataFrame(index=range(1, listQuestions.shape[0] + 1), columns=['Points'])
     NbPointsQuestions['Points'] = 1
 
-    # In[9]:
     # get by user or default
     resultat, resultatsPoints = MarkingQuestions1(NbPointsQuestions, boxes, penalty="def", avoidNeg=False)
-
-    # In[13]:
-
     studentIdToNameMapper = {association.loc[k, 'student']: association.loc[k, 'manual'] for k in association.index}
-
-    # In[16]:
-
     resultatsPoints = resultatsPoints.rename(studentIdToNameMapper, axis=1)
 
     return boxes, resultatsPoints
@@ -306,27 +252,18 @@ def updateCoherence():
 
     rawWeights = parseWeights()
     weights = pd.read_json(rawWeights)
-    boxes["weight"] = weights['weight']  # default weight
+    boxes["weight"] = weights['weight']
 
     schemeMarkingInQuestion1(boxes, 1, 0., -0.2, -0.2)
-
-    # In[8]:
 
     # Example of marking scheme per question
     listQuestions = boxes['question'].unique()
     NbPointsQuestions = pd.DataFrame(index=range(1, listQuestions.shape[0] + 1), columns=['Points'])
     NbPointsQuestions['Points'] = 1
 
-    # In[9]:
     # get by user or default
     resultat, resultatsPoints = MarkingQuestionsWithCoherence(NbPointsQuestions, boxes, penalty="def", avoidNeg=False, examFormula=examFormula, questionsFormulas=questionsFormulas)
-
-    # In[13]:
-
     studentIdToNameMapper = {association.loc[k, 'student']: association.loc[k, 'manual'] for k in association.index}
-
-    # In[16]:
-
     resultatsPoints = resultatsPoints.rename(studentIdToNameMapper, axis=1)
 
     return boxes, resultatsPoints
@@ -336,12 +273,10 @@ def updateCoherence():
 def getWeights():
     rawWeights = parseWeights()
     weights = pd.read_json(rawWeights)
-
     # weights = boxes.loc[boxes['student'] == 26]
     # weights = weights[['question', 'weight']]
     # weights = weights.drop_duplicates('question')
     # weights = weights.sort_values(by=['question'])
-
     return weights
 
 def getNumberOfQuestions():
@@ -408,6 +343,42 @@ def parseCoherenceFormula():
         data = json.load(f)
         f.close()
     return data
+
+def getDataPath():
+    return dataPath
+
+def getDefaultDataPath():
+    return str(Path(__file__).resolve().parent.parent).replace("\\", "/") + "/Real Data/"
+
+def writeDataPath(data):
+    global dataPath #, dataPathPreferences
+    dataPath = data
+    # dataPathPreferences = data + "dataPathPreferences.txt"
+    # text_file = open(dataPathPreferences, "r+")
+    # text_file.write(str(data))
+    # print(text_file.read())
+    # text_file.close()
+
+# def parseDataPath():
+#     global dataPath
+#     file = Path(dataPathPreferences)
+#     if file.exists():
+#         f = open(dataPathPreferences, "r")
+#         data = f.read()
+#         f.close()
+#     else:
+#         data = dataPath
+#     return str(data)
+
+
+### Initialisation
+dataPath = str(Path(__file__).resolve().parent.parent).replace("\\", "/") + "/Real Data/"
+# dataPathPreferences = dataPath + "dataPathPreferences.txt"
+weightPath = dataPath + "weights.json"
+coherenceFormulaPath = dataPath + "coherenceFormula.json"
+print("dataPath : " + str(dataPath))
+print("weightPath : " + str(weightPath))
+print("coherenceFormulaPath : " + str(coherenceFormulaPath))
 
 # boxes , resultatsPoints = computeData()
 # print(boxes.columns)
