@@ -49,8 +49,8 @@ class Logic:
         if not isinstance(selectionToken, LogicElement):
             raise AssertionError('The parameter selectionToken should be an instance of LogicElement')
         self.selectionToken = selectionToken.value
+        self.command = command
         if command != "" :
-            self.command = command
             self.interpretCommand()
 
     def setCommand(self, command=""):
@@ -148,6 +148,9 @@ class Logic:
     # id : the id of the question / answer
     # result : [0 or 1], if the question / answer is correct
     def checkResults(self, correctedAnswers):
+        if self.result == '':
+            raise ValueError('No command was specified for this Logic object...')
+
         isError = True
         results = [None] * len(correctedAnswers)
         errorArray = [None] * len(self.tokens)
