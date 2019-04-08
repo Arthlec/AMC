@@ -390,8 +390,8 @@ print("coherenceFormulaPath : " + str(coherenceFormulaPath))
 # print(boxes['total'])
 # print(boxes['ticked'])
 # print(updateCoherence())
-print(getStudentQuestionsCorrect(2))
-print(getStudentAnswersCorrect(2, 5))
+# print(getStudentQuestionsCorrect(2))
+# print(getStudentAnswersCorrect(2, 5))
 
 #-------------------------------------sahar code---------------------------
 def MarkingQuestions12(NbPointsQuestions, boxes,penalty="def", avoidNeg=True):
