@@ -1,9 +1,31 @@
+import csv
 from pathlib import Path
 import sqlite3
 import pandas as pd
 import json
 import numpy as np
 
+
+### Initialisation
+dataPath = str(Path(__file__).resolve().parent.parent).replace("\\", "/") + "/Real Data/"
+# dataPathPreferences = dataPath + "dataPathPreferences.txt"
+weightPath = dataPath + "weights.json"
+coherenceFormulaPath = dataPath + "coherenceFormula.json"
+print("dataPath : " + str(dataPath))
+print("weightPath : " + str(weightPath))
+print("coherenceFormulaPath : " + str(coherenceFormulaPath))
+csvParamsPath=str(Path(__file__).resolve().parent.parent).replace("\\", "/") +"/View/setting_page/Exam1.csv"
+
+
+def readCSVData(filePath):
+    header = []
+    values = []
+    # open file
+    df=pd.read_csv(filePath)
+    values=df.iloc[0]
+    return values, header
+
+paramsValues, header = readCSVData(csvParamsPath)
 def readAMCTables(dataPath):
     # Create your connection.
     cnx = sqlite3.connect(dataPath + 'capture.sqlite')
@@ -66,7 +88,10 @@ def makeBoxes(zone, answer, var ):
     return boxes
 
 
-def schemeMarkingInQuestion1(boxes, TP, TN, FP, FN ):
+def schemeMarkingInQuestion1(boxes, arrParams ):
+
+#paramsValues order data
+#TP, FN, TN, FP
 
 # Une Stratégie de notation :
 #
@@ -80,14 +105,16 @@ def schemeMarkingInQuestion1(boxes, TP, TN, FP, FN ):
 #
 # Adds colums 'points' and 'maxPoints' to the dataframe boxes
 # points is the number of points earned for each student and each box
+    #print("sahar")
+    #print(arrParams)
+    #print(arrParams[0])
+    boxes.loc[ boxes['ticked'] & boxes['correct'], 'points' ] = arrParams[0]#TP
+    boxes.loc[ ~boxes['ticked'] & boxes['correct'], 'points'  ] = arrParams[1]#FN
+    boxes.loc[ ~boxes['ticked'] & ~boxes['correct'], 'points'  ] = arrParams[2]#TN
+    boxes.loc[ boxes['ticked'] & ~boxes['correct'], 'points'  ] = arrParams[3]#FP
 
-    boxes.loc[ boxes['ticked'] & boxes['correct'], 'points' ] = TP
-    boxes.loc[ ~boxes['ticked'] & boxes['correct'], 'points'  ] = FN
-    boxes.loc[ ~boxes['ticked'] & ~boxes['correct'], 'points'  ] = TN
-    boxes.loc[ boxes['ticked'] & ~boxes['correct'], 'points'  ] = FP
-
-    boxes.loc[ boxes['correct'], 'maxPoints' ] = TP
-    boxes.loc[ ~boxes['correct'], 'maxPoints'  ] = TN
+    boxes.loc[ boxes['correct'], 'maxPoints' ] = arrParams[0]#TP
+    boxes.loc[ ~boxes['correct'], 'maxPoints'  ] = arrParams[2]#TN
 
 
 def MarkingQuestions1(NbPointsQuestions, boxes,penalty="def", avoidNeg=True):
@@ -206,7 +233,7 @@ def computeData():
     weights = weights.drop_duplicates('question')
     writeWeights(weights)
 
-    schemeMarkingInQuestion1(boxes, 1, 0., -0.2, -0.2)
+    schemeMarkingInQuestion1(boxes, paramsValues)
 
     # Example of marking scheme per question
     listQuestions = boxes['question'].unique()
@@ -228,7 +255,7 @@ def updateData():
     weights = pd.read_json(rawWeights)
     boxes["weight"] = weights['weight']
 
-    schemeMarkingInQuestion1(boxes, 1, 0., -0.2, -0.2)
+    schemeMarkingInQuestion1(boxes, paramsValues)
 
     # Example of marking scheme per question
     listQuestions = boxes['question'].unique()
@@ -254,7 +281,7 @@ def updateCoherence():
     weights = pd.read_json(rawWeights)
     boxes["weight"] = weights['weight']
 
-    schemeMarkingInQuestion1(boxes, 1, 0., -0.2, -0.2)
+    schemeMarkingInQuestion1(boxes, paramsValues)
 
     # Example of marking scheme per question
     listQuestions = boxes['question'].unique()
@@ -371,14 +398,7 @@ def writeDataPath(data):
 #     return str(data)
 
 
-### Initialisation
-dataPath = str(Path(__file__).resolve().parent.parent).replace("\\", "/") + "/Real Data/"
-# dataPathPreferences = dataPath + "dataPathPreferences.txt"
-weightPath = dataPath + "weights.json"
-coherenceFormulaPath = dataPath + "coherenceFormula.json"
-print("dataPath : " + str(dataPath))
-print("weightPath : " + str(weightPath))
-print("coherenceFormulaPath : " + str(coherenceFormulaPath))
+
 
 # boxes , resultatsPoints = computeData()
 # print(boxes.columns)
@@ -387,7 +407,6 @@ print("coherenceFormulaPath : " + str(coherenceFormulaPath))
 # print(boxes['ticked'])
 # print(updateCoherence())
 print(getAllStudentQuestions())
-
 
 #-------------------------------------sahar code---------------------------
 def MarkingQuestions12(NbPointsQuestions, boxes,penalty="def", avoidNeg=True):
@@ -423,24 +442,7 @@ def MarkingQuestions12(NbPointsQuestions, boxes,penalty="def", avoidNeg=True):
                         resultat.loc[q,std]=round(1/(count -1), 1)
         else:
              resultat[resultat < 0] = penalty
-
-    # Taking into account points per question
-    ''' maxPoints = NbPointsQuestions['Points'].sum()
-    weights = getWeights()
-    for question in listQuestions:
-        resultatsPoints.loc[question,:] = resultat.loc[question,:]*NbPointsQuestions.loc[question,'Points']\
-                                          *weights.loc[weights['question'] == question, 'weight'].item()
-
-    # Then computes the points per student
-    resultatsPoints.loc['Note',:] = resultatsPoints.sum()
-    # resultatsPoints.loc['Note/20',:] = 20/maxPoints*resultatsPoints.loc['Note',:] # old formula
-    max_mark = resultatsPoints.loc['Note'].max()
-    min_mark = resultatsPoints.loc['Note'].min()
-    resultatsPoints.loc['Note/' + str(maxPoints), :] = (resultatsPoints.loc['Note',:] / maxPoints) * (max_mark - min_mark) + min_mark
-    resultatsPoints.loc['Note/20', :] = (resultatsPoints.loc['Note/' + str(maxPoints)]*20) / maxPoints
-    return resultat, resultatsPoints'''
     return c, c2, c3
-
 
 def computeData2():
     # dataPath = "D:/Travail/AMC/Project/Real Data/"
@@ -457,7 +459,7 @@ def computeData2():
     weights = weights.drop_duplicates('question')
     writeWeights(weights)
 
-    schemeMarkingInQuestion1(boxes, 1, 0., -0.2, -0.2)
+    schemeMarkingInQuestion1(boxes, paramsValues)
 
 
     # In[8]:
@@ -473,3 +475,4 @@ def computeData2():
     #get by user or default
     c, c2, c3 = MarkingQuestions12(NbPointsQuestions, boxes,penalty="def",avoidNeg=False)
     return c, c2, c3
+
