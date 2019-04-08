@@ -8,92 +8,123 @@ import sys
 
 from PyQt5.QtCore import pyqtSignal, Qt
 from PyQt5.QtWidgets import (QWidget, QLabel, QLineEdit, QPushButton,
-                             QCheckBox, QMessageBox, QComboBox,QSlider,  QGridLayout, QApplication)
+                             QCheckBox, QMessageBox,QFormLayout,QDialogButtonBox,QSpinBox,QHBoxLayout, QComboBox,QSlider,QGroupBox, QVBoxLayout, QGridLayout, QApplication)
 
-#+--------------main class
+from Project.Controller.logic.logic import *
+from Project.Controller.readAMC import *
+
+
 class lstQuestion(QWidget):
+   b, c, v = computeData2()
+   print(v)
+   def __init__(self):
+       super().__init__()
+       self.currentIndex = 0
+       self.lenData= len(self.v) -1
+       self.initUI()
 
-    def __init__(self):
-        super().__init__()
-        self.title = 'AMC Question Report'
-        self.left = 10
-        self.top = 10
-        self.width = 600
-        self.height = 400
-        self.initUI()
-
-    def initUI(self):
-        self.setWindowTitle(self.title)
-        self.setGeometry(self.left, self.top, self.width, self.height)
-        #---------------questions label
-        self.lblQuestion = QLabel('Question1: How new marking module works?  ')
-        self.slider = QSlider(Qt.Horizontal)
-        self.slider.setFocusPolicy(Qt.StrongFocus)
-        self.slider.setTickPosition(QSlider.TicksBothSides)
-        self.slider.setTickInterval(20)
-
-        self.slider.setSingleStep(1)
-
-        self.txtCoher = QLineEdit("Coherence Formula")
-        self.txtCoher.resize(20, 20)
-        #---------------question choices
-        ''' self.listCheckBox = ["Checkbox_1", "Checkbox_2", "Checkbox_3", "Checkbox_4", "Checkbox_5",
-                      "Checkbox_6", "Checkbox_7", "Checkbox_8", "Checkbox_9", "Checkbox_10"]
- self.listLabel = ['', '', '', '', '', '', '', '', '', '', ]
- grid = QGridLayout()
-
- for i, v in enumerate(self.listCheckBox):
-     self.listCheckBox[i] = QCheckBox(v)
-     self.listLabel[i] = QLabel()
-     grid.addWidget(self.listCheckBox[i], i, 0)
-     grid.addWidget(self.listLabel[i], i, 1)'''
-
-        self.chAuto1 = QCheckBox("Good quality")
-        self.chAuto2 = QCheckBox("Poor quality")
-        self.chAuto3 = QCheckBox("Avarage")
-        self.chAuto4 = QCheckBox("No idea")
-
-        #---------------navigation buttons
-
-        btnFirst = QPushButton("First")
-        btnPre = QPushButton("Previous")
-        btnNext = QPushButton("Next")
-        btnLast = QPushButton("Last")
-        btnFirst.clicked.connect(self.goFirst)
-        btnPre.clicked.connect(self.goPre)
-        btnNext.clicked.connect(self.goNext)
-        btnLast.clicked.connect(self.goLast)
-
-        #---------------main grid
-
-        grid = QGridLayout()
-        grid.setSpacing(5)
-
-        grid.addWidget(self.lblQuestion, 0, 0)
-        grid.addWidget(self.slider, 0, 1)
-        grid.addWidget(self.txtCoher, 0, 2)
-        grid.addWidget(self.chAuto1, 1, 0)
-        grid.addWidget(self.chAuto2, 2, 0)
-        grid.addWidget(self.chAuto3, 3, 0)
-        grid.addWidget(self.chAuto4, 4, 0)
-
-        grid.addWidget(btnFirst, 5, 0)
-        grid.addWidget(btnPre, 5, 1)
-        grid.addWidget(btnNext, 5, 2)
-        grid.addWidget(btnLast, 5, 3)
-        # -------------call layout
-        self.setLayout(grid)
+   def initUI(self):
+        self.createFormGroupBox(self.currentIndex)
+        self.grid = QGridLayout()
+        self.grid.addWidget(self.formGroupBox,0,0)
+        self.grid.addWidget(self.createBtnGroup(), 1, 0)
+        self.setLayout(self.grid)
+        self.setWindowTitle("Quetsion Report")
         self.show()
-    def goFirst(self):
-         print("")
-    def goPre(self):
-         print("")
 
-    def goNext(self):
-        print("")
+   def createBtnGroup(self):
+       groupBox = QGroupBox()
+       btnFirst = QPushButton("First")
+       btnPre = QPushButton("Previous")
+       btnNext = QPushButton("Next")
+       btnLast = QPushButton("Last")
+       btnFirst.clicked.connect(self.goFirst)
+       btnPre.clicked.connect(self.goPre)
+       btnNext.clicked.connect(self.goNext)
+       btnLast.clicked.connect(self.goLast)
+       hbox = QHBoxLayout()
+       hbox.addWidget(btnFirst)
+       hbox.addWidget(btnPre)
+       hbox.addWidget(btnNext)
+       hbox.addWidget(btnLast)
+       hbox.addStretch(1)
+       groupBox.setLayout(hbox)
+       return groupBox
 
-    def goLast(self):
-        print("")
+   def createFormGroupBox(self, Index):
+        print("new index")
+        print(Index)
+        self.formGroupBox = QGroupBox()
+        layout = QFormLayout()
+        row = self.v.iloc[Index]
+        qNum = row[1]
+        qChoices = row[2]
+        lblQuestion = QLabel('Question ' + str(qNum) + ': text of question ' + str(qNum) + '?  ')
+
+        txtCoher = QLineEdit("Coherence Formula")
+        txtCoher.resize(20, 20)
+
+        slider = QSlider(Qt.Horizontal)
+        slider.setTickPosition(QSlider.TicksBelow)
+        slider.setFocusPolicy(Qt.StrongFocus)
+        slider.setTickPosition(QSlider.TicksBothSides)
+        slider.setTickInterval(0.1)
+        slider.setMinimum(0.0)
+        slider.setMaximum(2.0)
+        slider.setValue(1.0)
+        slider.valueChanged.connect(self.addWeight)
+
+        penalty = QSpinBox()
+        chkList = []
+        for i in range(qChoices):
+            chkList.append(QCheckBox("Option " + str(i + 1)))
+
+        layout.addRow(lblQuestion, txtCoher)
+        layout.addRow(QLabel("Change the weight:"), slider)
+        #layout.addRow(QLabel("Change Penalty:"), penalty)
+        for i in range(qChoices):
+            layout.addRow(chkList[i])
+
+        self.formGroupBox.setLayout(layout)
+
+   #-----------------------------function defination-----------------------
+   def  addWeight(self):
+       print("add weight")
+
+   def clearForm(self,Index):
+       self.formGroupBox.deleteLater()
+       self.createFormGroupBox(Index)
+       self.grid.addWidget(self.formGroupBox, 0, 0)
+   #-------------------------navigation ------------------------------------
+   def goFirst(self):
+       if self.currentIndex == 0:
+           print("your are in first ")
+       else:
+           self.currentIndex = 0
+           self.clearForm(self.currentIndex)
+
+   def goPre(self):
+       if self.currentIndex == 0:
+           print("your are in first ")
+       else:
+           self.currentIndex = self.currentIndex - 1
+           self.clearForm(self.currentIndex)
+
+   def goNext(self):
+       if self.currentIndex == self.lenData:
+           print("your are in last ")
+       else:
+           self.currentIndex = self.currentIndex + 1
+           self.clearForm(self.currentIndex)
+
+   def goLast(self):
+       print(len(self.v))
+       if self.currentIndex == self.lenData:
+           print("your are in last ")
+       else:
+           self.currentIndex = self.lenData
+           self.clearForm(self.currentIndex)
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
