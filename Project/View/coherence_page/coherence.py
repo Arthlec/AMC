@@ -2,7 +2,7 @@ import sys
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QLineEdit, QLabel, QPushButton, QGridLayout, QSpacerItem
 from Controller.logic.logic import *
-from Controller.readAMC import getNumberOfQuestions, getAllStudentQuestions, getAllStudentAnswers, writeCoherence
+from Controller.readAMC import getNumberOfQuestions, getAllStudents, getStudentAnswersCorrect, writeCoherence, getStudentQuestionsCorrect
 
 class CoherencePage(QWidget):
     def __init__(self):
@@ -57,17 +57,25 @@ class CoherencePage(QWidget):
         self.listOfQuestions.append(coherenceFormula)
 
     def computeLogic(self):
-        print(self.generalCoherenceFormula.text())
-        logic = Logic(self.generalCoherenceFormula.text(), LogicElement.Q)
-        modifier = logic.checkResults(getAllStudentQuestions())
         listOfModifiers = []
-        listOfModifiers.append(tuple(-1, modifier))
-        for i, coherenceFormula in enumerate(self.listOfQuestions):
+        listOfStudents = getAllStudents()
+        if not self.generalCoherenceFormula.text():
+            print("No formula for exam")
+        else:
+            # print(self.generalCoherenceFormula.text())
+            logic = Logic(self.generalCoherenceFormula.text(), LogicElement.Q)
+            for i in listOfStudents:
+                modifier = logic.checkResults(getStudentQuestionsCorrect(i))
+                listOfModifiers.append(tuple((-1, modifier)))
+        for i, coherenceFormula in enumerate(self.listOfQuestions, 1):
             # print(coherenceFormula.text())
-            logic = Logic(coherenceFormula.text(), LogicElement.R)
-            modifier = logic.checkResults(getAllStudentAnswers())
-            listOfModifiers.append(tuple(i, modifier))
-
+            if not coherenceFormula.text():
+                print("No formula for question " + str(i))
+            else:
+                for j in listOfStudents:
+                    logic = Logic(coherenceFormula.text(), LogicElement.R)
+                    modifier = logic.checkResults(getStudentAnswersCorrect(j, i))
+                    listOfModifiers.append(tuple((i, modifier)))
         writeCoherence(listOfModifiers)
 
 if __name__ == '__main__':

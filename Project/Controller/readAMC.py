@@ -308,35 +308,39 @@ def writeWeights(data):
     with open(weightPath, 'w') as out:
         json.dump(data.to_json(), out, indent=2)
 
-def getAllStudentQuestions():
+def getAllStudents():
     boxes, point = updateData()
-    allStudentQuestions = []
+    listStudents = boxes['student'].unique().tolist()
+    return listStudents
 
-    listStudents = boxes['student'].unique()
+def getStudentQuestionsCorrect(student):
+    boxes, point = updateData()
+    studentQuestionsCorrect = []
     listQuestions = boxes['question'].unique()
 
-    for student in listStudents:
-        for question in listQuestions:
-            value = True
-            boxes_onestudent_onequestion = boxes.loc[(boxes['student'] == student) & (boxes['question'] == question)]
+    for question in listQuestions:
+        value = True
+        boxes_onequestion = boxes.loc[(boxes['student'] == student) & (boxes['question'] == question)]
+        for i in range(len(boxes_onequestion)):
+            value = value and ((boxes_onequestion['correct'].iloc[i] and boxes_onequestion['ticked'].iloc[i])
+                           or (not(boxes_onequestion['correct'].iloc[i]) and not(boxes_onequestion['ticked'].iloc[i])))
+        studentQuestionsCorrect.append(tuple((question, int(value))))
+    return studentQuestionsCorrect
 
-            for i in range(len(boxes_onestudent_onequestion)):
-                value = value and ((boxes_onestudent_onequestion['correct'].iloc[i] and boxes_onestudent_onequestion['ticked'].iloc[i])
-                                   or (not(boxes_onestudent_onequestion['correct'].iloc[i]) and not(boxes_onestudent_onequestion['ticked'].iloc[i])))
-            for index in list(boxes_onestudent_onequestion.index):
-                allStudentQuestions.append(tuple((index, int(value))))
-    return allStudentQuestions
-
-def getAllStudentAnswers():
+def getStudentAnswersCorrect(student, question):
     boxes, point = updateData()
-    allStudentAnswers = []
-    for i in range(len(boxes)):
-        allStudentAnswers.append(tuple((list(boxes.index)[i], int(boxes['correct'].iloc[i] and boxes['ticked'].iloc[i]))))
-    return allStudentAnswers
+    studentAnswersCorrect = []
+    boxes_onequestion = boxes.loc[(boxes['student'] == student) & (boxes['question'] == question)]
+    # listQuestions = boxes_onequestion.unique()
+    for i in range(len(boxes_onequestion)):
+        value = ((boxes_onequestion['correct'].iloc[i] and boxes_onequestion['ticked'].iloc[i])
+                    or (not (boxes_onequestion['correct'].iloc[i]) and not (boxes_onequestion['ticked'].iloc[i])))
+        studentAnswersCorrect.append(tuple((boxes_onequestion['answer'].iloc[i], int(value))))
+    return studentAnswersCorrect
 
 def writeCoherence(data):
     with open(coherenceFormulaPath, 'w') as out:
-        json.dump(data.to_json(), out, indent=2)
+        json.dump(data, out, indent=2)
 
 def parseCoherenceFormula():
     with open(coherenceFormulaPath) as f:
@@ -386,8 +390,8 @@ print("coherenceFormulaPath : " + str(coherenceFormulaPath))
 # print(boxes['total'])
 # print(boxes['ticked'])
 # print(updateCoherence())
-print(getAllStudentQuestions())
-
+print(getStudentQuestionsCorrect(2))
+print(getStudentAnswersCorrect(2, 5))
 
 #-------------------------------------sahar code---------------------------
 def MarkingQuestions12(NbPointsQuestions, boxes,penalty="def", avoidNeg=True):

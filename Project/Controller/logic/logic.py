@@ -156,7 +156,7 @@ class Logic:
         errorArray = [None] * len(self.tokens)
         for id, res in correctedAnswers:
             results[id - 1] = res
-        print('Results: ', results)
+        # print('Results: ', results)
 
         for i in range(len(self.tokens)):
             if isinstance(self.tokens[i], str):
