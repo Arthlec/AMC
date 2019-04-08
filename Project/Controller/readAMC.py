@@ -387,3 +387,89 @@ print("coherenceFormulaPath : " + str(coherenceFormulaPath))
 # print(boxes['ticked'])
 # print(updateCoherence())
 print(getAllStudentQuestions())
+
+
+#-------------------------------------sahar code---------------------------
+def MarkingQuestions12(NbPointsQuestions, boxes,penalty="def", avoidNeg=True):
+    # computes the sum of points per student and question
+    # result is a a dataframe of the number of points per question (row)
+    # and per student (column)
+
+    listStudents = boxes['student'].unique()
+    listQuestions = boxes['question'].unique()
+    resultat = pd.DataFrame(index=listQuestions, columns=listStudents)
+    resultatsPoints = pd.DataFrame(index=listQuestions, columns=listStudents)
+
+
+    for student in listStudents:
+        for question in listQuestions:
+            K = (boxes['student']==student) & (boxes['question'] == question)
+            # resultat as a proportion of the possible max
+            resultat.loc[question, student] = boxes.loc[K,'points'].sum()/boxes.loc[K,'maxPoints'].sum()
+            resultatsPoints.loc[question, student] = boxes.loc[K,'points'].sum()/boxes.loc[K,'maxPoints'].sum()
+
+    # compute number of choice for each question use in penalty
+    c = boxes.groupby(['student'])['question'].value_counts().to_frame('count')  # .apply(list).to_dict()
+    c2 = pd.DataFrame(c).reset_index()
+    c3 = c2.loc[c2['student'] == listStudents[0]]
+    # then avoid negative points for questions
+    if avoidNeg: resultat[resultat < 0] = 0
+    else:#penalty 1/(n-1) default or get by teacher as entry
+        if(penalty=="def"):
+            for q in c3['question']:
+                for std in listStudents:
+                    if resultat.loc[q,std]<0:
+                        count=c3.loc[c3['question'] == q, 'count'].iloc[0]
+                        resultat.loc[q,std]=round(1/(count -1), 1)
+        else:
+             resultat[resultat < 0] = penalty
+
+    # Taking into account points per question
+    ''' maxPoints = NbPointsQuestions['Points'].sum()
+    weights = getWeights()
+    for question in listQuestions:
+        resultatsPoints.loc[question,:] = resultat.loc[question,:]*NbPointsQuestions.loc[question,'Points']\
+                                          *weights.loc[weights['question'] == question, 'weight'].item()
+
+    # Then computes the points per student
+    resultatsPoints.loc['Note',:] = resultatsPoints.sum()
+    # resultatsPoints.loc['Note/20',:] = 20/maxPoints*resultatsPoints.loc['Note',:] # old formula
+    max_mark = resultatsPoints.loc['Note'].max()
+    min_mark = resultatsPoints.loc['Note'].min()
+    resultatsPoints.loc['Note/' + str(maxPoints), :] = (resultatsPoints.loc['Note',:] / maxPoints) * (max_mark - min_mark) + min_mark
+    resultatsPoints.loc['Note/20', :] = (resultatsPoints.loc['Note/' + str(maxPoints)]*20) / maxPoints
+    return resultat, resultatsPoints'''
+    return c, c2, c3
+
+
+def computeData2():
+    # dataPath = "D:/Travail/AMC/Project/Real Data/"
+
+    # In[6]:
+
+
+    zone, answer, association, var = readAMCTables(dataPath)
+    boxes = makeBoxes(zone, answer, var )
+
+    boxes["weight"] = 1.0 # default weight
+    # weights = boxes[['question', 'student', 'weight']]
+    weights = boxes[['question', 'weight']]
+    weights = weights.drop_duplicates('question')
+    writeWeights(weights)
+
+    schemeMarkingInQuestion1(boxes, 1, 0., -0.2, -0.2)
+
+
+    # In[8]:
+
+
+    # Example of marking scheme per question
+    listQuestions = boxes['question'].unique()
+    NbPointsQuestions = pd.DataFrame(index=range(1,listQuestions.shape[0]+1), columns=['Points']  )
+    NbPointsQuestions['Points'] = 1
+
+
+    # In[9]:
+    #get by user or default
+    c, c2, c3 = MarkingQuestions12(NbPointsQuestions, boxes,penalty="def",avoidNeg=False)
+    return c, c2, c3
