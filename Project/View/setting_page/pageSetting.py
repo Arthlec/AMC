@@ -12,7 +12,6 @@ from PyQt5.QtWidgets import (QWidget, QLabel, QLineEdit, QPushButton,
 import pandas as pd
 from pathlib import Path
 class Setting(QWidget):
-
     def __init__(self):
         super().__init__()
         self.title = 'AMC Setting'
@@ -20,9 +19,10 @@ class Setting(QWidget):
         self.top = 10
         self.width = 600
         self.height = 400
-        self.initUI()
 
-    def initUI(self):
+    def initUI(self, mainWindow):
+        mainWindow.setWindowTitle('AMC Setting')
+        mainWindow.setCentralWidget(self)
         #-------------define labels
         self.lblTP = QLabel('TP: True Positive')
         self.lblFN = QLabel('FN: False Negative')
