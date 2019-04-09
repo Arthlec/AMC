@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QIcon, QFont
 from PyQt5.QtCore import Qt
 
-from View.setting_page.pageSetting import Setting
+from View.setting_page.pageSetting import Settings
 
 
 class _ListItem(QWidget):
@@ -82,9 +82,8 @@ class HomePage(QWidget):
         return self.newCorrectionButton
 
     def openSettings(self):
-        settings = Setting()
-        settings.initUI(self.mainWindow)
-        self.mainWindow.show()
+        settingsDialog = Settings(self.mainWindow)
+        settingsDialog.show()
 
 
     def createOldCorrectionsList(self):
