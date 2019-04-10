@@ -36,6 +36,10 @@ X_pie = ['8','9','12','13','14','15','16']
 
 #+--------------main class
 class ReportPage(QWidget):
+    def __init__(self, parent=None):
+        super(ReportPage, self).__init__(parent)
+        self.plot = PlotCanvas()
+
     def initUI(self, mainWindow):
         mainWindow.title = 'AMC Report'
         self.createGridLayout()
@@ -49,19 +53,25 @@ class ReportPage(QWidget):
 
         # ---------------------grid layout --------------------
         layout = QGridLayout()
-        layout.setColumnStretch(0, 3)
-        layout.setColumnStretch(1, 3)
-        layout.setColumnStretch(2, 3)
+        for i in range(3):
+            layout.setColumnStretch(i, 1)
 
         # ---------------------text boxes  --------------------
+        # Put all of the choices together, linking the name and the function to call
+        self.comboOptions = [
+            ["Box Chart",     self.plot.plot_box],
+            ["Violin Chart",  self.plot.plot_violin],
+            ["Line Chart",    self.plot.plot_histogram],
+            ["Pie Chart",     self.plot.plot_pie],
+        ]
+
         txtCoherence = QLineEdit("Please Enter your Coherence Formula")
         txtCoherence.resize(20, 20)
         layout.addWidget(txtCoherence, 0, 0)
         cbChart = QComboBox()
-        cbChart.addItem("Box Chart")
-        cbChart.addItem("Violin Chart")
-        cbChart.addItem("Line Chart")
-        cbChart.addItem("Pie Chart")
+
+        for elt in self.comboOptions:
+            cbChart.addItem(elt[0])
         cbChart.resize(140, 30)
         layout.addWidget(cbChart, 0, 2)
         btnApply = QPushButton("Apply Coherence")
@@ -95,7 +105,6 @@ class ReportPage(QWidget):
         layout.addWidget(buildSlider(arrCorrectAns=arrCorrectAns,numberOfQuestions=numberOfQuestions), 1, 1)
 
         # ---------------------chart view --------------------
-        self.plot = PlotCanvas()
         self.plot.plot_box()
 
         layout.addWidget(self.plot, 1, 2)
@@ -105,17 +114,10 @@ class ReportPage(QWidget):
     def onClickApply(self):
         print("click: run your coherence and update data ")
 
+    # Calls directly the good function in the array self.comboOptions
     def OnChangeCbChart(self,i):
-        print(i)
-        if i == 0:
-            self.plot.plot_box()
-        if i == 1:
-            self.plot.plot_violin()
-        if i == 2:
-            self.plot.plot_histogram()
-        if i == 3:
-            self.plot.plot_pie()
-            print("click: display your chart related to seelcted option ")
+        self.comboOptions[i][1]()
+
 
 #+--------------builder slider has been written by Arthur Lecert
 class buildSlider(QWidget):
