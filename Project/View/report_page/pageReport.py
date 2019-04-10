@@ -12,7 +12,8 @@ from PyQt5.QtWidgets import QWidget, QSlider, QGroupBox, QGridLayout, QLineEdit,
 from PyQt5.QtCore import Qt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
-from Controller.readAMC import getNumberOfQuestions
+# from Controller.readAMC import getNumberOfQuestions, changeWeight
+from Controller.readAMC import *
 from View.Charts import PlotCanvas
 from Controller.studentData import StudentData
 
@@ -88,7 +89,7 @@ class ReportPage(QWidget):
 
         # ---------------------slider  weight --------------------
         numberOfQuestions, arrCorrectAns = getNumberOfQuestions()
-        layout.addWidget(buildSlider(arrCorrectAns=arrCorrectAns,numberOfQuestions=numberOfQuestions), 1, 1)
+        layout.addWidget(BuildSlider(self.controller, arrCorrectAns=arrCorrectAns,numberOfQuestions=numberOfQuestions), 1, 1)
 
         # ---------------------chart view --------------------
         self.plot.plot_box()
@@ -106,10 +107,10 @@ class ReportPage(QWidget):
 
 
 #+--------------builder slider has been written by Arthur Lecert
-class buildSlider(QWidget):
-    def __init__(self, parent=None, initialValue=1.0, arrCorrectAns=[], numberOfQuestions=1):
-        super(buildSlider, self).__init__(parent)
-
+class BuildSlider(QWidget):
+    def __init__(self, controller, parent=None, initialValue=1.0, arrCorrectAns=[], numberOfQuestions=1):
+        super(BuildSlider, self).__init__(parent)
+        self.controller = controller
         # ---------------------weight
         self.layout = QVBoxLayout()
         self.listOfQuestions = []
@@ -117,8 +118,6 @@ class buildSlider(QWidget):
             self.addSlider(QLabel("Question " + str(i+1) +"  correctness: " + str(arrCorrectAns[i]) + "  %"), QLabel(str(initialValue)), initialValue)
 
         self.b1 = QPushButton("Save weight")
-        self.b1.setCheckable(True)
-        self.b1.toggle()
         self.b1.clicked.connect(self.writeWeights)
         self.layout.addWidget(self.b1)
 
@@ -151,6 +150,7 @@ class buildSlider(QWidget):
         for i, slider in enumerate(self.listOfQuestions):
             changeWeight(i + 1, slider.value())
         updateData()
+        # self.controller.updateData()
         # print(getWeights())
 
 
