@@ -12,9 +12,8 @@ from PyQt5.QtWidgets import QWidget, QSlider, QGroupBox, QGridLayout, QLineEdit,
 from PyQt5.QtCore import Qt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
-from Controller.readAMC import *
-import numpy as np
-from View.Charts import *
+from Controller.readAMC import getNumberOfQuestions
+from View.Charts import PlotCanvas
 from Controller.studentData import StudentData
 
 #+--------------main class
@@ -68,19 +67,19 @@ class ReportPage(QWidget):
         scroll.setWidget(table)
         layout.addWidget(table, 1, 0)
 
-        df = self.controller.getScoreTable() # main data
-        nbIndex = len(df.index)
-        nbColumns = len(df.columns)
+        scoreTable = self.controller.getScoreTable() # main data
+        nbIndex = len(scoreTable.index)
+        nbColumns = len(scoreTable.columns)
 
         colName = []   # column name
         rowName = []   # row name
         table.setColumnCount(nbColumns)
         table.setRowCount(nbIndex)
         for i in range(nbIndex):
-            colName.append(str(df.index[i]))
+            colName.append(str(scoreTable.index[i]))
             for j in range(nbColumns):
-                rowName.append(str(df.columns[j]))
-                table.setItem(i, j, QTableWidgetItem(str(round(df.iloc[i, j], 1))))
+                rowName.append(str(scoreTable.columns[j]))
+                table.setItem(i, j, QTableWidgetItem(str(round(scoreTable.iloc[i, j], 1))))
 
         table.setHorizontalHeaderLabels(rowName)
         table.setVerticalHeaderLabels(colName)
@@ -156,7 +155,6 @@ class buildSlider(QWidget):
 
 
 class DoubleSlider(QSlider):
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.decimals = 2
@@ -198,12 +196,6 @@ class DoubleSlider(QSlider):
     def maximum(self):
         return self._max_value
 
-
-def on_click(self):
-       textboxValue = self.textbox.text()
-       print(textboxValue)
-       print("run coherence")
-#+--------------chart class has been written by Roman Blond
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
