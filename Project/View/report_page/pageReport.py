@@ -15,30 +15,14 @@ from matplotlib.figure import Figure
 from Controller.readAMC import *
 import numpy as np
 from View.Charts import *
-
-#+--------------global data that uses in this page
-points, stdname = computeData()
-df = stdname.as_matrix()
-score_chart = df[10,:].astype(int)
-print(score_chart)
-mark_chart = np.unique(score_chart)
-print(mark_chart)
-eff_chart = []
-
-for i in range(len(mark_chart)):
-    effective_chart = []
-    effective_chart = np.count_nonzero(score_chart == mark_chart[i])
-    eff_chart = np.append(eff_chart, effective_chart)
-print(eff_chart.astype(int))
-X = mark_chart
-Y = eff_chart
-X_pie = ['8','9','12','13','14','15','16']
+from Controller.studentData import StudentData
 
 #+--------------main class
 class ReportPage(QWidget):
     def __init__(self, parent=None):
         super(ReportPage, self).__init__(parent)
-        self.plot = PlotCanvas()
+        self.controller = StudentData()
+        self.plot = PlotCanvas(self.controller.dataX, self.controller.dataY)
 
     def initUI(self, mainWindow):
         mainWindow.title = 'AMC Report'
@@ -84,14 +68,17 @@ class ReportPage(QWidget):
         scroll.setWidget(table)
         layout.addWidget(table, 1, 0)
 
-        df = stdname.T # main data
-        colName = []  # column name
-        rowName = []  # row name
-        table.setColumnCount(len(df.columns))
-        table.setRowCount(len(df.index))
-        for i in range(len(df.index)):
+        df = self.controller.getScoreTable() # main data
+        nbIndex = len(df.index)
+        nbColumns = len(df.columns)
+
+        colName = []   # column name
+        rowName = []   # row name
+        table.setColumnCount(nbColumns)
+        table.setRowCount(nbIndex)
+        for i in range(nbIndex):
             colName.append(str(df.index[i]))
-            for j in range(len(df.columns)):
+            for j in range(nbColumns):
                 rowName.append(str(df.columns[j]))
                 table.setItem(i, j, QTableWidgetItem(str(round(df.iloc[i, j], 1))))
 

@@ -14,7 +14,10 @@ from Controller import readAMC as ReadAMC
 
 # PlotCanvas is also a QWidget
 class PlotCanvas(FigureCanvas):
-    def __init__(self, parent=None, width=5, height=4, dpi=100):
+    def __init__(self,dataX, dataY, parent=None, width=5, height=4, dpi=100):
+        self.dataX = dataX
+        self.dataY = dataY
+
         fig = Figure(figsize=(width, height), dpi=dpi)
         self.axes = fig.add_subplot(111)
 
@@ -25,26 +28,6 @@ class PlotCanvas(FigureCanvas):
                 QSizePolicy.Expanding,
                 QSizePolicy.Expanding)
         FigureCanvas.updateGeometry(self)
-
-        self.computeData()
-
-    def computeData(self):
-        std, points = ReadAMC.computeData()
-        df = points
-        df = df.as_matrix()
-        score_chart = df[10,:].astype(int)
-        # print(score_chart)
-        mark_chart = np.unique(score_chart)
-        # print(mark_chart)
-        eff_chart = []
-
-        for i in range(len(mark_chart)):
-            effective_chart = []
-            effective_chart = np.count_nonzero(score_chart == mark_chart[i])
-            eff_chart = np.append(eff_chart, effective_chart)
-        # print(eff_chart.astype(int))
-        self.dataX = mark_chart
-        self.dataY = eff_chart
 
 
     def setTitle(self):
