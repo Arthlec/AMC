@@ -53,15 +53,10 @@ class PlotCanvas(FigureCanvas):
         self.draw()
 
     def plot_violin(self):
-        pass
-        # sns.set
-        # sns.violinplot(data=X)
-        # sns.set()
-        # tips = sns.load_dataset("tips")
-        # ax = sns.violinplot(x=tips["total_bill"])
-        # self.sns.plt.show()
-
-        # self.draw()
+        self.axes.cla()
+        self.axes.violinplot(self.dataX)
+        self.setTitle()
+        self.draw()
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
