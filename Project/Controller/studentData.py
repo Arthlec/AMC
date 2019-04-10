@@ -3,19 +3,19 @@ import numpy as np
 
 class StudentData:
     def __init__(self):
-        self.loadData()
+        self.computeData()
 
-    def loadData(self):
-        boxes, resultPoints = ReadAMC.computeData()
+    def loadData(self, boxes, resultPoints):
         # print(resultPoints)
         # print(resultPoints.T)
         self.organizedTable = resultPoints.T
-        df = resultPoints.as_matrix()
-        # print(df)
+        # print("organizedTable: \n", self.organizedTable)
+        df = resultPoints.values
+        # print('df: ', df)
         score_chart = df[10,:].astype(int)
-        # print(score_chart)
+        # print("score_chart: ", score_chart)
         mark_chart = np.unique(score_chart)
-        # print(mark_chart)
+        # print("mark_chart: ", mark_chart)
         eff_chart = []
 
         for i in range(len(mark_chart)):
@@ -25,6 +25,12 @@ class StudentData:
         # print(eff_chart.astype(int))
         self.dataX = mark_chart
         self.dataY = eff_chart
+
+    def computeData(self):
+        self.loadData(*ReadAMC.computeData())
+
+    def updateData(self):
+        self.loadData(*ReadAMC.updateData())
 
     def getScoreTable(self):
         return self.organizedTable
