@@ -7,19 +7,13 @@
 import csv
 import sys
 from PyQt5.QtWidgets import (QWidget, QLabel, QLineEdit, QPushButton,
-                             QCheckBox, QMessageBox,QTableWidgetItem,QHeaderView, QTableWidget,QFileDialog, QComboBox,  QGridLayout, QApplication, QFileDialog)
+                             QCheckBox, QMessageBox,QTableWidgetItem,QHeaderView, QTableWidget,QFileDialog, QComboBox,  QGridLayout, QApplication, QFileDialog, QDialog)
 
 import pandas as pd
 from pathlib import Path
-class Setting(QWidget):
-
-    def __init__(self):
-        super().__init__()
-        self.title = 'AMC Setting'
-        self.left = 10
-        self.top = 10
-        self.width = 600
-        self.height = 400
+class Settings(QDialog):
+    def __init__(self, parent=None):
+        super(Settings, self).__init__(parent)
         self.initUI()
 
     def initUI(self):
@@ -101,9 +95,9 @@ class Setting(QWidget):
 
         # -------------call layout
         self.setLayout(self.grid)
-        self.setGeometry(300, 300, 350, 300)
-        self.setWindowTitle('Setting')
-        self.show()
+        self.resize(350, 300)
+        self.setModal(True)
+        self.setWindowTitle('Settings')
 
     # -------------function set params auto
     def setAutoParams(self):
@@ -184,7 +178,7 @@ class Setting(QWidget):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    ex = Setting()
+    ex = Settings()
     sys.exit(app.exec_())
 
 

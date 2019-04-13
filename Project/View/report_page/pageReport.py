@@ -12,30 +12,18 @@ from PyQt5.QtWidgets import QWidget, QSlider, QGroupBox, QGridLayout, QLineEdit,
 from PyQt5.QtCore import Qt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
+# from Controller.readAMC import getNumberOfQuestions, changeWeight
 from Controller.readAMC import *
-import numpy as np
-from View.Charts import *
-
-#+--------------global data that uses in this page
-points, stdname = computeData()
-df = stdname.as_matrix()
-score_chart = df[10,:].astype(int)
-print(score_chart)
-mark_chart = np.unique(score_chart)
-print(mark_chart)
-eff_chart = []
-
-for i in range(len(mark_chart)):
-    effective_chart = []
-    effective_chart = np.count_nonzero(score_chart == mark_chart[i])
-    eff_chart = np.append(eff_chart, effective_chart)
-print(eff_chart.astype(int))
-X = mark_chart
-Y = eff_chart
-X_pie = ['8','9','12','13','14','15','16']
+from View.Charts import PlotCanvas
+from Controller.studentData import StudentData
 
 #+--------------main class
 class ReportPage(QWidget):
+    def __init__(self, parent=None):
+        super(ReportPage, self).__init__(parent)
+        self.controller = StudentData()
+        self.plot = PlotCanvas(self.controller.dataX, self.controller.dataY)
+
     def initUI(self, mainWindow):
         mainWindow.title = 'AMC Report'
         self.createGridLayout()
@@ -49,19 +37,25 @@ class ReportPage(QWidget):
 
         # ---------------------grid layout --------------------
         layout = QGridLayout()
-        layout.setColumnStretch(0, 3)
-        layout.setColumnStretch(1, 3)
-        layout.setColumnStretch(2, 3)
+        for i in range(3):
+            layout.setColumnStretch(i, 1)
 
         # ---------------------text boxes  --------------------
+        # Put all of the choices together, linking the name and the function to call
+        self.comboOptions = [
+            ["Box Chart",     self.plot.plot_box],
+            ["Violin Chart",  self.plot.plot_violin],
+            ["Line Chart",    self.plot.plot_histogram],
+            ["Pie Chart",     self.plot.plot_pie],
+        ]
+
         txtCoherence = QLineEdit("Please Enter your Coherence Formula")
         txtCoherence.resize(20, 20)
         layout.addWidget(txtCoherence, 0, 0)
         cbChart = QComboBox()
-        cbChart.addItem("Box Chart")
-        cbChart.addItem("Violin Chart")
-        cbChart.addItem("Line Chart")
-        cbChart.addItem("Pie Chart")
+
+        for elt in self.comboOptions:
+            cbChart.addItem(elt[0])
         cbChart.resize(140, 30)
         layout.addWidget(cbChart, 0, 2)
         btnApply = QPushButton("Apply Coherence")
@@ -74,16 +68,19 @@ class ReportPage(QWidget):
         scroll.setWidget(table)
         layout.addWidget(table, 1, 0)
 
-        df = stdname.T # main data
-        colName = []  # column name
-        rowName = []  # row name
-        table.setColumnCount(len(df.columns))
-        table.setRowCount(len(df.index))
-        for i in range(len(df.index)):
-            colName.append(str(df.index[i]))
-            for j in range(len(df.columns)):
-                rowName.append(str(df.columns[j]))
-                table.setItem(i, j, QTableWidgetItem(str(round(df.iloc[i, j], 1))))
+        scoreTable = self.controller.getScoreTable() # main data
+        nbIndex = len(scoreTable.index)
+        nbColumns = len(scoreTable.columns)
+
+        colName = []   # column name
+        rowName = []   # row name
+        table.setColumnCount(nbColumns)
+        table.setRowCount(nbIndex)
+        for i in range(nbIndex):
+            colName.append(str(scoreTable.index[i]))
+            for j in range(nbColumns):
+                rowName.append(str(scoreTable.columns[j]))
+                table.setItem(i, j, QTableWidgetItem(str(round(scoreTable.iloc[i, j], 1))))
 
         table.setHorizontalHeaderLabels(rowName)
         table.setVerticalHeaderLabels(colName)
@@ -92,10 +89,9 @@ class ReportPage(QWidget):
 
         # ---------------------slider  weight --------------------
         numberOfQuestions, arrCorrectAns = getNumberOfQuestions()
-        layout.addWidget(buildSlider(arrCorrectAns=arrCorrectAns,numberOfQuestions=numberOfQuestions), 1, 1)
+        layout.addWidget(BuildSlider(self.controller, arrCorrectAns=arrCorrectAns,numberOfQuestions=numberOfQuestions), 1, 1)
 
         # ---------------------chart view --------------------
-        self.plot = PlotCanvas()
         self.plot.plot_box()
 
         layout.addWidget(self.plot, 1, 2)
@@ -105,23 +101,16 @@ class ReportPage(QWidget):
     def onClickApply(self):
         print("click: run your coherence and update data ")
 
+    # Calls directly the good function in the array self.comboOptions
     def OnChangeCbChart(self,i):
-        print(i)
-        if i == 0:
-            self.plot.plot_box()
-        if i == 1:
-            self.plot.plot_violin()
-        if i == 2:
-            self.plot.plot_histogram()
-        if i == 3:
-            self.plot.plot_pie()
-            print("click: display your chart related to seelcted option ")
+        self.comboOptions[i][1]()
+
 
 #+--------------builder slider has been written by Arthur Lecert
-class buildSlider(QWidget):
-    def __init__(self, parent=None, initialValue=1.0, arrCorrectAns=[], numberOfQuestions=1):
-        super(buildSlider, self).__init__(parent)
-
+class BuildSlider(QWidget):
+    def __init__(self, controller, parent=None, initialValue=1.0, arrCorrectAns=[], numberOfQuestions=1):
+        super(BuildSlider, self).__init__(parent)
+        self.controller = controller
         # ---------------------weight
         self.layout = QVBoxLayout()
         self.listOfQuestions = []
@@ -129,8 +118,6 @@ class buildSlider(QWidget):
             self.addSlider(QLabel("Question " + str(i+1) +"  correctness: " + str(arrCorrectAns[i]) + "  %"), QLabel(str(initialValue)), initialValue)
 
         self.b1 = QPushButton("Save weight")
-        self.b1.setCheckable(True)
-        self.b1.toggle()
         self.b1.clicked.connect(self.writeWeights)
         self.layout.addWidget(self.b1)
 
@@ -163,11 +150,11 @@ class buildSlider(QWidget):
         for i, slider in enumerate(self.listOfQuestions):
             changeWeight(i + 1, slider.value())
         updateData()
+        # self.controller.updateData()
         # print(getWeights())
 
 
 class DoubleSlider(QSlider):
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.decimals = 2
@@ -209,12 +196,6 @@ class DoubleSlider(QSlider):
     def maximum(self):
         return self._max_value
 
-
-def on_click(self):
-       textboxValue = self.textbox.text()
-       print(textboxValue)
-       print("run coherence")
-#+--------------chart class has been written by Roman Blond
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

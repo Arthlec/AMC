@@ -2,7 +2,8 @@ import sys
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QLineEdit, QLabel, QPushButton, QGridLayout, QSpacerItem
 from Controller.logic.logic import *
-from Controller.readAMC import getNumberOfQuestions, getAllStudents, getStudentAnswersCorrect, writeCoherence, getStudentQuestionsCorrect
+from Controller.readAMC import getNumberOfQuestions, getAllStudents, getStudentAnswersCorrect, writeCoherence, \
+    getStudentQuestionsCorrect, parseCoherenceFormula
 
 class CoherencePage(QWidget):
     def __init__(self):
@@ -43,6 +44,8 @@ class CoherencePage(QWidget):
         self.b1.clicked.connect(self.computeLogic)
         self.layout.addWidget(self.b1)
 
+        self.displaySavedFormulas()
+
         self.setLayout(self.layout)
         self.show()
 
@@ -58,6 +61,7 @@ class CoherencePage(QWidget):
 
     def computeLogic(self):
         listOfModifiers = []
+        listOfQuestionsText = []
         listOfStudents = getAllStudents()
         if not self.generalCoherenceFormula.text():
             print("No formula for exam")
@@ -67,6 +71,7 @@ class CoherencePage(QWidget):
             for i in listOfStudents:
                 modifier = logic.checkResults(getStudentQuestionsCorrect(i))
                 listOfModifiers.append(tuple((-1, modifier)))
+                listOfQuestionsText.append(self.generalCoherenceFormula.text())
         for i, coherenceFormula in enumerate(self.listOfQuestions, 1):
             # print(coherenceFormula.text())
             if not coherenceFormula.text():
@@ -76,7 +81,17 @@ class CoherencePage(QWidget):
                     logic = Logic(coherenceFormula.text(), LogicElement.R)
                     modifier = logic.checkResults(getStudentAnswersCorrect(j, i))
                     listOfModifiers.append(tuple((i, modifier)))
-        writeCoherence(listOfModifiers)
+                    listOfQuestionsText.append(coherenceFormula.text())
+        writeCoherence([listOfModifiers, listOfQuestionsText])
+
+    def displaySavedFormulas(self):
+        formulas = parseCoherenceFormula()
+        if formulas[0][0][0] == -1: # [Modifiers][Tuple][Index]
+            self.generalCoherenceFormula.setText(formulas[1][0]) # [Text][Index]
+        for i in range(1, len(self.listOfQuestions)):
+            for j in range(len(formulas[0])):
+                if formulas[0][j][0] == i:
+                    self.listOfQuestions[i-1].setText(formulas[1][j])
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

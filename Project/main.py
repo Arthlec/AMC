@@ -30,11 +30,11 @@ class MainWindow(QMainWindow):
         super(MainWindow, self).__init__(parent)
         self.home = HomePage(self)
         self.reportPage = ReportPage(self)
-        self.second = SecondWindow(self)
+        # self.second = SecondWindow(self)
         self.initUI()
 
     def initUI(self):
-        self.showHome()
+        self.showReportPage()
 
     def showHome(self):
         self.home.initUI(self)

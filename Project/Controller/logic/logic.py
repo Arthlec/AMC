@@ -183,7 +183,7 @@ if __name__ == '__main__':
 #     # logic = Logic('Q1 == 1 AND Q2 IS 0')
 #     # logic = Logic('Q1 == 1 AND Q2 == 0 IS -2')
     logic = Logic('R2 == 1 AND R3 == 0 IS -4', LogicElement.R)
-    results = [(1, 1), (2, 1), (3, 0), (4, 5)]
+    results = [(1, 1), (2, 1), (3, 0), (4, 1)]
     # results = [(1, 1), (2, 1), (3, 2)]
     newRes = logic.checkResults(results)
     print(newRes)
