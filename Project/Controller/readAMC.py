@@ -167,7 +167,7 @@ def MarkingQuestions1(NbPointsQuestions, boxes,penalty="def", avoidNeg=True):
     resultatsPoints.loc['Note/20', :] = (resultatsPoints.loc['Note/' + str(maxPoints)]*20) / maxPoints
     return resultat, resultatsPoints
 
-def MarkingQuestionsWithCoherence(NbPointsQuestions, boxes,penalty="def", avoidNeg=True, examFormula =0 , questionsFormulas=0):
+def MarkingQuestionsWithCoherence(NbPointsQuestions, boxes,penalty="def", avoidNeg=True):
     # computes the sum of points per student and question
     # result is a a dataframe of the number of points per question (row)
     # and per student (column)
@@ -205,13 +205,19 @@ def MarkingQuestionsWithCoherence(NbPointsQuestions, boxes,penalty="def", avoidN
     maxPoints = NbPointsQuestions['Points'].sum()
     weights = getWeights()
     for question in listQuestions:
-        print(question)
-        resultatsPoints.loc[question,:] = [resultat.loc[question,:]*NbPointsQuestions.loc[question,'Points']\
-                                          *weights.loc[weights['question'] == question, 'weight'].item()]\
-                                          +questionsFormulas[question-1]
+        # print(question)
+        resultatsPoints.loc[question,:] = resultat.loc[question,:]*NbPointsQuestions.loc[question,'Points']\
+                                          *weights.loc[weights['question'] == question, 'weight'].item()
 
-    # Pour chaque élément de questionsFormulas ajouter le modifier à la question d'indice dans le tuple (pour chaque élève)
-    # Appliquer le modifier de l'exam sur toutes les questions
+    # print(resultatsPoints.iloc[0, 0])
+    # print(resultatsPoints.head())
+    # print(resultatsPoints.describe())
+
+    formulas = parseCoherenceFormula()
+    # for student in listStudents:
+    #     for question in listQuestions:
+    #         if formulas[0][student][0] == question:
+    #             resultatsPoints.loc[question, student] += formulas[0][student][1]
 
 
     # Then computes the points per student
@@ -221,6 +227,16 @@ def MarkingQuestionsWithCoherence(NbPointsQuestions, boxes,penalty="def", avoidN
     min_mark = resultatsPoints.loc['Note'].min()
     resultatsPoints.loc['Note/' + str(maxPoints), :] = (resultatsPoints.loc['Note',:] / maxPoints) * (max_mark - min_mark) + min_mark
     resultatsPoints.loc['Note/20', :] = (resultatsPoints.loc['Note/' + str(maxPoints)]*20) / maxPoints
+
+
+    for student in listStudents:
+        if formulas[0][0][0] == -1: # [Modifiers][Tuple][Index]
+            resultatsPoints.loc['Note/20 (avec cohérence)', [student]] = \
+                resultatsPoints.loc['Note/20', [student]] + formulas[0][student][1]
+            # print("Modifier : " + str(formulas[0][student][1]))
+            # print("Note avant : " + str(resultatsPoints.loc['Note/20', [student]]))
+            # print("Note après : " + str(resultatsPoints.loc['Note/20 (avec cohérence)', [student]]))
+
     return resultat, resultatsPoints
 
 def computeData():
@@ -270,10 +286,6 @@ def updateData():
     return boxes, resultatsPoints
 
 def updateCoherence():
-    listOfModifiers = parseCoherenceFormula()
-    examFormula = listOfModifiers[0]
-    questionsFormulas = listOfModifiers[1:]
-
     zone, answer, association, var = readAMCTables(dataPath)
     boxes = makeBoxes(zone, answer, var)
 
@@ -289,9 +301,11 @@ def updateCoherence():
     NbPointsQuestions['Points'] = 1
 
     # get by user or default
-    resultat, resultatsPoints = MarkingQuestionsWithCoherence(NbPointsQuestions, boxes, penalty="def", avoidNeg=False, examFormula=examFormula, questionsFormulas=questionsFormulas)
+    resultat, resultatsPoints = MarkingQuestionsWithCoherence(NbPointsQuestions, boxes, penalty="def", avoidNeg=False)
     studentIdToNameMapper = {association.loc[k, 'student']: association.loc[k, 'manual'] for k in association.index}
     resultatsPoints = resultatsPoints.rename(studentIdToNameMapper, axis=1)
+
+    # print(resultat)
 
     return boxes, resultatsPoints
 
@@ -401,18 +415,6 @@ def writeDataPath(data):
 #         data = dataPath
 #     return str(data)
 
-
-
-
-# boxes , resultatsPoints = computeData()
-# print(boxes.columns)
-# print(boxes)
-# print(boxes['total'])
-# print(boxes['ticked'])
-# print(updateCoherence())
-# print(getStudentQuestionsCorrect(2))
-# print(getStudentAnswersCorrect(2, 5))
-
 #-------------------------------------sahar code---------------------------
 def MarkingQuestions12(NbPointsQuestions, boxes,penalty="def", avoidNeg=True):
     # computes the sum of points per student and question
@@ -480,3 +482,9 @@ def computeData2():
     #get by user or default
     c, c2, c3 = MarkingQuestions12(NbPointsQuestions, boxes,penalty="def",avoidNeg=False)
     return c, c2, c3
+
+boxes, resultatsPoints = updateData()
+print(resultatsPoints)
+
+boxes, resultatsPoints = updateCoherence()
+print(resultatsPoints)
