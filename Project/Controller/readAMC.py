@@ -234,13 +234,14 @@ def MarkingQuestionsWithCoherence(NbPointsQuestions, boxes,penalty="def", avoidN
     resultatsPoints.loc['Note/' + str(maxPoints), :] = (resultatsPoints.loc['Note',:] / maxPoints) * (max_mark - min_mark) + min_mark
     resultatsPoints.loc['Note/20', :] = (resultatsPoints.loc['Note/' + str(maxPoints)]*20) / maxPoints
 
-    for student in listStudents:
+    for i, student in enumerate(listStudents):
+        print("Student : " + str(student))
         if formulas[0][0][0] == -1: # [Modifiers][Tuple][Index]
-            resultatsPoints.loc['Note/20 (avec cohérence)', [student]] = \
-                resultatsPoints.loc['Note/20', [student]] + formulas[0][student][1]
-            # print("Modifier : " + str(formulas[0][student][1]))
-            # print("Note avant : " + str(resultatsPoints.loc['Note/20', [student]]))
-            # print("Note après : " + str(resultatsPoints.loc['Note/20 (avec cohérence)', [student]]))
+            resultatsPoints.loc['Note/20 (avec cohérence)', student] = \
+                resultatsPoints.loc['Note/20', student] + formulas[0][i][1]
+            print("Modifier : " + str(formulas[0][i][1]))
+            print("Note avant : " + str(resultatsPoints.loc['Note/20', student]))
+            print("Note après : " + str(resultatsPoints.loc['Note/20 (avec cohérence)', student]))
 
     return resultat, resultatsPoints
 
