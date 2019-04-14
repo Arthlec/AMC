@@ -205,19 +205,27 @@ def MarkingQuestionsWithCoherence(NbPointsQuestions, boxes,penalty="def", avoidN
     maxPoints = NbPointsQuestions['Points'].sum()
     weights = getWeights()
     for question in listQuestions:
-        # print(question)
         resultatsPoints.loc[question,:] = resultat.loc[question,:]*NbPointsQuestions.loc[question,'Points']\
                                           *weights.loc[weights['question'] == question, 'weight'].item()
 
-    # print(resultatsPoints.iloc[0, 0])
-    # print(resultatsPoints.head())
-    # print(resultatsPoints.describe())
-
     formulas = parseCoherenceFormula()
-    # for student in listStudents:
-    #     for question in listQuestions:
-    #         if formulas[0][student][0] == question:
-    #             resultatsPoints.loc[question, student] += formulas[0][student][1]
+
+    for student in listStudents:
+        # print("Student : " + str(student) )
+        for question in listQuestions:
+            for indexFormula in range(0, len(formulas[0]), len(listStudents)):
+                if formulas[0][indexFormula][0] == question:
+                    print(formulas[0][indexFormula][0])
+                    break
+            if formulas[0][indexFormula][0] != question:
+                continue
+            # print("Question : " + str(question))
+            # print("indexFormula : " + str(indexFormula))
+            # print("Modifier : " + str(formulas[0][indexFormula][1]))
+            # print("Note avant : " + str(resultatsPoints.loc[question, student]))
+            resultatsPoints.loc[question, student] = resultatsPoints.loc[question, student] + \
+                                                     formulas[0][indexFormula][1]
+            # print("Note après : " + str(resultatsPoints.loc[question, student]))
 
 
     # Then computes the points per student
