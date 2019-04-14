@@ -152,11 +152,11 @@ def MarkingQuestions1(NbPointsQuestions, boxes,penalty="def", avoidNeg=True):
              resultat[resultat < 0] = penalty
 
     # Taking into account points per question
-    maxPoints = NbPointsQuestions['Points'].sum()
     weights = getWeights()
     for question in listQuestions:
         resultatsPoints.loc[question,:] = resultat.loc[question,:]*NbPointsQuestions.loc[question,'Points']\
                                           *weights.loc[weights['question'] == question, 'weight'].item()
+    maxPoints = NbPointsQuestions['Points'].sum()
 
     # Then computes the points per student
     resultatsPoints.loc['Note',:] = resultatsPoints.sum()
@@ -202,20 +202,18 @@ def MarkingQuestionsWithCoherence(NbPointsQuestions, boxes,penalty="def", avoidN
              resultat[resultat < 0] = penalty
 
     # Taking into account points per question
-    maxPoints = NbPointsQuestions['Points'].sum()
     weights = getWeights()
     for question in listQuestions:
         resultatsPoints.loc[question,:] = resultat.loc[question,:]*NbPointsQuestions.loc[question,'Points']\
                                           *weights.loc[weights['question'] == question, 'weight'].item()
+    maxPoints = NbPointsQuestions['Points'].sum()
 
     formulas = parseCoherenceFormula()
-
-    for student in listStudents:
-        # print("Student : " + str(student) )
+    for i, student in enumerate(listStudents):
+        # print("Student : " + str(student))
         for question in listQuestions:
             for indexFormula in range(0, len(formulas[0]), len(listStudents)):
                 if formulas[0][indexFormula][0] == question:
-                    print(formulas[0][indexFormula][0])
                     break
             if formulas[0][indexFormula][0] != question:
                 continue
@@ -224,7 +222,7 @@ def MarkingQuestionsWithCoherence(NbPointsQuestions, boxes,penalty="def", avoidN
             # print("Modifier : " + str(formulas[0][indexFormula][1]))
             # print("Note avant : " + str(resultatsPoints.loc[question, student]))
             resultatsPoints.loc[question, student] = resultatsPoints.loc[question, student] + \
-                                                     formulas[0][indexFormula][1]
+                                                     formulas[0][indexFormula + i][1]
             # print("Note après : " + str(resultatsPoints.loc[question, student]))
 
 
@@ -235,7 +233,6 @@ def MarkingQuestionsWithCoherence(NbPointsQuestions, boxes,penalty="def", avoidN
     min_mark = resultatsPoints.loc['Note'].min()
     resultatsPoints.loc['Note/' + str(maxPoints), :] = (resultatsPoints.loc['Note',:] / maxPoints) * (max_mark - min_mark) + min_mark
     resultatsPoints.loc['Note/20', :] = (resultatsPoints.loc['Note/' + str(maxPoints)]*20) / maxPoints
-
 
     for student in listStudents:
         if formulas[0][0][0] == -1: # [Modifiers][Tuple][Index]
