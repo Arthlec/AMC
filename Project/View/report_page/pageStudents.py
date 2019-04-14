@@ -2,7 +2,8 @@
 #| 13/04/2019 - Report page for student
 #| Created by Sahar Hosseini
 #| description,
-#| report data as a table, chart and teachers enable to apply coherence, weight and penalty
+#| report data for each student in each question point and total point of exam +
+#|correction and studet answer
 #+----------------------------------------------------+
 import matplotlib
 import sys
@@ -18,6 +19,8 @@ from PyQt5.QtWidgets import (QWidget, QLabel, QLineEdit, QPushButton,
 
 from Project.Controller.readAMC import *
 from Project.Controller.studentData import StudentData
+
+dataPathAnswers = str(Path(__file__).resolve().parent.parent).replace("\\", "/") + "/../Real Data/"
 
 # Ensure using PyQt5 backend
 matplotlib.use('QT5Agg')
@@ -41,8 +44,6 @@ class MplWidget(QtWidgets.QWidget):
         self.setLayout(self.vbl)
 
 class lstQuestion(QWidget):
-   b, c, v = computeData2()
-
 
 
    def __init__(self):
@@ -50,6 +51,9 @@ class lstQuestion(QWidget):
        self.controller = StudentData()
        self.scoreTable = self.controller.getScoreTable()  # main datalist
        self.lstStdName=[]
+       b, c, self.v = computeData2()
+
+       _, self.answer, self.studentNames, _ = readAMCTables(dataPathAnswers)
        nbIndex = len(self.scoreTable.index)
        self.currentIndex = 0
        self.lenData= len(self.v) -1
@@ -61,6 +65,9 @@ class lstQuestion(QWidget):
            self.lstStdName.append(str(self.scoreTable.index[i]))
 
        self.stdTitle=self.lstStdName[0]
+       self.stdID =[]
+       self.stdID=self.studentNames[self.studentNames['manual'] == self.stdTitle].student
+       self.lstQstAns=self.answer[self.answer['student'] == self.stdID[0]]
        self.initUI()
    def initUI(self):
         self.createFormGroupBox(self.currentIndex)
@@ -72,7 +79,7 @@ class lstQuestion(QWidget):
         self.grid.addWidget(self.formGroupBox,1,0)
         self.grid.addWidget(self.createBtnGroup(), 2, 0)
         self.setLayout(self.grid)
-        self.setWindowTitle("Quetsion Report")
+        self.setWindowTitle("Student Report")
         self.show()
 
    def createBtnGroup(self):
@@ -101,41 +108,49 @@ class lstQuestion(QWidget):
         row = self.v.iloc[Index]
         qNum = row[1]
         qChoices = row[2]
-        print(self.scoreTable)
-        print("-------------")
-        print(self.stdTitle)
-        print("-------------")
-        print(self.scoreTable.T.iloc[Index])# use in chart
-        print("-------------")
-
         self.std = self.scoreTable.loc[self.stdTitle, :]
         self.stdMark1 = self.std.iloc[Index]
         self.stdMark2 = self.std.iloc[-3]
         self.stdMark3 = self.std.iloc[-1]
-        lblQuestion = QLabel('Question ' + str(qNum) + ': text of question ' + str(qNum) + '?  ')
+        lblQuestion = QLabel('Question ' + str(qNum) +  '?  ')
         lblMark = QLabel( self.stdTitle +"  point: "+str(round(self.stdMark1,1)))
-        lblMark.setStyleSheet("QLabel {color : orange; }")
+        lblMark.setStyleSheet("QLabel {color : #562398; }")
         lblMark1 = QLabel("Exam Mark for "+ self.stdTitle +": " + str(round(self.stdMark3,1)))
-        lblMark1.setStyleSheet("QLabel {color : green; }")
-        slider = QSlider(Qt.Horizontal)
-        slider.setTickPosition(QSlider.TicksBelow)
-        slider.setFocusPolicy(Qt.StrongFocus)
-        slider.setTickPosition(QSlider.TicksBothSides)
-        slider.setTickInterval(0.1)
-        slider.setMinimum(0.0)
-        slider.setMaximum(2.0)
-        slider.setValue(1.0)
-        slider.valueChanged.connect(self.addWeight)
+        lblMark1.setStyleSheet("QLabel {color : #933333; }")
 
-        chkList = []
+
+        # student answers
+        lblStdAns = QLabel( self.stdTitle +" Answer")
+        lblStdAns.setStyleSheet("QLabel {color : #562398; }")
+        lstStdAns = self.lstQstAns[self.lstQstAns['question'] == qNum].answer.reset_index(drop=True)
+        chkListStd = []
         for i in range(qChoices):
-            chkList.append(QCheckBox("Option " + str(i + 1)))
+            ch=QCheckBox("Option " + str(i + 1))
+            ch.setEnabled(False)
+            if (lstStdAns[i] > 0 ):
+               ch.setChecked(True)
+            chkListStd.append(ch)
+
+        # correct answers
+        lblCorrectAns = QLabel("Correction")
+        lblCorrectAns.setStyleSheet("QLabel {color : green; }")
+        lstCorrectAns = self.lstQstAns[self.lstQstAns['question'] == qNum].correct.reset_index(drop=True)
+        chkListCorrect = []
+        for i in range(qChoices):
+            ch=QCheckBox("Option " + str(i + 1))
+            ch.setEnabled(False)
+            if (lstCorrectAns[i] == 1):
+               ch.setChecked(True)
+            chkListCorrect.append(ch)
 
         layout.addRow(lblQuestion,lblMark1)
         layout.addRow("",lblMark)
+
         #layout.addRow(self.plot_data)
+        layout.addRow(lblStdAns, lblCorrectAns)
         for i in range(qChoices):
-            layout.addRow(chkList[i])
+            layout.addRow(chkListStd[i],chkListCorrect[i])
+
         self.formGroupBox.setLayout(layout)
 
    #-----------------------------function defination-----------------------
@@ -145,11 +160,10 @@ class lstQuestion(QWidget):
        self.plotWidget.canvas.ax.plot(x, y)
        self.plotWidget.canvas.draw()
 
-   def  addWeight(self):
-       print("add weight")
-
    def OnChangelstStdName(self, i):
        self.stdTitle = self.comboStdName.currentText()
+       self.stdID = self.studentNames[self.studentNames['manual'] == self.stdTitle].student.reset_index(drop=True)
+       self.lstQstAns = self.answer[self.answer['student'] == self.stdID[0]]
        self.currentIndex = 0
        self.clearForm(self.currentIndex)
 
