@@ -6,8 +6,8 @@
 #+----------------------------------------------------+
 import sys
 from PyQt5.QtWidgets import QWidget, QSlider, QGroupBox, QGridLayout, QLineEdit, \
-                            QComboBox, QPushButton, QScrollArea, QTableWidget, QTableWidgetItem,  \
-                            QVBoxLayout, QLabel
+    QComboBox, QPushButton, QScrollArea, QTableWidget, QTableWidgetItem, \
+    QVBoxLayout, QLabel, QApplication, QMainWindow
 
 from PyQt5.QtCore import Qt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
