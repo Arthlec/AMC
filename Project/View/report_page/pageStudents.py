@@ -5,6 +5,8 @@
 #| report data for each student in each question point and total point of exam +
 #|correction and studet answer
 #+----------------------------------------------------+
+import math
+
 import matplotlib
 import sys
 
@@ -16,7 +18,8 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as Canvas
 import matplotlib
 from PyQt5.QtWidgets import (QWidget, QLabel, QLineEdit, QPushButton,
                              QCheckBox, QMessageBox,QFormLayout,QDialogButtonBox,QSpinBox,QHBoxLayout, QComboBox,QSlider,QGroupBox, QVBoxLayout, QGridLayout, QApplication)
-
+from scipy.stats import stats
+import seaborn as sns, numpy as np
 from Project.Controller.readAMC import *
 from Project.Controller.studentData import StudentData
 from Project.View.Charts import *
@@ -55,7 +58,10 @@ class lstQuestion(QWidget):
        self.lstStdName=[]
        b, c, self.v = computeData2()
 
-       _, self.answer, self.studentNames, _ = readAMCTables(dataPathAnswers)
+       self.zone, self.answer, self.studentNames, self.var ,self.questionTitles= readAMCTables(dataPathAnswers)
+       self.boxes=makeBoxes(self.zone, self.answer, self.var )
+       print("boxes")
+       print(boxes)
        nbIndex = len(self.scoreTable.index)
        self.currentIndex = 0
        self.lenData= len(self.v) -1
@@ -70,7 +76,7 @@ class lstQuestion(QWidget):
        self.stdID =[]
        self.stdID=self.studentNames[self.studentNames['manual'] == self.stdTitle].student
        self.lstQstAns=self.answer[self.answer['student'] == self.stdID[0]]
-
+       self.lstQstAns2=self.boxes[self.boxes['student']==self.stdID[0]]
        self.initUI()
    def initUI(self):
         self.createFormGroupBox(self.currentIndex)
@@ -97,8 +103,9 @@ class lstQuestion(QWidget):
 
        ax = self.figure.add_subplot(111)
        ax.cla()
-       ax.plot(dataY, dataX,color='green')
-
+       print(dataY)
+       ax.scatter(dataY,dataX,color='orange')
+       #ax.plot(dataY, dataX,color='green')
        #ax.boxplot(dataY)
        self.canvas.draw()
 
@@ -129,11 +136,12 @@ class lstQuestion(QWidget):
         qNum = row[1]
         qChoices = row[2]
         self.std = self.scoreTable.loc[self.stdTitle, :]
-        self.stdMark1 = self.std.iloc[Index]
+        self.stdMark1 =   self.scoreTable.iloc[0, qNum]#self.std.iloc[Index]
         self.stdMark2 = self.std.iloc[-3]
         self.stdMark3 = self.std.iloc[-1]
-        lblQuestion = QLabel('Question ' + str(qNum) +  '?  ')
-        lblMark = QLabel( self.stdTitle +"  point: "+str(round(self.stdMark1,1)))
+        questionTitle=self.questionTitles[self.questionTitles['question']==qNum].title.reset_index(drop=True)
+        lblQuestion = QLabel('Question ' + str(qNum) +  ':  '+str(questionTitle[0] ))
+        lblMark = QLabel(self.stdTitle +"  point: "+str(round(self.stdMark1,2)))
         lblMark.setStyleSheet("QLabel {color : #562398; }")
         lblMark1 = QLabel("Exam Mark for "+ self.stdTitle +": " + str(round(self.stdMark3,1)))
         lblMark1.setStyleSheet("QLabel {color : #933333; }")
@@ -142,12 +150,14 @@ class lstQuestion(QWidget):
         # student answers
         lblStdAns = QLabel( self.stdTitle +" Answer")
         lblStdAns.setStyleSheet("QLabel {color : #562398; }")
-        lstStdAns = self.lstQstAns[self.lstQstAns['question'] == qNum].answer.reset_index(drop=True)
+
+        lstStdAns=self.lstQstAns2[self.lstQstAns2['question']==qNum].ticked.reset_index(drop=True)
+
         chkListStd = []
         for i in range(qChoices):
             ch=QCheckBox("Option " + str(i + 1))
             ch.setEnabled(False)
-            if (lstStdAns[i] > 0 ):
+            if (lstStdAns[i] ==True ):
                ch.setChecked(True)
             chkListStd.append(ch)
 
@@ -166,11 +176,13 @@ class lstQuestion(QWidget):
 
 
         #data for chart
+        self.dataX=[]
         self.dataX=self.lstStdName
+        self.dataY=[]
         self.dataY=self.scoreTable.iloc[:, qNum]
 
-        layout.addRow(lblQuestion,lblMark1)
-        layout.addRow("",lblMark)
+        layout.addRow(lblQuestion)
+        layout.addRow(lblMark,lblMark1)
 
 
         layout.addRow(lblStdAns, lblCorrectAns)

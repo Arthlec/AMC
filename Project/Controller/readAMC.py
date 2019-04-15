@@ -40,6 +40,7 @@ def readAMCTables(dataPath):
     cnx = sqlite3.connect(dataPath +'scoring.sqlite')
     answer = pd.read_sql_query("SELECT * FROM scoring_answer", cnx)
     variables = pd.read_sql_query("SELECT * FROM scoring_variables", cnx)
+    questiontitle = pd.read_sql_query("SELECT * FROM scoring_title", cnx)
     cnx.close()
 
     cnx = sqlite3.connect(dataPath +'association.sqlite')
@@ -47,7 +48,7 @@ def readAMCTables(dataPath):
     cnx.close()
 
 
-    return zone, answer, association, variables
+    return zone, answer, association, variables,questiontitle
 
 
 
@@ -218,9 +219,8 @@ def setHeaders(resultatsPoints, maxPoints):
     return resultatsPoints
 
 
-
-def manageData(option1, option2):
-    zone, answer, association, var = readAMCTables(dataPath)
+def manageData():
+    zone, answer, association, var,_ = readAMCTables(dataPath)
     boxes = makeBoxes(zone, answer, var )
 
     option1(boxes)
@@ -392,7 +392,7 @@ def computeData2():
     # In[6]:
 
 
-    zone, answer, association, var = readAMCTables(dataPath)
+    zone, answer, association, var,_ = readAMCTables(dataPath)
     boxes = makeBoxes(zone, answer, var )
 
     boxes["weight"] = 1.0 # default weight
