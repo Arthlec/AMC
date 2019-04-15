@@ -1,21 +1,22 @@
 #+----------------------------------------------------+
 #| 23/03/2019 - Report page for teachers
-#| Created by Sahar Hosseini - Roman Blond
+#| Created by Sahar Hosseini - Roman Blond chart
 #| description,
 #| report data as a table, chart and teachers enable to apply coherence, weight and penalty
 #+----------------------------------------------------+
 import sys
 from PyQt5.QtWidgets import QWidget, QSlider, QGroupBox, QGridLayout, QLineEdit, \
                             QComboBox, QPushButton, QScrollArea, QTableWidget, QTableWidgetItem,  \
-                            QVBoxLayout, QLabel, QApplication
+                            QVBoxLayout,QHBoxLayout, QLabel, QMainWindow, QApplication
 
 from PyQt5.QtCore import Qt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 # from Controller.readAMC import getNumberOfQuestions, changeWeight
-from Controller.readAMC import *
-from View.Charts import PlotCanvas
-from Controller.studentData import StudentData
+from Project.Controller.readAMC import *
+from Project.View.Charts import PlotCanvas
+from Project.Controller.studentData import StudentData
+from Project.View.coherence_page.coherence import *
 
 #+--------------main class
 class ReportPage(QWidget):
@@ -49,18 +50,21 @@ class ReportPage(QWidget):
             ["Pie Chart",     self.plot.plot_pie],
         ]
 
-        txtCoherence = QLineEdit("Please Enter your Coherence Formula")
-        txtCoherence.resize(20, 20)
-        layout.addWidget(txtCoherence, 0, 0)
+
+
+        #txtCoherence = QLineEdit("Please Enter your Coherence Formula")
+        #txtCoherence.resize(20, 20)
+        #layout.addWidget(txtCoherence, 0, 0)
         cbChart = QComboBox()
 
         for elt in self.comboOptions:
             cbChart.addItem(elt[0])
         cbChart.resize(140, 30)
         layout.addWidget(cbChart, 0, 2)
-        btnApply = QPushButton("Apply Coherence")
-        btnApply.clicked.connect(self.onClickApply)
-        layout.addWidget(btnApply, 0, 1)
+        #btnApply = QPushButton("Apply Coherence")
+        #btnApply.clicked.connect(self.onClickApply)
+        #self.grid.addWidget(self.createBtnGroup(), 2, 0)
+        layout.addWidget(self.createBtnGroup(), 0, 0)
         cbChart.currentIndexChanged.connect(self.OnChangeCbChart)
         # ---------------------table view --------------------
         scroll = QScrollArea()
@@ -105,6 +109,30 @@ class ReportPage(QWidget):
     def OnChangeCbChart(self,i):
         self.comboOptions[i][1]()
 
+    def createBtnGroup(self):
+        groupBox = QGroupBox()
+        btnCoherence = QPushButton("Coherence")
+        btnPDF = QPushButton("Export as PDF")
+        btnCSV = QPushButton("Export as CSV")
+        btnPDF.clicked.connect(self.exportPDF)
+        btnCSV.clicked.connect(self.exportCSV)
+        btnCoherence.clicked.connect(self.showCoherence)
+        hbox = QHBoxLayout()
+        hbox.addWidget(btnCoherence)
+        hbox.addWidget(btnPDF)
+        hbox.addWidget(btnCSV)
+        hbox.addStretch(1)
+        groupBox.setLayout(hbox)
+        return groupBox
+    def showCoherence(self):
+        self.myOtherWindow = CoherencePage()
+        self.myOtherWindow.show()
+        print("call coherence")
+    def exportPDF(self):
+         print("pdf")
+
+    def exportCSV(self):
+        print("CSV")
 
 #+--------------builder slider has been written by Arthur Lecert
 class BuildSlider(QWidget):
