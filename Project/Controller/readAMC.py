@@ -6,26 +6,31 @@ import json
 import numpy as np
 
 
-### Initialisation
-dataPath = str(Path(__file__).resolve().parent.parent).replace("\\", "/") + "/Real Data/"
-# dataPathPreferences = dataPath + "dataPathPreferences.txt"
-weightPath = dataPath + "weights.json"
-coherenceFormulaPath = dataPath + "coherenceFormula.json"
-print("dataPath : " + str(dataPath))
-print("weightPath : " + str(weightPath))
-print("coherenceFormulaPath : " + str(coherenceFormulaPath))
-csvParamsPath=str(Path(__file__).resolve().parent.parent).replace("\\", "/") +"/View/setting_page/Exam1.csv"
+dataPath = ""
+weightPath = ""
+coherenceFormulaPath = ""
+csvParamsPath = ""
+paramsValues = None
 
 
-def readCSVData(filePath):
-    header = []
-    values = []
-    # open file
-    df=pd.read_csv(filePath)
-    values=df.iloc[0]
-    return values, header
+def initDirectories(path):
+    global dataPath
+    global weightPath
+    global coherenceFormulaPath
+    global csvParamsPath
+    dataPath = path
+    weightPath = dataPath + "weights.json"
+    coherenceFormulaPath = dataPath + "coherenceFormula.json"
+    csvParamsPath = dataPath + "basic_parameters.csv"
 
-paramsValues, header = readCSVData(csvParamsPath)
+
+def setParameters(params):
+    global paramsValues
+    paramsValues = params
+
+
+
+
 def readAMCTables(dataPath):
     # Create your connection.
     cnx = sqlite3.connect(dataPath + 'capture.sqlite')
@@ -89,124 +94,38 @@ def makeBoxes(zone, answer, var ):
 
 
 def schemeMarkingInQuestion1(boxes, arrParams ):
+    #paramsValues order data
+    #TP, FN, TN, FP
 
-#paramsValues order data
-#TP, FN, TN, FP
+    # Une Stratégie de notation :
+    #
+    #       |Ticked | Non ticked |
+    # True  |  1    |   -0.2     |
+    # False | -0.2  |   +0.3     |
+    #
+    #       |Ticked | Non ticked |
+    # True  |  TP   |   FN     |
+    # False |  FP   |   TN     |
+    #
+    # Adds colums 'points' and 'maxPoints' to the dataframe boxes
+    # points is the number of points earned for each student and each box
+    boxes.loc[ boxes['ticked'] & boxes['correct'], 'points' ] = arrParams['TP']
+    boxes.loc[ ~boxes['ticked'] & boxes['correct'], 'points'  ] = arrParams['FN']
+    boxes.loc[ ~boxes['ticked'] & ~boxes['correct'], 'points'  ] = arrParams['TN']
+    boxes.loc[ boxes['ticked'] & ~boxes['correct'], 'points'  ] = arrParams['FP']
 
-# Une Stratégie de notation :
-#
-#       |Ticked | Non ticked |
-# True  |  1    |   -0.2     |
-# False | -0.2  |   +0.3     |
-#
-#       |Ticked | Non ticked |
-# True  |  TP   |   FN     |
-# False |  FP   |   TN     |
-#
-# Adds colums 'points' and 'maxPoints' to the dataframe boxes
-# points is the number of points earned for each student and each box
-    #print("sahar")
-    #print(arrParams)
-    #print(arrParams[0])
-    boxes.loc[ boxes['ticked'] & boxes['correct'], 'points' ] = arrParams[0]#TP
-    boxes.loc[ ~boxes['ticked'] & boxes['correct'], 'points'  ] = arrParams[1]#FN
-    boxes.loc[ ~boxes['ticked'] & ~boxes['correct'], 'points'  ] = arrParams[2]#TN
-    boxes.loc[ boxes['ticked'] & ~boxes['correct'], 'points'  ] = arrParams[3]#FP
-
-    boxes.loc[ boxes['correct'], 'maxPoints' ] = arrParams[0]#TP
-    boxes.loc[ ~boxes['correct'], 'maxPoints'  ] = arrParams[2]#TN
+    boxes.loc[ boxes['correct'], 'maxPoints' ] = arrParams['TP']
+    boxes.loc[ ~boxes['correct'], 'maxPoints'  ] = arrParams['TN']
 
 
-def MarkingQuestions1(NbPointsQuestions, boxes,penalty="def", avoidNeg=True):
-    # computes the sum of points per student and question
-    # result is a a dataframe of the number of points per question (row)
-    # and per student (column)
+def MarkingQuestions(NbPointsQuestions, boxes, penalty="def", avoidNeg=True):
+    resultat, resultatsPoints, maxPoints = initResults(NbPointsQuestions, boxes, penalty, avoidNeg)
+    resultatsPoints = setHeaders(resultatsPoints, maxPoints)
 
-    listStudents = boxes['student'].unique()
-    listQuestions = boxes['question'].unique()
-    resultat = pd.DataFrame(index=listQuestions, columns=listStudents)
-    resultatsPoints = pd.DataFrame(index=listQuestions, columns=listStudents)
-
-
-    for student in listStudents:
-        for question in listQuestions:
-            K = (boxes['student']==student) & (boxes['question'] == question)
-            # resultat as a proportion of the possible max
-            resultat.loc[question, student] = boxes.loc[K,'points'].sum()/boxes.loc[K,'maxPoints'].sum()
-            resultatsPoints.loc[question, student] = boxes.loc[K,'points'].sum()/boxes.loc[K,'maxPoints'].sum()
-
-    # compute number of choice for each question use in penalty
-    c = boxes.groupby(['student'])['question'].value_counts().to_frame('count')  # .apply(list).to_dict()
-    c2 = pd.DataFrame(c).reset_index()
-    c3 = c2.loc[c2['student'] == listStudents[0]]
-    # then avoid negative points for questions
-    if avoidNeg: resultat[resultat < 0] = 0
-    else:#penalty 1/(n-1) default or get by teacher as entry
-        if(penalty=="def"):
-            for q in c3['question']:
-                for std in listStudents:
-                    if resultat.loc[q,std]<0:
-                        count=c3.loc[c3['question'] == q, 'count'].iloc[0]
-                        resultat.loc[q,std]=round(1/(count -1), 1)
-        else:
-             resultat[resultat < 0] = penalty
-
-    # Taking into account points per question
-    weights = getWeights()
-    for question in listQuestions:
-        resultatsPoints.loc[question,:] = resultat.loc[question,:]*NbPointsQuestions.loc[question,'Points']\
-                                          *weights.loc[weights['question'] == question, 'weight'].item()
-    maxPoints = NbPointsQuestions['Points'].sum()
-
-    # Then computes the points per student
-    resultatsPoints.loc['Note',:] = resultatsPoints.sum()
-    # resultatsPoints.loc['Note/20',:] = 20/maxPoints*resultatsPoints.loc['Note',:] # old formula
-    max_mark = resultatsPoints.loc['Note'].max()
-    min_mark = resultatsPoints.loc['Note'].min()
-    resultatsPoints.loc['Note/' + str(maxPoints), :] = (resultatsPoints.loc['Note',:] / maxPoints) * (max_mark - min_mark) + min_mark
-    resultatsPoints.loc['Note/20', :] = (resultatsPoints.loc['Note/' + str(maxPoints)]*20) / maxPoints
     return resultat, resultatsPoints
 
-def MarkingQuestionsWithCoherence(NbPointsQuestions, boxes,penalty="def", avoidNeg=True):
-    # computes the sum of points per student and question
-    # result is a a dataframe of the number of points per question (row)
-    # and per student (column)
-
-    listStudents = boxes['student'].unique()
-    listQuestions = boxes['question'].unique()
-    resultat = pd.DataFrame(index=listQuestions, columns=listStudents)
-    resultatsPoints = pd.DataFrame(index=listQuestions, columns=listStudents)
-
-
-    for student in listStudents:
-        for question in listQuestions:
-            K = (boxes['student']==student) & (boxes['question'] == question)
-            # resultat as a proportion of the possible max
-            resultat.loc[question, student] = boxes.loc[K,'points'].sum()/boxes.loc[K,'maxPoints'].sum()
-            resultatsPoints.loc[question, student] = boxes.loc[K,'points'].sum()/boxes.loc[K,'maxPoints'].sum()
-
-    # compute number of choice for each question use in penalty
-    c = boxes.groupby(['student'])['question'].value_counts().to_frame('count')  # .apply(list).to_dict()
-    c2 = pd.DataFrame(c).reset_index()
-    c3 = c2.loc[c2['student'] == listStudents[0]]
-    # then avoid negative points for questions
-    if avoidNeg: resultat[resultat < 0] = 0
-    else:#penalty 1/(n-1) default or get by teacher as entry
-        if(penalty=="def"):
-            for q in c3['question']:
-                for std in listStudents:
-                    if resultat.loc[q,std]<0:
-                        count=c3.loc[c3['question'] == q, 'count'].iloc[0]
-                        resultat.loc[q,std]=round(1/(count -1), 1)
-        else:
-             resultat[resultat < 0] = penalty
-
-    # Taking into account points per question
-    weights = getWeights()
-    for question in listQuestions:
-        resultatsPoints.loc[question,:] = resultat.loc[question,:]*NbPointsQuestions.loc[question,'Points']\
-                                          *weights.loc[weights['question'] == question, 'weight'].item()
-    maxPoints = NbPointsQuestions['Points'].sum()
+def MarkingQuestionsWithCoherence(NbPointsQuestions, boxes, penalty="def", avoidNeg=True):
+    resultat, resultatsPoints, maxPoints = initResults(NbPointsQuestions, boxes, penalty, avoidNeg)
 
     formulas = parseCoherenceFormula()
     for i, student in enumerate(listStudents):
@@ -226,13 +145,7 @@ def MarkingQuestionsWithCoherence(NbPointsQuestions, boxes,penalty="def", avoidN
             # print("Note après : " + str(resultatsPoints.loc[question, student]))
 
 
-    # Then computes the points per student
-    resultatsPoints.loc['Note',:] = resultatsPoints.sum()
-    # resultatsPoints.loc['Note/20',:] = 20/maxPoints*resultatsPoints.loc['Note',:] # old formula
-    max_mark = resultatsPoints.loc['Note'].max()
-    min_mark = resultatsPoints.loc['Note'].min()
-    resultatsPoints.loc['Note/' + str(maxPoints), :] = (resultatsPoints.loc['Note',:] / maxPoints) * (max_mark - min_mark) + min_mark
-    resultatsPoints.loc['Note/20', :] = (resultatsPoints.loc['Note/' + str(maxPoints)]*20) / maxPoints
+    resultatsPoints = setHeaders(resultatsPoints, maxPoints)
 
     for i, student in enumerate(listStudents):
         print("Student : " + str(student))
@@ -245,11 +158,69 @@ def MarkingQuestionsWithCoherence(NbPointsQuestions, boxes,penalty="def", avoidN
 
     return resultat, resultatsPoints
 
+
+def initResults(NbPointsQuestions, boxes, penalty, avoidNeg):
+    # computes the sum of points per student and question
+    # result is a a dataframe of the number of points per question (row)
+    # and per student (column)
+
+    listStudents = boxes['student'].unique()
+    listQuestions = boxes['question'].unique()
+    resultat = pd.DataFrame(index=listQuestions, columns=listStudents)
+    resultatsPoints = pd.DataFrame(index=listQuestions, columns=listStudents)
+
+
+    for student in listStudents:
+        for question in listQuestions:
+            K = (boxes['student']==student) & (boxes['question'] == question)
+            # resultat as a proportion of the possible max
+            resultat.loc[question, student] = boxes.loc[K,'points'].sum()/boxes.loc[K,'maxPoints'].sum()
+            resultatsPoints.loc[question, student] = boxes.loc[K,'points'].sum()/boxes.loc[K,'maxPoints'].sum()
+
+    # compute number of choice for each question use in penalty
+    c = boxes.groupby(['student'])['question'].value_counts().to_frame('count')  # .apply(list).to_dict()
+    c2 = pd.DataFrame(c).reset_index()
+    c3 = c2.loc[c2['student'] == listStudents[0]]
+    # then avoid negative points for questions
+    if avoidNeg: resultat[resultat < 0] = 0
+    else:#penalty 1/(n-1) default or get by teacher as entry
+        if(penalty=="def"):
+            for q in c3['question']:
+                for std in listStudents:
+                    if resultat.loc[q,std]<0:
+                        count=c3.loc[c3['question'] == q, 'count'].iloc[0]
+                        resultat.loc[q,std]=round(1/(count -1), 1)
+        else:
+             resultat[resultat < 0] = penalty
+
+    # Taking into account points per question
+    weights = getWeights()
+    for question in listQuestions:
+        resultatsPoints.loc[question,:] = resultat.loc[question,:]*NbPointsQuestions.loc[question,'Points']\
+                                          *weights.loc[weights['question'] == question, 'weight'].item()
+    maxPoints = NbPointsQuestions['Points'].sum()
+
+
+    return resultat, resultatsPoints, maxPoints
+
+
+def setHeaders(resultatsPoints, maxPoints):
+    # Then computes the points per student
+    resultatsPoints.loc['Note',:] = resultatsPoints.sum()
+    # resultatsPoints.loc['Note/20',:] = 20/maxPoints*resultatsPoints.loc['Note',:] # old formula
+    max_mark = resultatsPoints.loc['Note'].max()
+    min_mark = resultatsPoints.loc['Note'].min()
+    resultatsPoints.loc['Note/' + str(maxPoints), :] = (resultatsPoints.loc['Note',:] / maxPoints) * (max_mark - min_mark) + min_mark
+    resultatsPoints.loc['Note/20', :] = (resultatsPoints.loc['Note/' + str(maxPoints)]*20) / maxPoints
+
+    return resultatsPoints
+
+
 def computeData():
     zone, answer, association, var = readAMCTables(dataPath)
     boxes = makeBoxes(zone, answer, var )
 
-    boxes["weight"] = 1.0 # default weight
+    boxes["weight"] = paramsValues['Weight'] # default weight
     # weights = boxes[['question', 'student', 'weight']]
     weights = boxes[['question', 'weight']]
     weights = weights.drop_duplicates('question')
@@ -263,7 +234,7 @@ def computeData():
     NbPointsQuestions['Points'] = 1
 
     #get by user or default
-    resultat, resultatsPoints = MarkingQuestions1(NbPointsQuestions, boxes,penalty="def",avoidNeg=False)
+    resultat, resultatsPoints = MarkingQuestions(NbPointsQuestions, boxes,penalty="def",avoidNeg=False)
     studentIdToNameMapper = {association.loc[k,'student']: association.loc[k,'manual'] for k in association.index}
     resultatsPoints = resultatsPoints.rename(studentIdToNameMapper, axis=1)
 
@@ -285,7 +256,7 @@ def updateData():
     NbPointsQuestions['Points'] = 1
 
     # get by user or default
-    resultat, resultatsPoints = MarkingQuestions1(NbPointsQuestions, boxes, penalty="def", avoidNeg=False)
+    resultat, resultatsPoints = MarkingQuestions(NbPointsQuestions, boxes, penalty="def", avoidNeg=False)
     studentIdToNameMapper = {association.loc[k, 'student']: association.loc[k, 'manual'] for k in association.index}
     resultatsPoints = resultatsPoints.rename(studentIdToNameMapper, axis=1)
 
@@ -401,28 +372,9 @@ def getDataPath():
 def getDefaultDataPath():
     return str(Path(__file__).resolve().parent.parent).replace("\\", "/") + "/Real Data/"
 
-def writeDataPath(data):
-    global dataPath #, dataPathPreferences
-    dataPath = data
-    # dataPathPreferences = data + "dataPathPreferences.txt"
-    # text_file = open(dataPathPreferences, "r+")
-    # text_file.write(str(data))
-    # print(text_file.read())
-    # text_file.close()
-
-# def parseDataPath():
-#     global dataPath
-#     file = Path(dataPathPreferences)
-#     if file.exists():
-#         f = open(dataPathPreferences, "r")
-#         data = f.read()
-#         f.close()
-#     else:
-#         data = dataPath
-#     return str(data)
 
 #-------------------------------------sahar code---------------------------
-def MarkingQuestions12(NbPointsQuestions, boxes,penalty="def", avoidNeg=True):
+def MarkingQuestions2(NbPointsQuestions, boxes,penalty="def", avoidNeg=True):
     # computes the sum of points per student and question
     # result is a a dataframe of the number of points per question (row)
     # and per student (column)
@@ -486,11 +438,11 @@ def computeData2():
 
     # In[9]:
     #get by user or default
-    c, c2, c3 = MarkingQuestions12(NbPointsQuestions, boxes,penalty="def",avoidNeg=False)
+    c, c2, c3 = MarkingQuestions2(NbPointsQuestions, boxes,penalty="def",avoidNeg=False)
     return c, c2, c3
 
-boxes, resultatsPoints = updateData()
-print(resultatsPoints)
-
-boxes, resultatsPoints = updateCoherence()
-print(resultatsPoints)
+# boxes, resultatsPoints = updateData()
+# print(resultatsPoints)
+#
+# boxes, resultatsPoints = updateCoherence()
+# print(resultatsPoints)

@@ -11,6 +11,8 @@ from PyQt5.QtWidgets import (QWidget, QLabel, QLineEdit, QPushButton,
 
 import pandas as pd
 from pathlib import Path
+import Controller.readAMC as ReadAMC
+
 class Settings(QDialog):
     def __init__(self, parent=None):
         super(Settings, self).__init__(parent)
@@ -39,38 +41,20 @@ class Settings(QDialog):
         self.txtWeight = QLineEdit()
         self.txtWeight.resize(20, 20)
 
-        # -------------define check box
-        self.chAuto = QCheckBox("Auto")
-        self.chAuto.stateChanged.connect(self.setAutoParams)
-
-        #--------------define combobox list of exam
-        self.cbExams = QComboBox()
-        self.cbExams.addItem("Exam1")
-        self.cbExams.addItem("Exam2")
-        self.cbExams.addItem("Exam3")
-        self.cbExams.addItem("Exam4")
-        self.cbExams.addItem("All")
-        self.cbExams.resize(140, 30)
-        self.cbExams.currentIndexChanged.connect(self.cbExamOnchange)
 
         # -------------define buttons
         btnOK = QPushButton("OK")
         btnCancel = QPushButton("Cancel")
-        btnOK.clicked.connect(self.saveParams)
+        btnSave = QPushButton("Save")
+        btnLoad = QPushButton("Load")
+        btnOK.clicked.connect(self.nextView)
         btnCancel.clicked.connect(self.cancelParams)
+        btnLoad.clicked.connect(self.loadParams)
+        btnSave.clicked.connect(self.saveParams)
 
-        # -------------upload dialog file
-        self.btnImport = QPushButton('Import CSV', self)
-        self.btnImport.clicked.connect(self.getCSV)
-
-        self.df = pd.DataFrame()
-        self.table = QTableWidget()
         # -------------arrange UI with labels, textboxes and buttons
         self.grid = QGridLayout()
         self.grid.setSpacing(10)
-
-        self.grid.addWidget(self.cbExams, 0, 0)
-        self.grid.addWidget(self.btnImport, 0, 1)
 
         self.grid.addWidget(self.lblTP, 2, 0)
         self.grid.addWidget(self.txtTP, 2, 1)
@@ -90,6 +74,8 @@ class Settings(QDialog):
         self.grid.addWidget(self.lblWeight, 3, 9)
         self.grid.addWidget(self.txtWeight, 3, 10)
 
+        self.grid.addWidget(btnLoad, 9, 7)
+        self.grid.addWidget(btnSave, 9, 8)
         self.grid.addWidget(btnOK, 9, 9)
         self.grid.addWidget(btnCancel, 9, 10)
 
@@ -107,20 +93,71 @@ class Settings(QDialog):
     def cbExamOnchange(self):
         print("click: cbExamOnchange")
 
+
+    def nextView(self):
+        if not self.checkTextBoxes():
+            return
+
+        params = {
+            "TP" : float(self.txtTP.text()),
+            "FN" : float(self.txtFN.text()),
+            "TN" : float(self.txtTN.text()),
+            "FP" : float(self.txtFP.text()),
+            "Penalty" : float(self.txtPenalty.text()),
+            "Weight" : float(self.txtWeight.text()),
+        }
+
+        ReadAMC.setParameters(params)
+        self.done(1)
+
+    def loadParams(self):
+        fileInfo = QFileDialog.getOpenFileName(self, "Select file with your parameters", filter="CSV (*.csv)")
+        fileName = fileInfo[0]
+
+        if fileName == '':
+            return
+
+        if not fileName.endswith('.csv'):
+            fileName += '.csv'
+
+        f = open(fileName, 'r')
+        f.readline()    # First line is the title, we don't need it
+        paramsString = f.readline()
+        params = paramsString.split(',')
+
+        self.txtTP.setText(params[0])
+        self.txtFN.setText(params[1])
+        self.txtTN.setText(params[2])
+        self.txtFP.setText(params[3])
+        self.txtPenalty.setText(params[4])
+        self.txtWeight.setText(params[5])
+
     # -------------function set params auto
     def saveParams(self):
-        print("click: saveParams")
-    # -------------save in a csv file
-        fileName=self.cbExams.currentText()
-        print(fileName)
-        f = open(str(fileName)+'.csv', 'w')
-        f.write(' TP, FN, TN, FP, Penalty, Weight\n'+
+        if not self.checkTextBoxes():
+            return
+
+        # -------------save in a csv file
+        fileInfo = QFileDialog.getSaveFileName(self, "Select file to save your parameters", filter="CSV (*.csv)")
+        fileName = fileInfo[0]
+        if fileName == '':
+            return
+
+        if not fileName.endswith('.csv'):
+            fileName += '.csv'
+
+        f = open(fileName, 'w')
+        f.write('TP, FN, TN, FP, Penalty, Weight\n'+
                 self.txtTP.text()+"," + self.txtFN.text()
                 +","+self.txtTN.text()+","+self.txtFP.text()
                 +","+self.txtPenalty.text()
                 +","+self.txtWeight.text()+"\n")
         f.close()
-        self.close()
+
+
+    def checkTextBoxes(self):
+        return self.txtTP.text() != "" and self.txtFN.text() != "" and self.txtTN.text() != "" and self.txtFP.text() != "" and self.txtPenalty.text() != "" and self.txtWeight.text() != ""
+
     # -------------function set params auto
     def cancelParams(self):
         print("click: cancelParams")
@@ -141,21 +178,6 @@ class Settings(QDialog):
 
         f1.close()
         f.close()
-
-        #self.close() show csv file in table wiew
-        '''self.table.setColumnCount(len(self.df.columns))
-        self.table.setRowCount(len(self.df.index))
-        rowName = []  # row name
-        for i in range(len(self.df.index)):
-            for j in range(len(self.df.columns)):
-                rowName.append(self.df.columns[j])
-                self.table.setItem(i, j, QTableWidgetItem(str(self.df.iloc[i, j])))
-
-        print(rowName)
-        self.table.setHorizontalHeaderLabels(rowName)
-        self.table.resizeRowsToContents()
-        self.table.resizeColumnsToContents()
-        self.grid.addWidget(self.table,1,0)'''
 
     def readCSVData(self,filePath):
          params = []
@@ -180,28 +202,3 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
     ex = Settings()
     sys.exit(app.exec_())
-
-
-''' --------------sample how to read csv files
-params = []
-values = []
-
-# open file
-with open('params.csv', 'rb') as f:
-    reader = csv.reader(f)
-
-    # read file row by row
-    rowNr = 0
-    for row in reader:
-        # Skip the header row.
-        if rowNr >= 1:
-            params.append(row[0])
-            values.append(row[1])
-
-        # Increase the row number
-        rowNr = rowNr + 1
-
-# Print data
-print params
-print values
-'''

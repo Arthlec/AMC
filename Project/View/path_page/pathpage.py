@@ -1,18 +1,19 @@
 import sys
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QLineEdit, QLabel, QPushButton,\
-    QFileDialog, QHBoxLayout
-from Controller.readAMC import getDefaultDataPath, writeDataPath
+    QFileDialog, QHBoxLayout, QDialog
+# from Controller.readAMC import getDefaultDataPath, initDirectories
+import Controller.readAMC as ReadAMC
 
-class PathPage(QWidget):
-    def __init__(self):
-        super().__init__()
-        self.setWindowTitle('DataPath')
-        self.left = 10
-        self.top = 10
-        self.width = 320
-        self.height = 100
-        self.setGeometry(self.left, self.top, self.width, self.height)
+class PathPage(QDialog):
+    def __init__(self, parent=None):
+        super(PathPage, self).__init__(parent)
+        self.initUI()
+
+
+    def initUI(self):
+        self.setWindowTitle('Enter data path')
+        self.setModal(True)
 
         self.layout = QVBoxLayout()
         self.layout.setSpacing(20)
@@ -21,7 +22,7 @@ class PathPage(QWidget):
         title.setAlignment(Qt.AlignCenter)
         self.layout.addWidget(title)
 
-        self.dataPathEditText = QLineEdit(getDefaultDataPath())
+        self.dataPathEditText = QLineEdit()
         self.dataPathEditText.resize(40, 40)
         self.layout.addWidget(self.dataPathEditText)
 
@@ -30,14 +31,10 @@ class PathPage(QWidget):
         self.layout.addLayout(self.sublayout)
 
         self.b1 = QPushButton("Select Directory")
-        self.b1.setCheckable(True)
-        self.b1.toggle()
         self.b1.clicked.connect(self.chooseDirectory)
         self.layout.addWidget(self.b1)
 
         self.b2 = QPushButton("Confirm Directory")
-        self.b2.setCheckable(True)
-        self.b2.toggle()
         self.b2.clicked.connect(self.savePath)
         self.layout.addWidget(self.b2)
 
@@ -49,7 +46,8 @@ class PathPage(QWidget):
         self.dataPathEditText.setText(file + "/")
 
     def savePath(self):
-        writeDataPath(self.dataPathEditText.text())
+        ReadAMC.initDirectories(self.dataPathEditText.text())
+        self.done(1)
 
 
 if __name__ == '__main__':

@@ -4,8 +4,9 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QIcon, QFont
 from PyQt5.QtCore import Qt
 
+from View.path_page.pathpage import PathPage
 from View.setting_page.pageSetting import Settings
-
+from View.report_page.pageReport import ReportPage
 
 class _ListItem(QWidget):
     def __init__(self, name, path):
@@ -77,13 +78,20 @@ class HomePage(QWidget):
         font = QFont()
         font.setPointSize(12)
         self.newCorrectionButton.setFont(font)
-        self.newCorrectionButton.clicked.connect(self.openSettings)
+        self.newCorrectionButton.clicked.connect(self.selectPath)
 
         return self.newCorrectionButton
 
-    def openSettings(self):
-        settingsDialog = Settings(self.mainWindow)
-        settingsDialog.show()
+    def selectPath(self):
+        pathDialog = PathPage(self.mainWindow)
+        n = pathDialog.exec_()
+        if n == 1:
+            pageSetting = Settings(self.mainWindow)
+            pageSetting.exec_()
+        if n == 1:
+            reportPage = ReportPage(self.mainWindow)
+            reportPage.initUI(self.mainWindow)
+
 
 
     def createOldCorrectionsList(self):
