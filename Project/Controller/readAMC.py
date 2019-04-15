@@ -125,6 +125,8 @@ def MarkingQuestions(NbPointsQuestions, boxes, penalty="def", avoidNeg=True):
     return resultat, resultatsPoints
 
 def MarkingQuestionsWithCoherence(NbPointsQuestions, boxes, penalty="def", avoidNeg=True):
+    listStudents = boxes['student'].unique()
+    listQuestions = boxes['question'].unique()
     resultat, resultatsPoints, maxPoints = initResults(NbPointsQuestions, boxes, penalty, avoidNeg)
 
     formulas = parseCoherenceFormula()
@@ -216,75 +218,50 @@ def setHeaders(resultatsPoints, maxPoints):
     return resultatsPoints
 
 
-def computeData():
+
+def manageData(option1, option2):
     zone, answer, association, var = readAMCTables(dataPath)
     boxes = makeBoxes(zone, answer, var )
 
+    option1(boxes)
+
+    schemeMarkingInQuestion1(boxes, paramsValues)
+
+    # Example of marking scheme per question
+    listQuestions = boxes['question'].unique()
+    NbPointsQuestions = pd.DataFrame(index=range(1,listQuestions.shape[0] + 1), columns=['Points'])
+    NbPointsQuestions['Points'] = 1
+
+    #get by user or default
+    resultat, resultatsPoints = option2(NbPointsQuestions, boxes,penalty="def",avoidNeg=False)
+    studentIdToNameMapper = {association.loc[k,'student']: association.loc[k,'manual'] for k in association.index}
+    resultatsPoints = resultatsPoints.rename(studentIdToNameMapper, axis=1)
+    return boxes, resultatsPoints
+
+
+
+def computeDataPart(boxes):
     boxes["weight"] = paramsValues['Weight'] # default weight
     # weights = boxes[['question', 'student', 'weight']]
     weights = boxes[['question', 'weight']]
     weights = weights.drop_duplicates('question')
     writeWeights(weights)
 
-    schemeMarkingInQuestion1(boxes, paramsValues)
 
-    # Example of marking scheme per question
-    listQuestions = boxes['question'].unique()
-    NbPointsQuestions = pd.DataFrame(index=range(1,listQuestions.shape[0]+1), columns=['Points']  )
-    NbPointsQuestions['Points'] = 1
+def updateDataPart(boxes):
+    rawWeights = parseWeights()
+    weights = pd.read_json(rawWeights)
+    boxes["weight"] = weights['weight']
 
-    #get by user or default
-    resultat, resultatsPoints = MarkingQuestions(NbPointsQuestions, boxes,penalty="def",avoidNeg=False)
-    studentIdToNameMapper = {association.loc[k,'student']: association.loc[k,'manual'] for k in association.index}
-    resultatsPoints = resultatsPoints.rename(studentIdToNameMapper, axis=1)
 
-    return boxes, resultatsPoints
+def computeData():
+    return manageData(computeDataPart, MarkingQuestions)
 
 def updateData():
-    zone, answer, association, var = readAMCTables(dataPath)
-    boxes = makeBoxes(zone, answer, var)
-
-    rawWeights = parseWeights()
-    weights = pd.read_json(rawWeights)
-    boxes["weight"] = weights['weight']
-
-    schemeMarkingInQuestion1(boxes, paramsValues)
-
-    # Example of marking scheme per question
-    listQuestions = boxes['question'].unique()
-    NbPointsQuestions = pd.DataFrame(index=range(1, listQuestions.shape[0] + 1), columns=['Points'])
-    NbPointsQuestions['Points'] = 1
-
-    # get by user or default
-    resultat, resultatsPoints = MarkingQuestions(NbPointsQuestions, boxes, penalty="def", avoidNeg=False)
-    studentIdToNameMapper = {association.loc[k, 'student']: association.loc[k, 'manual'] for k in association.index}
-    resultatsPoints = resultatsPoints.rename(studentIdToNameMapper, axis=1)
-
-    return boxes, resultatsPoints
+    return manageData(updateDataPart, MarkingQuestions)
 
 def updateCoherence():
-    zone, answer, association, var = readAMCTables(dataPath)
-    boxes = makeBoxes(zone, answer, var)
-
-    rawWeights = parseWeights()
-    weights = pd.read_json(rawWeights)
-    boxes["weight"] = weights['weight']
-
-    schemeMarkingInQuestion1(boxes, paramsValues)
-
-    # Example of marking scheme per question
-    listQuestions = boxes['question'].unique()
-    NbPointsQuestions = pd.DataFrame(index=range(1, listQuestions.shape[0] + 1), columns=['Points'])
-    NbPointsQuestions['Points'] = 1
-
-    # get by user or default
-    resultat, resultatsPoints = MarkingQuestionsWithCoherence(NbPointsQuestions, boxes, penalty="def", avoidNeg=False)
-    studentIdToNameMapper = {association.loc[k, 'student']: association.loc[k, 'manual'] for k in association.index}
-    resultatsPoints = resultatsPoints.rename(studentIdToNameMapper, axis=1)
-
-    # print(resultat)
-
-    return boxes, resultatsPoints
+    return manageData(updateDataPart, MarkingQuestionsWithCoherence)
 
 
 
