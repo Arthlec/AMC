@@ -19,7 +19,8 @@ from PyQt5.QtWidgets import (QWidget, QLabel, QLineEdit, QPushButton,
 
 from Project.Controller.readAMC import *
 from Project.Controller.studentData import StudentData
-from View.Charts import PlotCanvas
+from Project.View.Charts import *
+from Project.View.coherence_page.coherence import *
 
 dataPathAnswers = str(Path(__file__).resolve().parent.parent).replace("\\", "/") + "/../Real Data/"
 
@@ -69,10 +70,8 @@ class lstQuestion(QWidget):
        self.stdID =[]
        self.stdID=self.studentNames[self.studentNames['manual'] == self.stdTitle].student
        self.lstQstAns=self.answer[self.answer['student'] == self.stdID[0]]
-       self.initUI()
-       self.controller = StudentData()
-       self.plot = PlotCanvas(self.controller.dataX, self.controller.dataY)
 
+       self.initUI()
    def initUI(self):
         self.createFormGroupBox(self.currentIndex)
         self.grid = QGridLayout()
@@ -81,16 +80,27 @@ class lstQuestion(QWidget):
         self.comboStdName.currentIndexChanged.connect(self.OnChangelstStdName)
         self.grid.addWidget(self.comboStdName, 0, 0)
         self.grid.addWidget(self.formGroupBox,1,0)
-        self.grid.addWidget(self.createBtnGroup(), 2, 0)
-        # -------------------------------
-        self.plot.plot_histogram()
-        self.grid.addWidget(self.plot, 3,0)
-        # -------------------------------
+
+        # chart variables
+        self.figure = Figure()
+        self.canvas = FigureCanvas(self.figure)
+        self.createFigures(self.dataX, self.dataY)
+        self.grid.addWidget(self.canvas,2,0)
+
+        self.grid.addWidget(self.createBtnGroup(), 3, 0)
         self.setLayout(self.grid)
         self.setWindowTitle("Student Report")
+
         self.show()
 
+   def createFigures(self,dataX,dataY):
 
+       ax = self.figure.add_subplot(111)
+       ax.cla()
+       ax.plot(dataY, dataX,color='green')
+
+       #ax.boxplot(dataY)
+       self.canvas.draw()
 
    def createBtnGroup(self):
        groupBox = QGroupBox()
@@ -153,16 +163,16 @@ class lstQuestion(QWidget):
                ch.setChecked(True)
             chkListCorrect.append(ch)
 
+
+
+        #data for chart
+        self.dataX=self.lstStdName
+        self.dataY=self.scoreTable.iloc[:, qNum]
+
         layout.addRow(lblQuestion,lblMark1)
         layout.addRow("",lblMark)
 
-        # data for chart
-        dataX= self.scoreTable.iloc[:,qNum] # y value
-        dataY= self.lstStdName
-        self.plot = PlotCanvas(dataX, dataY)
 
-
-        layout.addRow(self.plot.plot_histogram())
         layout.addRow(lblStdAns, lblCorrectAns)
         for i in range(qChoices):
             layout.addRow(chkListStd[i],chkListCorrect[i])
@@ -170,6 +180,7 @@ class lstQuestion(QWidget):
         self.formGroupBox.setLayout(layout)
 
    #-----------------------------function defination-----------------------
+
    def OnChangelstStdName(self, i):
        self.stdTitle = self.comboStdName.currentText()
        self.stdID = self.studentNames[self.studentNames['manual'] == self.stdTitle].student.reset_index(drop=True)
@@ -181,6 +192,8 @@ class lstQuestion(QWidget):
        self.formGroupBox.deleteLater()
        self.createFormGroupBox(Index)
        self.grid.addWidget(self.formGroupBox, 1, 0)
+       self.createFigures(self.dataX, self.dataY)
+       self.grid.addWidget(self.canvas, 2, 0)
    #-------------------------navigation ------------------------------------
    def goFirst(self):
        if self.currentIndex == 0:
