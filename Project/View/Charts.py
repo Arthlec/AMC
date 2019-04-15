@@ -58,6 +58,12 @@ class PlotCanvas(FigureCanvas):
         self.setTitle()
         self.draw()
 
+    def plot_histo__by_question(self):
+        self.axes.cla()
+        self.axes.plot(self.dataX, self.dataY)
+        self.setTitle()
+        self.draw()
+
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     ex = Chart()

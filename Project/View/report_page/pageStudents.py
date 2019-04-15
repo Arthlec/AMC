@@ -19,6 +19,7 @@ from PyQt5.QtWidgets import (QWidget, QLabel, QLineEdit, QPushButton,
 
 from Project.Controller.readAMC import *
 from Project.Controller.studentData import StudentData
+from View.Charts import PlotCanvas
 
 dataPathAnswers = str(Path(__file__).resolve().parent.parent).replace("\\", "/") + "/../Real Data/"
 
@@ -69,6 +70,9 @@ class lstQuestion(QWidget):
        self.stdID=self.studentNames[self.studentNames['manual'] == self.stdTitle].student
        self.lstQstAns=self.answer[self.answer['student'] == self.stdID[0]]
        self.initUI()
+       self.controller = StudentData()
+       self.plot = PlotCanvas(self.controller.dataX, self.controller.dataY)
+
    def initUI(self):
         self.createFormGroupBox(self.currentIndex)
         self.grid = QGridLayout()
@@ -78,9 +82,15 @@ class lstQuestion(QWidget):
         self.grid.addWidget(self.comboStdName, 0, 0)
         self.grid.addWidget(self.formGroupBox,1,0)
         self.grid.addWidget(self.createBtnGroup(), 2, 0)
+        # -------------------------------
+        self.plot.plot_histogram()
+        self.grid.addWidget(self.plot, 3,0)
+        # -------------------------------
         self.setLayout(self.grid)
         self.setWindowTitle("Student Report")
         self.show()
+
+
 
    def createBtnGroup(self):
        groupBox = QGroupBox()
@@ -146,7 +156,13 @@ class lstQuestion(QWidget):
         layout.addRow(lblQuestion,lblMark1)
         layout.addRow("",lblMark)
 
-        #layout.addRow(self.plot_data)
+        # data for chart
+        dataX= self.scoreTable.iloc[:,qNum] # y value
+        dataY= self.lstStdName
+        self.plot = PlotCanvas(dataX, dataY)
+
+
+        layout.addRow(self.plot.plot_histogram())
         layout.addRow(lblStdAns, lblCorrectAns)
         for i in range(qChoices):
             layout.addRow(chkListStd[i],chkListCorrect[i])
@@ -154,12 +170,6 @@ class lstQuestion(QWidget):
         self.formGroupBox.setLayout(layout)
 
    #-----------------------------function defination-----------------------
-   def plot_data(self):
-       x = range(0, 10)
-       y = range(0, 20, 2)
-       self.plotWidget.canvas.ax.plot(x, y)
-       self.plotWidget.canvas.draw()
-
    def OnChangelstStdName(self, i):
        self.stdTitle = self.comboStdName.currentText()
        self.stdID = self.studentNames[self.studentNames['manual'] == self.stdTitle].student.reset_index(drop=True)
