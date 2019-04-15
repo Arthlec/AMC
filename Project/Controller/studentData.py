@@ -12,7 +12,7 @@ class StudentData:
         # print("organizedTable: \n", self.organizedTable)
         df = resultPoints.values
         # print('df: ', df)
-        score_chart = df[10,:].astype(int)
+        score_chart = df[-1,:].astype(int)
         # print("score_chart: ", score_chart)
         mark_chart = np.unique(score_chart)
         # print("mark_chart: ", mark_chart)

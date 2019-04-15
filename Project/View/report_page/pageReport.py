@@ -13,10 +13,10 @@ from PyQt5.QtCore import Qt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 # from Controller.readAMC import getNumberOfQuestions, changeWeight
-from Project.Controller.readAMC import *
-from Project.View.Charts import PlotCanvas
-from Project.Controller.studentData import StudentData
-from Project.View.coherence_page.coherence import *
+from Controller.readAMC import *
+from View.Charts import PlotCanvas
+from Controller.studentData import StudentData
+from View.coherence_page.coherence import *
 
 #+--------------main class
 class ReportPage(QWidget):
@@ -26,6 +26,7 @@ class ReportPage(QWidget):
         self.plot = PlotCanvas(self.controller.dataX, self.controller.dataY)
 
     def initUI(self, mainWindow):
+        self.mainWindow = mainWindow
         mainWindow.title = 'AMC Report'
         self.createGridLayout()
         windowLayout = QVBoxLayout()
@@ -61,39 +62,21 @@ class ReportPage(QWidget):
             cbChart.addItem(elt[0])
         cbChart.resize(140, 30)
         layout.addWidget(cbChart, 0, 2)
-        #btnApply = QPushButton("Apply Coherence")
-        #btnApply.clicked.connect(self.onClickApply)
-        #self.grid.addWidget(self.createBtnGroup(), 2, 0)
         layout.addWidget(self.createBtnGroup(), 0, 0)
         cbChart.currentIndexChanged.connect(self.OnChangeCbChart)
         # ---------------------table view --------------------
-        scroll = QScrollArea()
-        table = QTableWidget()
-        scroll.setWidget(table)
-        layout.addWidget(table, 1, 0)
+        # scroll = QScrollArea()
+        self.table = QTableWidget()
+        # scroll.setWidget(table)
+        layout.addWidget(self.table, 1, 0)
 
-        scoreTable = self.controller.getScoreTable() # main data
-        nbIndex = len(scoreTable.index)
-        nbColumns = len(scoreTable.columns)
+        self.initData()
+        self.setTable()
 
-        colName = []   # column name
-        rowName = []   # row name
-        table.setColumnCount(nbColumns)
-        table.setRowCount(nbIndex)
-        for i in range(nbIndex):
-            colName.append(str(scoreTable.index[i]))
-            for j in range(nbColumns):
-                rowName.append(str(scoreTable.columns[j]))
-                table.setItem(i, j, QTableWidgetItem(str(round(scoreTable.iloc[i, j], 1))))
-
-        table.setHorizontalHeaderLabels(rowName)
-        table.setVerticalHeaderLabels(colName)
-        table.resizeRowsToContents()
-        table.resizeColumnsToContents()
 
         # ---------------------slider  weight --------------------
         numberOfQuestions, arrCorrectAns = getNumberOfQuestions()
-        layout.addWidget(BuildSlider(self.controller, arrCorrectAns=arrCorrectAns,numberOfQuestions=numberOfQuestions), 1, 1)
+        layout.addWidget(BuildSlider(self.controller, self.validateWieights, arrCorrectAns=arrCorrectAns,numberOfQuestions=numberOfQuestions), 1, 1)
 
         # ---------------------chart view --------------------
         self.plot.plot_box()
@@ -102,12 +85,49 @@ class ReportPage(QWidget):
 
         self.horizontalGroupBox.setLayout(layout)
 
-    def onClickApply(self):
-        print("click: run your coherence and update data ")
+
+    def validateWieights(self):
+        self.updateData()
+        self.setTable()
+
 
     # Calls directly the good function in the array self.comboOptions
     def OnChangeCbChart(self,i):
         self.comboOptions[i][1]()
+
+
+    def initData(self):
+        boxes, resultatsPoints = ReadAMC.computeData()
+        self.scoreTable = resultatsPoints.T
+
+    def updateDataCoherence(self):
+        boxes, resultatsPoints = ReadAMC.updateCoherence()
+        self.scoreTable = resultatsPoints.T
+
+    def updateData(self):
+        boxes, resultatsPoints = ReadAMC.updateData()
+        self.scoreTable = resultatsPoints.T
+
+
+
+    def setTable(self):
+        nbIndex = len(self.scoreTable.index)
+        nbColumns = len(self.scoreTable.columns)
+
+        colName = []   # column name
+        rowName = []   # row name
+        self.table.setColumnCount(nbColumns)
+        self.table.setRowCount(nbIndex)
+        for i in range(nbIndex):
+            colName.append(str(self.scoreTable.index[i]))
+            for j in range(nbColumns):
+                rowName.append(str(self.scoreTable.columns[j]))
+                self.table.setItem(i, j, QTableWidgetItem(str(round(self.scoreTable.iloc[i, j], 2))))
+
+        self.table.setHorizontalHeaderLabels(rowName)
+        self.table.setVerticalHeaderLabels(colName)
+        self.table.resizeRowsToContents()
+        self.table.resizeColumnsToContents()
 
     def createBtnGroup(self):
         groupBox = QGroupBox()
@@ -124,10 +144,15 @@ class ReportPage(QWidget):
         hbox.addStretch(1)
         groupBox.setLayout(hbox)
         return groupBox
+
     def showCoherence(self):
-        self.myOtherWindow = CoherencePage()
-        self.myOtherWindow.show()
-        print("call coherence")
+        coherencePage = CoherencePage(self.mainWindow)
+        n = coherencePage.exec_()
+
+        if n == 1:
+            self.updateDataCoherence()
+            self.setTable()
+
     def exportPDF(self):
          print("pdf")
 
@@ -136,9 +161,10 @@ class ReportPage(QWidget):
 
 #+--------------builder slider has been written by Arthur Lecert
 class BuildSlider(QWidget):
-    def __init__(self, controller, parent=None, initialValue=1.0, arrCorrectAns=[], numberOfQuestions=1):
+    def __init__(self, controller, onValidate, parent=None, initialValue=1.0, arrCorrectAns=[], numberOfQuestions=1):
         super(BuildSlider, self).__init__(parent)
         self.controller = controller
+        self.onValidate = onValidate
         # ---------------------weight
         self.layout = QVBoxLayout()
         self.listOfQuestions = []
@@ -177,7 +203,7 @@ class BuildSlider(QWidget):
     def writeWeights(self):
         for i, slider in enumerate(self.listOfQuestions):
             changeWeight(i + 1, slider.value())
-        updateData()
+        self.onValidate()
         # self.controller.updateData()
         # print(getWeights())
 

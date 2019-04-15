@@ -1,19 +1,14 @@
 import sys
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QLineEdit, QLabel, QPushButton, QGridLayout, QSpacerItem
+from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QLineEdit, QLabel, QPushButton, QGridLayout, QSpacerItem, QDialog
 from Controller.logic.logic import *
-from Controller.readAMC import getNumberOfQuestions, getAllStudents, getStudentAnswersCorrect, writeCoherence, \
-    getStudentQuestionsCorrect, parseCoherenceFormula
+import Controller.readAMC as ReadAMC
 
-class CoherencePage(QWidget):
-    def __init__(self):
-        super().__init__()
+class CoherencePage(QDialog):
+    def __init__(self, parent=None):
+        super(CoherencePage, self).__init__(parent)
         self.setWindowTitle('Coherence')
-        self.left = 10
-        self.top = 10
-        self.width = 320
-        self.height = 100
-        self.setGeometry(self.left, self.top, self.width, self.height)
+        self.setModal(True)
 
         self.listOfQuestions = []
 
@@ -34,13 +29,11 @@ class CoherencePage(QWidget):
         # self.sublayout.setColumnStretch(2, 4)
         # self.sublayout.addItem(QSpacerItem(0, 0))
         # self.sublayout.addItem(QSpacerItem(0, 0))
-        for i in range(getNumberOfQuestions()[0]):
+        for i in range(ReadAMC.getNumberOfQuestions()[0]):
             self.createQuestionBox(i)
         self.layout.addLayout(self.sublayout)
 
         self.b1 = QPushButton("Compute the logic")
-        self.b1.setCheckable(True)
-        self.b1.toggle()
         self.b1.clicked.connect(self.computeLogic)
         self.layout.addWidget(self.b1)
 
@@ -62,14 +55,14 @@ class CoherencePage(QWidget):
     def computeLogic(self):
         listOfModifiers = []
         listOfQuestionsText = []
-        listOfStudents = getAllStudents()
+        listOfStudents = ReadAMC.getAllStudents()
         if not self.generalCoherenceFormula.text():
             print("No formula for exam")
         else:
             # print(self.generalCoherenceFormula.text())
             logic = Logic(self.generalCoherenceFormula.text(), LogicElement.Q)
             for i in listOfStudents:
-                modifier = logic.checkResults(getStudentQuestionsCorrect(i))
+                modifier = logic.checkResults(ReadAMC.getStudentQuestionsCorrect(i))
                 listOfModifiers.append(tuple((-1, modifier)))
                 listOfQuestionsText.append(self.generalCoherenceFormula.text())
         for i, coherenceFormula in enumerate(self.listOfQuestions, 1):
@@ -79,13 +72,14 @@ class CoherencePage(QWidget):
             else:
                 for j in listOfStudents:
                     logic = Logic(coherenceFormula.text(), LogicElement.R)
-                    modifier = logic.checkResults(getStudentAnswersCorrect(j, i))
+                    modifier = logic.checkResults(ReadAMC.getStudentAnswersCorrect(j, i))
                     listOfModifiers.append(tuple((i, modifier)))
                     listOfQuestionsText.append(coherenceFormula.text())
-        writeCoherence([listOfModifiers, listOfQuestionsText])
+        ReadAMC.writeCoherence([listOfModifiers, listOfQuestionsText])
+        self.done(1)
 
     def displaySavedFormulas(self):
-        formulas = parseCoherenceFormula()
+        formulas = ReadAMC.parseCoherenceFormula()
         if formulas[0][0][0] == -1: # [Modifiers][Tuple][Index]
             self.generalCoherenceFormula.setText(formulas[1][0]) # [Text][Index]
         for i in range(1, len(self.listOfQuestions)):
