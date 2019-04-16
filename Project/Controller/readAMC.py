@@ -49,7 +49,7 @@ def readAMCTables(dataPath):
     cnx.close()
 
 
-    return zone, answer, association, variables,questiontitle
+    return zone, answer, association, variables, questiontitle
 
 
 
