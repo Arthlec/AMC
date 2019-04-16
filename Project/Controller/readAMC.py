@@ -219,7 +219,7 @@ def setHeaders(resultatsPoints, maxPoints):
     return resultatsPoints
 
 
-def manageData():
+def manageData(option1, option2):
     zone, answer, association, var,_ = readAMCTables(dataPath)
     boxes = makeBoxes(zone, answer, var )
 
