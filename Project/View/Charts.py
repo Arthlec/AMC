@@ -30,7 +30,6 @@ class PlotCanvas(FigureCanvas):
 
     def refresh(self):
         self.controller.updateData()
-        self.setData()
 
 
     def setTitle(self):
