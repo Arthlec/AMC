@@ -71,6 +71,7 @@ class ReportPage(QWidget):
         layout.addWidget(self.table, 1, 0)
 
         self.initData()
+        self.sortTable()
         self.setTable()
 
 
@@ -84,6 +85,21 @@ class ReportPage(QWidget):
         layout.addWidget(self.plot, 1, 2)
 
         self.horizontalGroupBox.setLayout(layout)
+
+
+    def sortTable(self):
+        self.scoreTable.sort_index(inplace=True)
+        columns = self.scoreTable.columns
+        toSort = []
+        notes = []
+        for value in columns:
+            if isinstance(value, int):
+                toSort.append(value)
+            else:
+                notes.append(value)
+
+        newColumns = sorted(toSort) + notes
+        self.scoreTable = self.scoreTable[newColumns]
 
 
     def validateWieights(self):

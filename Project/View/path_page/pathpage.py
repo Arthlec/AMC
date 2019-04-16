@@ -1,3 +1,8 @@
+# DEBUG:
+from os import path
+# DEBUG
+
+
 import sys
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QLineEdit, QLabel, QPushButton,\
@@ -23,6 +28,11 @@ class PathPage(QDialog):
         self.layout.addWidget(title)
 
         self.dataPathEditText = QLineEdit()
+
+        # DEBUG:
+        self.dataPathEditText.setText((path.dirname(path.abspath(sys.modules['__main__'].__file__)) + '\\Real Data\\').replace('\\', '/'))
+        # DEBUG
+
         self.dataPathEditText.resize(40, 40)
         self.layout.addWidget(self.dataPathEditText)
 
