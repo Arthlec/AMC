@@ -1,6 +1,6 @@
 import sys
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QLineEdit, QLabel, QPushButton, QGridLayout, QSpacerItem, QDialog
+from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QLineEdit, QLabel, QPushButton, QGridLayout, QSpacerItem, QDialog, QMessageBox
 from Controller.logic.logic import *
 import Controller.readAMC as ReadAMC
 
@@ -60,18 +60,28 @@ class CoherencePage(QDialog):
             print("No formula for exam")
         else:
             # print(self.generalCoherenceFormula.text())
-            logic = Logic(self.generalCoherenceFormula.text(), LogicElement.Q)
+            try:
+                logic = Logic(self.generalCoherenceFormula.text(), LogicElement.Q)
+            except Exception as e:
+                QMessageBox.critical(self, 'Coherence error', str(e), QMessageBox.Ok)
+                return
             for i in listOfStudents:
                 modifier = logic.checkResults(ReadAMC.getStudentQuestionsCorrect(i))
                 listOfModifiers.append(tuple((-1, modifier)))
                 listOfQuestionsText.append(self.generalCoherenceFormula.text())
+
+
         for i, coherenceFormula in enumerate(self.listOfQuestions, 1):
             # print(coherenceFormula.text())
             if not coherenceFormula.text():
                 print("No formula for question " + str(i))
             else:
                 for j in listOfStudents:
-                    logic = Logic(coherenceFormula.text(), LogicElement.R)
+                    try:
+                        logic = Logic(coherenceFormula.text(), LogicElement.R)
+                    except Exception as e:
+                        QMessageBox.critical(self, 'Coherence error - Question {0}'.format(i), str(e), QMessageBox.Ok)
+                        return
                     modifier = logic.checkResults(ReadAMC.getStudentAnswersCorrect(j, i))
                     listOfModifiers.append(tuple((i, modifier)))
                     listOfQuestionsText.append(coherenceFormula.text())
@@ -82,7 +92,7 @@ class CoherencePage(QDialog):
         formulas = ReadAMC.parseCoherenceFormula()
         if not formulas:
             return
-            
+
         if formulas[0][0][0] == -1: # [Modifiers][Tuple][Index]
             self.generalCoherenceFormula.setText(formulas[1][0]) # [Text][Index]
         for i in range(1, len(self.listOfQuestions)):
