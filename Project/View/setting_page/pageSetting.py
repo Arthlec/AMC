@@ -43,7 +43,6 @@ class Settings(QDialog):
         self.txtFN.setText('-1.0')
         self.txtTN.setText('1.0')
         self.txtFP.setText('-1.0')
-        self.txtPenalty.setText('0.0')
         self.txtWeight.setText('1.0')
         # DEBUG
 
