@@ -242,7 +242,16 @@ def updateDataPart(boxes):
 
 
 def computeData():
+    if os.path.isfile(coherenceFormulaPath):
+        return computeDataCoherence()
+    else:
+        return computeDataWeights()
+
+def computeDataWeights():
     return manageData(computeDataPart, MarkingQuestions)
+
+def computeDataCoherence():
+    return manageData(computeDataPart, MarkingQuestionsWithCoherence)
 
 def updateData():
     if os.path.isfile(coherenceFormulaPath):
