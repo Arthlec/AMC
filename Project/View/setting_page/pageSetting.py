@@ -86,14 +86,6 @@ class Settings(QDialog):
         self.setModal(True)
         self.setWindowTitle('Settings')
 
-    # -------------function set params auto
-    def setAutoParams(self):
-        print("click: setAutoParams")
-
-    # -------------function set seam name
-    def cbExamOnchange(self):
-        print("click: cbExamOnchange")
-
 
     def nextView(self):
         if not self.checkTextBoxes():
@@ -158,7 +150,6 @@ class Settings(QDialog):
 
     # -------------function set params auto
     def cancelParams(self):
-        print("click: cancelParams")
         self.close()
 
     def getCSV(self):
@@ -166,7 +157,6 @@ class Settings(QDialog):
                                                      'CSV File',
                                                      '~/Desktop',
                                                      '*.csv')
-        print(filePath)
         filename = Path(filePath).name
         fileName2 = self.cbExams.currentText()
         with open(str(filePath)) as f:

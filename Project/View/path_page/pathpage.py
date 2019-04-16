@@ -6,7 +6,7 @@ from os import path
 import sys
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QLineEdit, QLabel, QPushButton,\
-    QFileDialog, QHBoxLayout, QDialog
+    QFileDialog, QHBoxLayout, QDialog, QMessageBox
 # from Controller.readAMC import getDefaultDataPath, initDirectories
 import Controller.readAMC as ReadAMC
 
@@ -53,11 +53,16 @@ class PathPage(QDialog):
 
     def chooseDirectory(self):
         file = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
-        self.dataPathEditText.setText(file + "/")
+        if file != '':
+            self.dataPathEditText.setText(file + "/")
 
     def savePath(self):
-        ReadAMC.initDirectories(self.dataPathEditText.text())
-        self.done(1)
+        dir = self.dataPathEditText.text()
+        if ReadAMC.isValidDirectory(dir):
+            ReadAMC.initDirectories(dir)
+            self.done(1)
+        else:
+            QMessageBox.critical(self, 'Incorect path', 'The file you entered does not contain valid sqlite files...', QMessageBox.Ok)
 
 
 if __name__ == '__main__':

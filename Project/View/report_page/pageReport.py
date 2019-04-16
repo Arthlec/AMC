@@ -10,6 +10,8 @@ from PyQt5.QtWidgets import QWidget, QSlider, QGroupBox, QGridLayout, QLineEdit,
                             QVBoxLayout,QHBoxLayout, QLabel, QMainWindow, QApplication
 
 from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QFont
+
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 # from Controller.readAMC import getNumberOfQuestions, changeWeight
@@ -47,6 +49,28 @@ class ReportPage(QWidget):
         for i in range(3):
             layout.setColumnStretch(i, 1)
 
+        # ---------------------Mean and STD  --------------------
+        horizLayout = QHBoxLayout()
+        row = QWidget(self.horizontalGroupBox)
+        self.meanLabel = QLabel()
+        self.stdLabel = QLabel()
+
+        horizLayout.addWidget(self.meanLabel)
+        horizLayout.addWidget(self.stdLabel)
+        row.setLayout(horizLayout)
+
+        layout.addWidget(row, 0, 1)
+
+        # ---------------------Font of Mean and STD  --------------------
+        meanFont = QFont()
+        meanFont.setBold(True)
+        meanFont.setPointSize(13.0)
+        self.meanLabel.setStyleSheet('QLabel {color: #128700;}')
+        self.stdLabel.setStyleSheet('QLabel {color: #4a006b;}')
+
+        self.meanLabel.setFont(meanFont)
+        self.stdLabel.setFont(meanFont)
+
         # ---------------------text boxes  --------------------
         # Put all of the choices together, linking the name and the function to call
         self.comboOptions = [
@@ -76,6 +100,7 @@ class ReportPage(QWidget):
 
         self.initData()
         self.setTable()
+        self.computeMeanAndSTD()
 
 
         # ---------------------slider  weight --------------------
@@ -91,6 +116,14 @@ class ReportPage(QWidget):
         layout.addWidget(self.plot, 1, 2)
 
         self.horizontalGroupBox.setLayout(layout)
+
+
+    def computeMeanAndSTD(self):
+        mean = self.scoreTable.iloc[:,-1].mean()
+        std = self.scoreTable.iloc[:,-1].std()
+
+        self.meanLabel.setText('Mean: {0}'.format(round(mean,2)))
+        self.stdLabel.setText('STD: {0}'.format(round(std,2)))
 
 
     def sortTable(self):
@@ -149,6 +182,7 @@ class ReportPage(QWidget):
         self.setTable()
         self.plot.refresh()
         self.comboOptions[self.selectedChart][1]()
+        self.computeMeanAndSTD()
 
     def createBtnGroup(self):
         groupBox = QGroupBox()

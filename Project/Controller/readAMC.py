@@ -7,10 +7,15 @@ import numpy as np
 import os
 
 
+WEIGHTS_FILENAME = "weights.json"
+COHERENCE_FILENAME = "coherenceFormula.json"
+CAPTURE_FILE = 'capture.sqlite'
+SCORING_FILE = 'scoring.sqlite'
+ASSOCIATION_FILE = 'association.sqlite'
+
 dataPath = ""
 weightPath = ""
 coherenceFormulaPath = ""
-csvParamsPath = ""
 paramsValues = None
 
 
@@ -18,11 +23,13 @@ def initDirectories(path):
     global dataPath
     global weightPath
     global coherenceFormulaPath
-    global csvParamsPath
     dataPath = path
-    weightPath = dataPath + "weights.json"
-    coherenceFormulaPath = dataPath + "coherenceFormula.json"
-    csvParamsPath = dataPath + "basic_parameters.csv"
+    weightPath = dataPath + WEIGHTS_FILENAME
+    coherenceFormulaPath = dataPath + COHERENCE_FILENAME
+
+
+def isValidDirectory(dir):
+    return any(fname == CAPTURE_FILE for fname in os.listdir(dir))
 
 
 def setParameters(params):
@@ -34,20 +41,28 @@ def setParameters(params):
 
 def readAMCTables(dataPath):
     # Create your connection.
-    cnx = sqlite3.connect(dataPath + 'capture.sqlite')
-    zone = pd.read_sql_query("SELECT * FROM capture_zone", cnx)
-    cnx.close()
+    try:
+        cnx = sqlite3.connect(dataPath + CAPTURE_FILE)
+        zone = pd.read_sql_query("SELECT * FROM capture_zone", cnx)
+        cnx.close()
+    except pd.io.sql.DatabaseError as e:
+        raise IOError('File {0} is missing...'.format(CAPTURE_FILE))
 
-    cnx = sqlite3.connect(dataPath +'scoring.sqlite')
-    answer = pd.read_sql_query("SELECT * FROM scoring_answer", cnx)
-    variables = pd.read_sql_query("SELECT * FROM scoring_variables", cnx)
-    questiontitle = pd.read_sql_query("SELECT * FROM scoring_title", cnx)
-    cnx.close()
+    try:
+        cnx = sqlite3.connect(dataPath + SCORING_FILE)
+        answer = pd.read_sql_query("SELECT * FROM scoring_answer", cnx)
+        variables = pd.read_sql_query("SELECT * FROM scoring_variables", cnx)
+        questiontitle = pd.read_sql_query("SELECT * FROM scoring_title", cnx)
+        cnx.close()
+    except pd.io.sql.DatabaseError as e:
+         raise IOError('File {0} is missing...'.format(SCORING_FILE))
 
-    cnx = sqlite3.connect(dataPath +'association.sqlite')
-    association = pd.read_sql_query("SELECT * FROM association_association", cnx)
-    cnx.close()
-
+    try:
+        cnx = sqlite3.connect(dataPath + ASSOCIATION_FILE)
+        association = pd.read_sql_query("SELECT * FROM association_association", cnx)
+        cnx.close()
+    except pd.io.sql.DatabaseError as e:
+         raise IOError('File {0} is missing...'.format(ASSOCIATION_FILE))
 
     return zone, answer, association, variables, questiontitle
 
@@ -314,8 +329,8 @@ def getAllStudents():
     listStudents = boxes['student'].unique().tolist()
     return listStudents
 
-def getStudentQuestionsCorrect(student):
-    boxes, point = updateData()
+def getStudentQuestionsCorrect(student, boxes):
+    # boxes, point = updateData()
     studentQuestionsCorrect = []
     listQuestions = boxes['question'].unique()
 
@@ -328,8 +343,8 @@ def getStudentQuestionsCorrect(student):
         studentQuestionsCorrect.append(tuple((question, int(value))))
     return studentQuestionsCorrect
 
-def getStudentAnswersCorrect(student, question):
-    boxes, point = updateData()
+def getStudentAnswersCorrect(student, question, boxes):
+    # boxes, point = updateData()
     studentAnswersCorrect = []
     boxes_onequestion = boxes.loc[(boxes['student'] == student) & (boxes['question'] == question)]
     # listQuestions = boxes_onequestion.unique()

@@ -86,11 +86,12 @@ class HomePage(QWidget):
         pathDialog = PathPage(self.mainWindow)
         n = pathDialog.exec_()
         if n == 1:
+            n = 0
             pageSetting = Settings(self.mainWindow)
-            pageSetting.exec_()
-        if n == 1:
-            reportPage = ReportPage(self.mainWindow)
-            reportPage.initUI(self.mainWindow)
+            n = pageSetting.exec_()
+            if n == 1:
+                reportPage = ReportPage(self.mainWindow)
+                reportPage.initUI(self.mainWindow)
 
 
 

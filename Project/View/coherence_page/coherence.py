@@ -56,6 +56,9 @@ class CoherencePage(QDialog):
         listOfModifiers = []
         listOfQuestionsText = []
         listOfStudents = ReadAMC.getAllStudents()
+        boxes, resultatsPoints = ReadAMC.updateData()
+
+        print('Number of student: ', len(listOfStudents))
         if not self.generalCoherenceFormula.text():
             print("No formula for exam")
         else:
@@ -66,9 +69,11 @@ class CoherencePage(QDialog):
                 QMessageBox.critical(self, 'Coherence error', str(e), QMessageBox.Ok)
                 return
             for i in listOfStudents:
-                modifier = logic.checkResults(ReadAMC.getStudentQuestionsCorrect(i))
+                modifier = logic.checkResults(ReadAMC.getStudentQuestionsCorrect(i, boxes))
                 listOfModifiers.append(tuple((-1, modifier)))
                 listOfQuestionsText.append(self.generalCoherenceFormula.text())
+
+            print('DONE')
 
 
         for i, coherenceFormula in enumerate(self.listOfQuestions, 1):
@@ -76,13 +81,13 @@ class CoherencePage(QDialog):
             if not coherenceFormula.text():
                 print("No formula for question " + str(i))
             else:
+                try:
+                    logic = Logic(coherenceFormula.text(), LogicElement.R)
+                except Exception as e:
+                    QMessageBox.critical(self, 'Coherence error - Question {0}'.format(i), str(e), QMessageBox.Ok)
+                    return
                 for j in listOfStudents:
-                    try:
-                        logic = Logic(coherenceFormula.text(), LogicElement.R)
-                    except Exception as e:
-                        QMessageBox.critical(self, 'Coherence error - Question {0}'.format(i), str(e), QMessageBox.Ok)
-                        return
-                    modifier = logic.checkResults(ReadAMC.getStudentAnswersCorrect(j, i))
+                    modifier = logic.checkResults(ReadAMC.getStudentAnswersCorrect(j, i, boxes))
                     listOfModifiers.append(tuple((i, modifier)))
                     listOfQuestionsText.append(coherenceFormula.text())
         ReadAMC.writeCoherence([listOfModifiers, listOfQuestionsText])

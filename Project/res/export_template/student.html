@@ -7,12 +7,18 @@
   <body>
     <h1>Rapport du controle du {{date}}</h1>
     {% for question in questions %}
-      <h2>Question {{ question.number }}</h2>
-      <ul>
-        {% for answer in question.answers %}
-          <li>{{ answer.content }}</li>
-        {% endfor %}
-      </ul>
+      <h2>Question {{ question.number }} : {{ question.title }}</h2>
+      <div class="answer_section">
+        <div class="answer_good">
+
+        </div>
+        <div class="answer_student">
+
+        </div>
+        <div class="answer_content">
+
+        </div>
+      </div>
     {% endfor %}
   </body>
 </html>
