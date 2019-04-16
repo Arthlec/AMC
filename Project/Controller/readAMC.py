@@ -242,7 +242,7 @@ def updateDataPart(boxes):
 
 
 def computeData():
-    if os.path.isfile(coherenceFormulaPath):
+    if os.path.isfile(coherenceFormulaPath) and parseCoherenceFormula():
         return computeDataCoherence()
     else:
         return computeDataWeights()
@@ -254,7 +254,7 @@ def computeDataCoherence():
     return manageData(computeDataPart, MarkingQuestionsWithCoherence)
 
 def updateData():
-    if os.path.isfile(coherenceFormulaPath):
+    if os.path.isfile(coherenceFormulaPath) and parseCoherenceFormula():
         return updateDataCoherence()
     else:
         return updateDataWeights()
@@ -348,6 +348,10 @@ def parseCoherenceFormula():
     with open(coherenceFormulaPath) as f:
         data = json.load(f)
         f.close()
+
+    if data == [[], []]:
+        return False
+
     return data
 
 def getDataPath():
