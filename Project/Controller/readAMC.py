@@ -4,6 +4,7 @@ import sqlite3
 import pandas as pd
 import json
 import numpy as np
+import os
 
 
 dataPath = ""
@@ -258,9 +259,17 @@ def computeData():
     return manageData(computeDataPart, MarkingQuestions)
 
 def updateData():
+    if os.path.isfile(coherenceFormulaPath):
+        return updateDataCoherence()
+    else:
+        return updateDataWeights()
+
+
+def updateDataWeights():
     return manageData(updateDataPart, MarkingQuestions)
 
-def updateCoherence():
+
+def updateDataCoherence():
     return manageData(updateDataPart, MarkingQuestionsWithCoherence)
 
 
@@ -338,6 +347,9 @@ def writeCoherence(data):
         json.dump(data, out, indent=2)
 
 def parseCoherenceFormula():
+    if not os.path.isfile(coherenceFormulaPath):
+        return False
+        
     with open(coherenceFormulaPath) as f:
         data = json.load(f)
         f.close()
@@ -417,9 +429,3 @@ def computeData2():
     #get by user or default
     c, c2, c3 = MarkingQuestions2(NbPointsQuestions, boxes,penalty="def",avoidNeg=False)
     return c, c2, c3
-
-# boxes, resultatsPoints = updateData()
-# print(resultatsPoints)
-#
-# boxes, resultatsPoints = updateCoherence()
-# print(resultatsPoints)

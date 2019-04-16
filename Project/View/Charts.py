@@ -14,20 +14,28 @@ from Controller import readAMC as ReadAMC
 
 # PlotCanvas is also a QWidget
 class PlotCanvas(FigureCanvas):
-    def __init__(self,dataX, dataY, parent=None, width=5, height=4, dpi=100):
-        self.dataX = dataX
-        self.dataY = dataY
+    def __init__(self, controller, parent=None, width=5, height=4, dpi=100):
+        self.controller = controller
+        self.setData()
 
-        fig = Figure(figsize=(width, height), dpi=dpi)
-        self.axes = fig.add_subplot(111)
+        self.fig = Figure(figsize=(width, height), dpi=dpi)
+        self.axes = self.fig.add_subplot(111)
 
-        FigureCanvas.__init__(self, fig)
+        FigureCanvas.__init__(self, self.fig)
         self.setParent(parent)
 
         FigureCanvas.setSizePolicy(self,
                 QSizePolicy.Expanding,
                 QSizePolicy.Expanding)
         FigureCanvas.updateGeometry(self)
+
+    def setData(self):
+        self.dataX = self.controller.dataX
+        self.dataY = self.controller.dataY
+
+    def refresh(self):
+        self.controller.updateData()
+        self.setData()
 
 
     def setTitle(self):

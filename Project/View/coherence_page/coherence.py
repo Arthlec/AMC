@@ -80,6 +80,9 @@ class CoherencePage(QDialog):
 
     def displaySavedFormulas(self):
         formulas = ReadAMC.parseCoherenceFormula()
+        if not formulas:
+            return
+            
         if formulas[0][0][0] == -1: # [Modifiers][Tuple][Index]
             self.generalCoherenceFormula.setText(formulas[1][0]) # [Text][Index]
         for i in range(1, len(self.listOfQuestions)):

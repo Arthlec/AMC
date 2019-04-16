@@ -17,13 +17,16 @@ from Controller.readAMC import *
 from View.Charts import PlotCanvas
 from Controller.studentData import StudentData
 from View.coherence_page.coherence import *
+from View.setting_page.pageSetting import Settings
 
 #+--------------main class
 class ReportPage(QWidget):
+    DEFAULT_CHART_INDEX = 3
+
     def __init__(self, parent=None):
         super(ReportPage, self).__init__(parent)
         self.controller = StudentData()
-        self.plot = PlotCanvas(self.controller.dataX, self.controller.dataY)
+        self.plot = PlotCanvas(self.controller)
 
     def initUI(self, mainWindow):
         self.mainWindow = mainWindow
@@ -56,14 +59,15 @@ class ReportPage(QWidget):
         #txtCoherence = QLineEdit("Please Enter your Coherence Formula")
         #txtCoherence.resize(20, 20)
         #layout.addWidget(txtCoherence, 0, 0)
-        cbChart = QComboBox()
+        self.cbChart = QComboBox()
 
         for elt in self.comboOptions:
-            cbChart.addItem(elt[0])
-        cbChart.resize(140, 30)
-        layout.addWidget(cbChart, 0, 2)
+            self.cbChart.addItem(elt[0])
+        self.cbChart.setCurrentIndex(self.DEFAULT_CHART_INDEX)
+        self.cbChart.resize(140, 30)
+        layout.addWidget(self.cbChart, 0, 2)
         layout.addWidget(self.createBtnGroup(), 0, 0)
-        cbChart.currentIndexChanged.connect(self.OnChangeCbChart)
+        self.cbChart.currentIndexChanged.connect(self.OnChangeCbChart)
         # ---------------------table view --------------------
         # scroll = QScrollArea()
         self.table = QTableWidget()
@@ -71,17 +75,16 @@ class ReportPage(QWidget):
         layout.addWidget(self.table, 1, 0)
 
         self.initData()
-        self.sortTable()
         self.setTable()
 
 
         # ---------------------slider  weight --------------------
         numberOfQuestions, arrCorrectAns = getNumberOfQuestions()
-        layout.addWidget(BuildSlider(self.controller, self.validateWieights, arrCorrectAns=arrCorrectAns,numberOfQuestions=numberOfQuestions), 1, 1)
+        layout.addWidget(BuildSlider(self.refreshInterdace, arrCorrectAns=arrCorrectAns,numberOfQuestions=numberOfQuestions), 1, 1)
 
         # ---------------------chart view --------------------
-        self.plot.plot_box()
-
+        self.plot.plot_pie()
+        self.selectedChart = self.DEFAULT_CHART_INDEX
         layout.addWidget(self.plot, 1, 2)
 
         self.horizontalGroupBox.setLayout(layout)
@@ -102,22 +105,14 @@ class ReportPage(QWidget):
         self.scoreTable = self.scoreTable[newColumns]
 
 
-    def validateWieights(self):
-        self.updateData()
-        self.setTable()
-
-
     # Calls directly the good function in the array self.comboOptions
     def OnChangeCbChart(self,i):
         self.comboOptions[i][1]()
+        self.selectedChart = i
 
 
     def initData(self):
         boxes, resultatsPoints = ReadAMC.computeData()
-        self.scoreTable = resultatsPoints.T
-
-    def updateDataCoherence(self):
-        boxes, resultatsPoints = ReadAMC.updateCoherence()
         self.scoreTable = resultatsPoints.T
 
     def updateData(self):
@@ -127,6 +122,7 @@ class ReportPage(QWidget):
 
 
     def setTable(self):
+        self.sortTable()
         nbIndex = len(self.scoreTable.index)
         nbColumns = len(self.scoreTable.columns)
 
@@ -145,16 +141,25 @@ class ReportPage(QWidget):
         self.table.resizeRowsToContents()
         self.table.resizeColumnsToContents()
 
+    def refreshInterdace(self):
+        self.updateData()
+        self.setTable()
+        self.plot.refresh()
+        self.comboOptions[self.selectedChart][1]()
+
     def createBtnGroup(self):
         groupBox = QGroupBox()
         btnCoherence = QPushButton("Coherence")
+        btnSettings = QPushButton("Settings")
         btnPDF = QPushButton("Export as PDF")
         btnCSV = QPushButton("Export as CSV")
+        btnCoherence.clicked.connect(self.showCoherence)
+        btnSettings.clicked.connect(self.showSettings)
         btnPDF.clicked.connect(self.exportPDF)
         btnCSV.clicked.connect(self.exportCSV)
-        btnCoherence.clicked.connect(self.showCoherence)
         hbox = QHBoxLayout()
         hbox.addWidget(btnCoherence)
+        hbox.addWidget(btnSettings)
         hbox.addWidget(btnPDF)
         hbox.addWidget(btnCSV)
         hbox.addStretch(1)
@@ -166,8 +171,14 @@ class ReportPage(QWidget):
         n = coherencePage.exec_()
 
         if n == 1:
-            self.updateDataCoherence()
-            self.setTable()
+            self.refreshInterdace()
+
+    def showSettings(self):
+        settingsPage = Settings(self.mainWindow)
+        n = settingsPage.exec_()
+
+        if n == 1:
+            self.refreshInterdace()
 
     def exportPDF(self):
          print("pdf")
@@ -177,9 +188,8 @@ class ReportPage(QWidget):
 
 #+--------------builder slider has been written by Arthur Lecert
 class BuildSlider(QWidget):
-    def __init__(self, controller, onValidate, parent=None, initialValue=1.0, arrCorrectAns=[], numberOfQuestions=1):
+    def __init__(self, onValidate, parent=None, initialValue=1.0, arrCorrectAns=[], numberOfQuestions=1):
         super(BuildSlider, self).__init__(parent)
-        self.controller = controller
         self.onValidate = onValidate
         # ---------------------weight
         self.layout = QVBoxLayout()
@@ -220,8 +230,6 @@ class BuildSlider(QWidget):
         for i, slider in enumerate(self.listOfQuestions):
             changeWeight(i + 1, slider.value())
         self.onValidate()
-        # self.controller.updateData()
-        # print(getWeights())
 
 
 class DoubleSlider(QSlider):
