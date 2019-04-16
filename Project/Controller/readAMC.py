@@ -148,7 +148,6 @@ def MarkingQuestionsWithCoherence(NbPointsQuestions, boxes, avoidNeg=True):
                                                      formulas[0][indexFormula + i][1]
             # print("Note après : " + str(resultatsPoints.loc[question, student]))
 
-
     resultatsPoints = setHeaders(resultatsPoints, maxPoints)
 
     for i, student in enumerate(listStudents):
@@ -159,6 +158,9 @@ def MarkingQuestionsWithCoherence(NbPointsQuestions, boxes, avoidNeg=True):
             # print("Modifier : " + str(formulas[0][i][1]))
             # print("Note avant : " + str(resultatsPoints.loc['Note/20', student]))
             # print("Note après : " + str(resultatsPoints.loc['Note/20 (avec cohérence)', student]))
+
+    resultatsPoints[resultatsPoints < 0] = 0
+    resultatsPoints[resultatsPoints > 20] = 20
 
     return resultat, resultatsPoints
 
