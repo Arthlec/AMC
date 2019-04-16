@@ -80,7 +80,7 @@ class ReportPage(QWidget):
         numberOfQuestions, arrCorrectAns = getNumberOfQuestions()
         scrollArea = QScrollArea()
         scrollArea.setWidgetResizable(True)
-        scrollArea.setWidget(BuildSlider(self.validateWieights, arrCorrectAns=arrCorrectAns,numberOfQuestions=numberOfQuestions))
+        scrollArea.setWidget(BuildSlider(self.refreshInterdace, arrCorrectAns=arrCorrectAns,numberOfQuestions=numberOfQuestions))
         layout.addWidget(scrollArea, 1, 1)
 
         # ---------------------chart view --------------------
