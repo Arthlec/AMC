@@ -20,10 +20,10 @@ from PyQt5.QtWidgets import (QWidget, QLabel, QLineEdit, QPushButton,
                              QCheckBox, QMessageBox,QFormLayout,QDialogButtonBox,QSpinBox,QHBoxLayout, QComboBox,QSlider,QGroupBox, QVBoxLayout, QGridLayout, QApplication)
 from scipy.stats import stats
 import seaborn as sns, numpy as np
-from Project.Controller.readAMC import *
-from Project.Controller.studentData import StudentData
-from Project.View.Charts import *
-from Project.View.coherence_page.coherence import *
+from Controller.readAMC import *
+from Controller.studentData import StudentData
+from View.Charts import *
+from View.coherence_page.coherence import *
 
 dataPathAnswers = str(Path(__file__).resolve().parent.parent).replace("\\", "/") + "/../Real Data/"
 
@@ -48,11 +48,11 @@ class MplWidget(QtWidgets.QWidget):
         self.vbl.addWidget(self.canvas)
         self.setLayout(self.vbl)
 
-class lstQuestion(QWidget):
+class FirstQuestion(QDialog):
+   def __init__(self, parent=None):
+       super(FirstQuestion, self).__init__(parent)
+       self.setModal(True)
 
-
-   def __init__(self):
-       super().__init__()
        self.controller = StudentData()
        self.scoreTable = self.controller.getScoreTable()  # main datalist
        self.lstStdName=[]
@@ -60,8 +60,7 @@ class lstQuestion(QWidget):
 
        self.zone, self.answer, self.studentNames, self.var ,self.questionTitles= readAMCTables(dataPathAnswers)
        self.boxes=makeBoxes(self.zone, self.answer, self.var )
-       print("boxes")
-       print(boxes)
+       print("boxes: ", self.boxes)
        nbIndex = len(self.scoreTable.index)
        self.currentIndex = 0
        self.lenData= len(self.v) -1
@@ -78,6 +77,7 @@ class lstQuestion(QWidget):
        self.lstQstAns=self.answer[self.answer['student'] == self.stdID[0]]
        self.lstQstAns2=self.boxes[self.boxes['student']==self.stdID[0]]
        self.initUI()
+
    def initUI(self):
         self.createFormGroupBox(self.currentIndex)
         self.grid = QGridLayout()
@@ -111,10 +111,10 @@ class lstQuestion(QWidget):
 
    def createBtnGroup(self):
        groupBox = QGroupBox()
-       btnFirst = QPushButton("First")
-       btnPre = QPushButton("Previous")
-       btnNext = QPushButton("Next")
-       btnLast = QPushButton("Last")
+       btnFirst = QPushButton("<<")
+       btnPre = QPushButton("<")
+       btnNext = QPushButton(">")
+       btnLast = QPushButton(">>")
 
        btnFirst.clicked.connect(self.goFirst)
        btnPre.clicked.connect(self.goPre)
@@ -140,7 +140,7 @@ class lstQuestion(QWidget):
         self.stdMark2 = self.std.iloc[-3]
         self.stdMark3 = self.std.iloc[-1]
         questionTitle=self.questionTitles[self.questionTitles['question']==qNum].title.reset_index(drop=True)
-        lblQuestion = QLabel('Question ' + str(qNum) +  ':  '+str(questionTitle[0] ))
+        lblQuestion = QLabel('Question ' + str(qNum) +  ':  '+ questionTitle[0])
         lblMark = QLabel(self.stdTitle +"  point: "+str(round(self.stdMark1,2)))
         lblMark.setStyleSheet("QLabel {color : #562398; }")
         lblMark1 = QLabel("Exam Mark for "+ self.stdTitle +": " + str(round(self.stdMark3,1)))

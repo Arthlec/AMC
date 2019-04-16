@@ -18,6 +18,7 @@ from View.Charts import PlotCanvas
 from Controller.studentData import StudentData
 from View.coherence_page.coherence import *
 from View.setting_page.pageSetting import Settings
+from View.report_page.pageStudents import FirstQuestion
 
 #+--------------main class
 class ReportPage(QWidget):
@@ -150,22 +151,38 @@ class ReportPage(QWidget):
 
     def createBtnGroup(self):
         groupBox = QGroupBox()
+        btnHome = QPushButton("Home")
         btnCoherence = QPushButton("Coherence")
         btnSettings = QPushButton("Settings")
         btnPDF = QPushButton("Export as PDF")
         btnCSV = QPushButton("Export as CSV")
+        btnStudent = QPushButton("Student report")
+        btnHome.clicked.connect(self.showHome)
         btnCoherence.clicked.connect(self.showCoherence)
         btnSettings.clicked.connect(self.showSettings)
         btnPDF.clicked.connect(self.exportPDF)
         btnCSV.clicked.connect(self.exportCSV)
+        btnStudent.clicked.connect(self.showStudentReport)
         hbox = QHBoxLayout()
+        hbox.addWidget(btnHome)
         hbox.addWidget(btnCoherence)
         hbox.addWidget(btnSettings)
         hbox.addWidget(btnPDF)
         hbox.addWidget(btnCSV)
+        hbox.addWidget(btnStudent)
         hbox.addStretch(1)
         groupBox.setLayout(hbox)
         return groupBox
+
+    def showHome(self):
+        # Do not move this import, or the program crashes
+        from View.home_page.home import HomePage
+        home = HomePage(self.mainWindow)
+        home.initUI(self.mainWindow)
+
+    def showStudentReport(self):
+        studentDialog = FirstQuestion(self.mainWindow)
+        studentDialog.exec_()
 
     def showCoherence(self):
         coherencePage = CoherencePage(self.mainWindow)
