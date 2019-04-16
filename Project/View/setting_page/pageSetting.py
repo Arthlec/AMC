@@ -24,7 +24,6 @@ class Settings(QDialog):
         self.lblFN = QLabel('FN: False Negative')
         self.lblTN = QLabel('TN: True Negative')
         self.lblFP = QLabel('FP: False Positive')
-        self.lblPenalty= QLabel('Initial Penalty: ')
         self.lblWeight = QLabel('Initial Weight: ')
 
         # -------------define text box
@@ -36,8 +35,6 @@ class Settings(QDialog):
         self.txtTN.resize(20, 20)
         self.txtFP = QLineEdit()
         self.txtFP.resize(20, 20)
-        self.txtPenalty = QLineEdit()
-        self.txtPenalty.resize(20, 20)
         self.txtWeight = QLineEdit()
         self.txtWeight.resize(20, 20)
 
@@ -67,9 +64,6 @@ class Settings(QDialog):
 
         self.grid.addWidget(self.lblFP, 3, 7)
         self.grid.addWidget(self.txtFP, 3, 8)
-
-        self.grid.addWidget(self.lblPenalty, 2, 9)
-        self.grid.addWidget(self.txtPenalty, 2, 10)
 
         self.grid.addWidget(self.lblWeight, 3, 9)
         self.grid.addWidget(self.txtWeight, 3, 10)
@@ -103,7 +97,6 @@ class Settings(QDialog):
             "FN" : float(self.txtFN.text()),
             "TN" : float(self.txtTN.text()),
             "FP" : float(self.txtFP.text()),
-            "Penalty" : float(self.txtPenalty.text()),
             "Weight" : float(self.txtWeight.text()),
         }
 
@@ -129,8 +122,7 @@ class Settings(QDialog):
         self.txtFN.setText(params[1])
         self.txtTN.setText(params[2])
         self.txtFP.setText(params[3])
-        self.txtPenalty.setText(params[4])
-        self.txtWeight.setText(params[5])
+        self.txtWeight.setText(params[4])
 
     # -------------function set params auto
     def saveParams(self):
@@ -147,16 +139,15 @@ class Settings(QDialog):
             fileName += '.csv'
 
         f = open(fileName, 'w')
-        f.write('TP, FN, TN, FP, Penalty, Weight\n'+
+        f.write('TP, FN, TN, FP, Weight\n'+
                 self.txtTP.text()+"," + self.txtFN.text()
                 +","+self.txtTN.text()+","+self.txtFP.text()
-                +","+self.txtPenalty.text()
                 +","+self.txtWeight.text()+"\n")
         f.close()
 
 
     def checkTextBoxes(self):
-        return self.txtTP.text() != "" and self.txtFN.text() != "" and self.txtTN.text() != "" and self.txtFP.text() != "" and self.txtPenalty.text() != "" and self.txtWeight.text() != ""
+        return self.txtTP.text() != "" and self.txtFN.text() != "" and self.txtTN.text() != "" and self.txtFP.text() != "" and self.txtWeight.text() != ""
 
     # -------------function set params auto
     def cancelParams(self):

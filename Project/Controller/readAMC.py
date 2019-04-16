@@ -119,16 +119,16 @@ def schemeMarkingInQuestion1(boxes, arrParams ):
     boxes.loc[ ~boxes['correct'], 'maxPoints'  ] = arrParams['TN']
 
 
-def MarkingQuestions(NbPointsQuestions, boxes, penalty="def", avoidNeg=True):
-    resultat, resultatsPoints, maxPoints = initResults(NbPointsQuestions, boxes, penalty, avoidNeg)
+def MarkingQuestions(NbPointsQuestions, boxes, avoidNeg=True):
+    resultat, resultatsPoints, maxPoints = initResults(NbPointsQuestions, boxes, avoidNeg)
     resultatsPoints = setHeaders(resultatsPoints, maxPoints)
 
     return resultat, resultatsPoints
 
-def MarkingQuestionsWithCoherence(NbPointsQuestions, boxes, penalty="def", avoidNeg=True):
+def MarkingQuestionsWithCoherence(NbPointsQuestions, boxes, avoidNeg=True):
     listStudents = boxes['student'].unique()
     listQuestions = boxes['question'].unique()
-    resultat, resultatsPoints, maxPoints = initResults(NbPointsQuestions, boxes, penalty, avoidNeg)
+    resultat, resultatsPoints, maxPoints = initResults(NbPointsQuestions, boxes, avoidNeg)
 
     formulas = parseCoherenceFormula()
     for i, student in enumerate(listStudents):
@@ -162,7 +162,7 @@ def MarkingQuestionsWithCoherence(NbPointsQuestions, boxes, penalty="def", avoid
     return resultat, resultatsPoints
 
 
-def initResults(NbPointsQuestions, boxes, penalty, avoidNeg):
+def initResults(NbPointsQuestions, boxes, avoidNeg = True):
     # computes the sum of points per student and question
     # result is a a dataframe of the number of points per question (row)
     # and per student (column)
@@ -180,21 +180,7 @@ def initResults(NbPointsQuestions, boxes, penalty, avoidNeg):
             resultat.loc[question, student] = boxes.loc[K,'points'].sum()/boxes.loc[K,'maxPoints'].sum()
             resultatsPoints.loc[question, student] = boxes.loc[K,'points'].sum()/boxes.loc[K,'maxPoints'].sum()
 
-    # compute number of choice for each question use in penalty
-    c = boxes.groupby(['student'])['question'].value_counts().to_frame('count')  # .apply(list).to_dict()
-    c2 = pd.DataFrame(c).reset_index()
-    c3 = c2.loc[c2['student'] == listStudents[0]]
-    # then avoid negative points for questions
     if avoidNeg: resultat[resultat < 0] = 0
-    else:#penalty 1/(n-1) default or get by teacher as entry
-        if(penalty=="def"):
-            for q in c3['question']:
-                for std in listStudents:
-                    if resultat.loc[q,std]<0:
-                        count=c3.loc[c3['question'] == q, 'count'].iloc[0]
-                        resultat.loc[q,std]=round(1/(count -1), 1)
-        else:
-             resultat[resultat < 0] = penalty
 
     # Taking into account points per question
     weights = getWeights()
@@ -219,7 +205,7 @@ def setHeaders(resultatsPoints, maxPoints):
     return resultatsPoints
 
 
-def manageData():
+def manageData(option1, option2):
     zone, answer, association, var,_ = readAMCTables(dataPath)
     boxes = makeBoxes(zone, answer, var )
 
@@ -233,7 +219,7 @@ def manageData():
     NbPointsQuestions['Points'] = 1
 
     #get by user or default
-    resultat, resultatsPoints = option2(NbPointsQuestions, boxes,penalty="def",avoidNeg=False)
+    resultat, resultatsPoints = option2(NbPointsQuestions, boxes,avoidNeg=True)
     studentIdToNameMapper = {association.loc[k,'student']: association.loc[k,'manual'] for k in association.index}
     resultatsPoints = resultatsPoints.rename(studentIdToNameMapper, axis=1)
     return boxes, resultatsPoints
@@ -351,7 +337,7 @@ def getDefaultDataPath():
 
 
 #-------------------------------------sahar code---------------------------
-def MarkingQuestions2(NbPointsQuestions, boxes,penalty="def", avoidNeg=True):
+def MarkingQuestions2(NbPointsQuestions, boxes, avoidNeg=True):
     # computes the sum of points per student and question
     # result is a a dataframe of the number of points per question (row)
     # and per student (column)
@@ -369,21 +355,11 @@ def MarkingQuestions2(NbPointsQuestions, boxes,penalty="def", avoidNeg=True):
             resultat.loc[question, student] = boxes.loc[K,'points'].sum()/boxes.loc[K,'maxPoints'].sum()
             resultatsPoints.loc[question, student] = boxes.loc[K,'points'].sum()/boxes.loc[K,'maxPoints'].sum()
 
-    # compute number of choice for each question use in penalty
+    # compute number of choice for each question
     c = boxes.groupby(['student'])['question'].value_counts().to_frame('count')  # .apply(list).to_dict()
     c2 = pd.DataFrame(c).reset_index()
     c3 = c2.loc[c2['student'] == listStudents[0]]
-    # then avoid negative points for questions
-    if avoidNeg: resultat[resultat < 0] = 0
-    else:#penalty 1/(n-1) default or get by teacher as entry
-        if(penalty=="def"):
-            for q in c3['question']:
-                for std in listStudents:
-                    if resultat.loc[q,std]<0:
-                        count=c3.loc[c3['question'] == q, 'count'].iloc[0]
-                        resultat.loc[q,std]=round(1/(count -1), 1)
-        else:
-             resultat[resultat < 0] = penalty
+
     return c, c2, c3
 
 def computeData2():
@@ -415,11 +391,5 @@ def computeData2():
 
     # In[9]:
     #get by user or default
-    c, c2, c3 = MarkingQuestions2(NbPointsQuestions, boxes,penalty="def",avoidNeg=False)
+    c, c2, c3 = MarkingQuestions2(NbPointsQuestions, boxes,avoidNeg=False)
     return c, c2, c3
-
-# boxes, resultatsPoints = updateData()
-# print(resultatsPoints)
-#
-# boxes, resultatsPoints = updateCoherence()
-# print(resultatsPoints)
