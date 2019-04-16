@@ -80,9 +80,6 @@ class ReportPage(QWidget):
             ["Pie Chart",     self.plot.plot_pie],
         ]
 
-        #txtCoherence = QLineEdit("Please Enter your Coherence Formula")
-        #txtCoherence.resize(20, 20)
-        #layout.addWidget(txtCoherence, 0, 0)
         self.cbChart = QComboBox()
         for elt in self.comboOptions:
             self.cbChart.addItem(elt[0])
@@ -104,7 +101,10 @@ class ReportPage(QWidget):
 
 
         # ---------------------slider  weight --------------------
-        numberOfQuestions, arrCorrectAns = getNumberOfQuestions()
+        numberOfQuestions = self.getNumberOfQuestions()
+        arrCorrectAns = self.getPercentage()
+        print("arrCorrectAns : ", len(arrCorrectAns))
+        print(arrCorrectAns)
         scrollArea = QScrollArea()
         scrollArea.setWidgetResizable(True)
         scrollArea.setWidget(BuildSlider(self.refreshInterface, arrCorrectAns=arrCorrectAns,numberOfQuestions=numberOfQuestions))
@@ -117,6 +117,24 @@ class ReportPage(QWidget):
 
         self.horizontalGroupBox.setLayout(layout)
 
+    def getNumberOfQuestions(self):
+        listQuestions = self.boxes['question'].unique()
+        numberOfQuestions = len(listQuestions)
+
+        return numberOfQuestions
+
+    def getPercentage(self):
+        listStudents = self.boxes['student'].unique()
+        numberOfStudents = len(listStudents)
+
+        correctAns = []
+        for i in range(len(self.scoreTable.columns)):
+            numberOfOnes = 0
+            for j in range(len(self.scoreTable.index)):
+                if self.scoreTable.iloc[j, i] == 1:
+                    numberOfOnes += 1
+            correctAns.append(round((numberOfOnes / numberOfStudents) * 100, 0))
+        return correctAns
 
     def computeMeanAndSTD(self):
         mean = self.scoreTable.iloc[:,-1].mean()
@@ -150,11 +168,12 @@ class ReportPage(QWidget):
     def initData(self):
         boxes, resultatsPoints = ReadAMC.computeData()
         self.scoreTable = resultatsPoints.T
+        self.boxes = boxes
 
     def updateData(self):
         boxes, resultatsPoints = ReadAMC.updateData()
         self.scoreTable = resultatsPoints.T
-
+        self.boxes = boxes
 
 
     def setTable(self):
