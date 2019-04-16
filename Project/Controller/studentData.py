@@ -6,25 +6,34 @@ class StudentData:
         self.computeData()
 
     def loadData(self, boxes, resultPoints):
-        # print(resultPoints)
-        # print(resultPoints.T)
         self.organizedTable = resultPoints.T
-        # print("organizedTable: \n", self.organizedTable)
         df = resultPoints.values
-        # print('df: ', df)
-        score_chart = df[-1,:].astype(int)
-        # print("score_chart: ", score_chart)
-        mark_chart = np.unique(score_chart)
+        score_chart_int = df[-1,:].astype(int)
+        score_chart_double = [round(x, 2) for x in df[-1,:]]
+        # print("score_chart_int: ", score_chart_int)
+        mark_chart = np.unique(score_chart_int)
+        mark_chart_double = np.unique(score_chart_double)
         # print("mark_chart: ", mark_chart)
         eff_chart = []
+        eff_chart_double = []
 
         for i in range(len(mark_chart)):
             effective_chart = []
-            effective_chart = np.count_nonzero(score_chart == mark_chart[i])
+            effective_chart = np.count_nonzero(score_chart_int == mark_chart[i])
             eff_chart = np.append(eff_chart, effective_chart)
+
+        for i in range(len(mark_chart_double)):
+            effective_chart_double = []
+            effective_chart_double = np.count_nonzero(score_chart_double == mark_chart_double[i])
+            eff_chart_double = np.append(eff_chart_double, effective_chart_double)
+            
         # print(eff_chart.astype(int))
-        self.dataX = mark_chart
-        self.dataY = eff_chart
+        self.violinX = score_chart_int
+        self.pieX = mark_chart
+        self.pieY = eff_chart
+
+        self.dataX = mark_chart_double
+        self.dataY = eff_chart_double
 
     def computeData(self):
         self.loadData(*ReadAMC.computeData())

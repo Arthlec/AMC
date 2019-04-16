@@ -16,7 +16,6 @@ from Controller import readAMC as ReadAMC
 class PlotCanvas(FigureCanvas):
     def __init__(self, controller, parent=None, width=5, height=4, dpi=100):
         self.controller = controller
-        self.setData()
 
         self.fig = Figure(figsize=(width, height), dpi=dpi)
         self.axes = self.fig.add_subplot(111)
@@ -29,10 +28,6 @@ class PlotCanvas(FigureCanvas):
                 QSizePolicy.Expanding)
         FigureCanvas.updateGeometry(self)
 
-    def setData(self):
-        self.dataX = self.controller.dataX
-        self.dataY = self.controller.dataY
-
     def refresh(self):
         self.controller.updateData()
         self.setData()
@@ -42,33 +37,33 @@ class PlotCanvas(FigureCanvas):
         self.axes.set_title('Repartition of score in the class')
 
 
-    def plot_histogram(self):
+    def plot_line(self):
         self.axes.cla()       # Clears the axes
-        self.axes.plot(self.dataX, self.dataY)
+        self.axes.plot(self.controller.dataX, self.controller.dataY)
         self.setTitle()
         self.draw()
 
     def plot_pie(self):
         self.axes.cla()
-        self.axes.pie(self.dataY, labels=self.dataX)
+        self.axes.pie(self.controller.pieY, labels=self.controller.pieX)
         self.setTitle()
         self.draw()
 
     def plot_box(self):
         self.axes.cla()
-        self.axes.boxplot(self.dataX)
+        self.axes.boxplot(self.controller.dataX)
         self.setTitle()
         self.draw()
 
     def plot_violin(self):
         self.axes.cla()
-        self.axes.violinplot(self.dataX)
+        self.axes.violinplot(self.controller.violinX)
         self.setTitle()
         self.draw()
 
     def plot_histo__by_question(self):
         self.axes.cla()
-        self.axes.plot(self.dataX, self.dataY)
+        self.axes.plot(self.controller.dataX, self.controller.pieY)
         self.setTitle()
         self.draw()
 
