@@ -1,2 +1,2 @@
-TP, FN, TN, FP, Penalty, Weight
-1,-1,1,-1,0,1
+TP, FN, TN, FP, Weight
+1,-1,1,-1,1.0

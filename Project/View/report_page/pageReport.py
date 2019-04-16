@@ -54,12 +54,16 @@ class ReportPage(QWidget):
             ["Pie Chart",     self.plot.plot_pie],
         ]
 
+<<<<<<< HEAD
 
 
         #txtCoherence = QLineEdit("Please Enter your Coherence Formula")
         #txtCoherence.resize(20, 20)
         #layout.addWidget(txtCoherence, 0, 0)
         self.cbChart = QComboBox()
+=======
+        cbChart = QComboBox()
+>>>>>>> ea9659e061999fca72f66e9842654a5e9d97697c
 
         for elt in self.comboOptions:
             self.cbChart.addItem(elt[0])
@@ -67,7 +71,12 @@ class ReportPage(QWidget):
         self.cbChart.resize(140, 30)
         layout.addWidget(self.cbChart, 0, 2)
         layout.addWidget(self.createBtnGroup(), 0, 0)
+<<<<<<< HEAD
         self.cbChart.currentIndexChanged.connect(self.OnChangeCbChart)
+=======
+        cbChart.currentIndexChanged.connect(self.OnChangeCbChart)
+
+>>>>>>> ea9659e061999fca72f66e9842654a5e9d97697c
         # ---------------------table view --------------------
         # scroll = QScrollArea()
         self.table = QTableWidget()
@@ -80,7 +89,14 @@ class ReportPage(QWidget):
 
         # ---------------------slider  weight --------------------
         numberOfQuestions, arrCorrectAns = getNumberOfQuestions()
+<<<<<<< HEAD
         layout.addWidget(BuildSlider(self.refreshInterdace, arrCorrectAns=arrCorrectAns,numberOfQuestions=numberOfQuestions), 1, 1)
+=======
+        scrollArea = QScrollArea()
+        scrollArea.setWidgetResizable(True)
+        scrollArea.setWidget(BuildSlider(self.controller, self.validateWieights, arrCorrectAns=arrCorrectAns,numberOfQuestions=numberOfQuestions))
+        layout.addWidget(scrollArea, 1, 1)
+>>>>>>> ea9659e061999fca72f66e9842654a5e9d97697c
 
         # ---------------------chart view --------------------
         self.plot.plot_pie()
