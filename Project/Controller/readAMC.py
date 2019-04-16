@@ -79,7 +79,7 @@ def makeBoxes(zone, answer, var ):
 
     # Add a column 'correct' to indicate what is the correct answer
     # Boucler sur les étudiants, les questions, les réponses
-    listStudents = boxes['student'].unique()
+    # listStudents = boxes['student'].unique()
     listQuestions = boxes['question'].unique()
     for student in [1]: #listStudents:  #Actually all correct answers are the same for all students
         for question in listQuestions:
@@ -148,17 +148,19 @@ def MarkingQuestionsWithCoherence(NbPointsQuestions, boxes, avoidNeg=True):
                                                      formulas[0][indexFormula + i][1]
             # print("Note après : " + str(resultatsPoints.loc[question, student]))
 
-
     resultatsPoints = setHeaders(resultatsPoints, maxPoints)
 
     for i, student in enumerate(listStudents):
-        print("Student : " + str(student))
+        # print("Student : " + str(student))
         if formulas[0][0][0] == -1: # [Modifiers][Tuple][Index]
             resultatsPoints.loc['Note/20 (avec cohérence)', student] = \
                 resultatsPoints.loc['Note/20', student] + formulas[0][i][1]
-            print("Modifier : " + str(formulas[0][i][1]))
-            print("Note avant : " + str(resultatsPoints.loc['Note/20', student]))
-            print("Note après : " + str(resultatsPoints.loc['Note/20 (avec cohérence)', student]))
+            # print("Modifier : " + str(formulas[0][i][1]))
+            # print("Note avant : " + str(resultatsPoints.loc['Note/20', student]))
+            # print("Note après : " + str(resultatsPoints.loc['Note/20 (avec cohérence)', student]))
+
+    resultatsPoints[resultatsPoints < 0] = 0
+    resultatsPoints[resultatsPoints > 20] = 20
 
     return resultat, resultatsPoints
 
@@ -196,12 +198,10 @@ def initResults(NbPointsQuestions, boxes, avoidNeg = True):
 
 def setHeaders(resultatsPoints, maxPoints):
     # Then computes the points per student
-    resultatsPoints.loc['Note',:] = resultatsPoints.sum()
-    # resultatsPoints.loc['Note/20',:] = 20/maxPoints*resultatsPoints.loc['Note',:] # old formula
-    max_mark = resultatsPoints.loc['Note'].max()
-    min_mark = resultatsPoints.loc['Note'].min()
-    resultatsPoints.loc['Note/' + str(maxPoints), :] = (resultatsPoints.loc['Note',:] / maxPoints) * (max_mark - min_mark) + min_mark
-    resultatsPoints.loc['Note/20', :] = (resultatsPoints.loc['Note/' + str(maxPoints)]*20) / maxPoints
+    resultatsPoints.loc['Nombre Points',:] = resultatsPoints.sum()
+    max_mark = 20
+    min_mark = 0
+    resultatsPoints.loc['Note/20', :] = (resultatsPoints.loc['Nombre Points',:] / maxPoints) * (max_mark - min_mark) + min_mark
 
     return resultatsPoints
 
@@ -229,20 +229,22 @@ def manageData(option1, option2):
 
 def computeDataPart(boxes):
     boxes["weight"] = paramsValues['Weight'] # default weight
-    # weights = boxes[['question', 'student', 'weight']]
     weights = boxes[['question', 'weight']]
     weights = weights.drop_duplicates('question')
     writeWeights(weights)
 
 
 def updateDataPart(boxes):
-    rawWeights = parseWeights()
-    weights = pd.read_json(rawWeights)
-    boxes["weight"] = weights['weight']
+    weights = getWeights()
+    listQuestions = boxes['question'].unique()
+    for question in listQuestions:
+        boxes.loc[boxes["question"] == question, "weight"] = weights.loc[weights["question"] == question, "weight"].item()
+    # print(weights)
+    # print(boxes)
 
 
 def computeData():
-    if os.path.isfile(coherenceFormulaPath):
+    if os.path.isfile(coherenceFormulaPath) and parseCoherenceFormula():
         return computeDataCoherence()
     else:
         return computeDataWeights()
@@ -254,7 +256,7 @@ def computeDataCoherence():
     return manageData(computeDataPart, MarkingQuestionsWithCoherence)
 
 def updateData():
-    if os.path.isfile(coherenceFormulaPath):
+    if os.path.isfile(coherenceFormulaPath) and parseCoherenceFormula():
         return updateDataCoherence()
     else:
         return updateDataWeights()
@@ -281,7 +283,7 @@ def getWeights():
 def getNumberOfQuestions():
     boxes, point = updateData()
 
-    questions = boxes.loc[boxes['student'] == 26]
+    questions = boxes.loc[boxes['student'] == 1]
     questions = questions[['question']]
     questions = questions.drop_duplicates('question')
     numberOfQuestions = len(questions)
@@ -348,6 +350,10 @@ def parseCoherenceFormula():
     with open(coherenceFormulaPath) as f:
         data = json.load(f)
         f.close()
+
+    if data == [[], []]:
+        return False
+
     return data
 
 def getDataPath():
