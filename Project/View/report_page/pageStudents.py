@@ -20,12 +20,11 @@ from PyQt5.QtWidgets import (QWidget, QLabel, QLineEdit, QPushButton,
                              QCheckBox, QMessageBox,QFormLayout,QDialogButtonBox,QSpinBox,QHBoxLayout, QComboBox,QSlider,QGroupBox, QVBoxLayout, QGridLayout, QApplication)
 from scipy.stats import stats
 import seaborn as sns, numpy as np
-from Controller.readAMC import *
+import Controller.readAMC as ReadAMC
 from Controller.studentData import StudentData
 from View.Charts import *
 from View.coherence_page.coherence import *
 
-dataPathAnswers = str(Path(__file__).resolve().parent.parent).replace("\\", "/") + "/../Real Data/"
 
 # Ensure using PyQt5 backend
 matplotlib.use('QT5Agg')
@@ -56,10 +55,10 @@ class FirstQuestion(QDialog):
        self.controller = StudentData()
        self.scoreTable = self.controller.getScoreTable()  # main datalist
        self.lstStdName=[]
-       b, c, self.v = computeData2()
+       b, c, self.v = ReadAMC.computeData2()
 
-       self.zone, self.answer, self.studentNames, self.var ,self.questionTitles= readAMCTables(dataPathAnswers)
-       self.boxes=makeBoxes(self.zone, self.answer, self.var )
+       self.zone, self.answer, self.studentNames, self.var ,self.questionTitles= ReadAMC.readAMCTables(ReadAMC.dataPath)
+       self.boxes = ReadAMC.makeBoxes(self.zone, self.answer, self.var )
        print("boxes: ", self.boxes)
        nbIndex = len(self.scoreTable.index)
        self.currentIndex = 0

@@ -19,6 +19,7 @@ from Controller.studentData import StudentData
 from View.coherence_page.coherence import *
 from View.setting_page.pageSetting import Settings
 from View.report_page.pageStudents import FirstQuestion
+from Controller.pdfExport import PDFExport
 
 #+--------------main class
 class ReportPage(QWidget):
@@ -51,7 +52,7 @@ class ReportPage(QWidget):
         self.comboOptions = [
             ["Box Chart",     self.plot.plot_box],
             ["Violin Chart",  self.plot.plot_violin],
-            ["Line Chart",    self.plot.plot_histogram],
+            ["Line Chart",    self.plot.plot_line],
             ["Pie Chart",     self.plot.plot_pie],
         ]
 
@@ -81,7 +82,7 @@ class ReportPage(QWidget):
         numberOfQuestions, arrCorrectAns = getNumberOfQuestions()
         scrollArea = QScrollArea()
         scrollArea.setWidgetResizable(True)
-        scrollArea.setWidget(BuildSlider(self.refreshInterdace, arrCorrectAns=arrCorrectAns,numberOfQuestions=numberOfQuestions))
+        scrollArea.setWidget(BuildSlider(self.refreshInterface, arrCorrectAns=arrCorrectAns,numberOfQuestions=numberOfQuestions))
         layout.addWidget(scrollArea, 1, 1)
 
         # ---------------------chart view --------------------
@@ -143,7 +144,7 @@ class ReportPage(QWidget):
         self.table.resizeRowsToContents()
         self.table.resizeColumnsToContents()
 
-    def refreshInterdace(self):
+    def refreshInterface(self):
         self.updateData()
         self.setTable()
         self.plot.refresh()
@@ -189,17 +190,17 @@ class ReportPage(QWidget):
         n = coherencePage.exec_()
 
         if n == 1:
-            self.refreshInterdace()
+            self.refreshInterface()
 
     def showSettings(self):
         settingsPage = Settings(self.mainWindow)
         n = settingsPage.exec_()
 
         if n == 1:
-            self.refreshInterdace()
+            self.refreshInterface()
 
     def exportPDF(self):
-         print("pdf")
+         pdfExport = PDFExport()
 
     def exportCSV(self):
         print("CSV")
