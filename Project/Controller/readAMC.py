@@ -335,7 +335,7 @@ def writeCoherence(data):
 def parseCoherenceFormula():
     if not os.path.isfile(coherenceFormulaPath):
         return False
-        
+
     with open(coherenceFormulaPath) as f:
         data = json.load(f)
         f.close()
@@ -403,10 +403,5 @@ def computeData2():
 
     # In[9]:
     #get by user or default
-<<<<<<< HEAD
-    c, c2, c3 = MarkingQuestions2(NbPointsQuestions, boxes,penalty="def",avoidNeg=False)
-    return c, c2, c3
-=======
     c, c2, c3 = MarkingQuestions2(NbPointsQuestions, boxes,avoidNeg=False)
     return c, c2, c3
->>>>>>> ea9659e061999fca72f66e9842654a5e9d97697c
