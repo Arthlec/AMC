@@ -5,27 +5,14 @@
 #| report data for each student in each question point and total point of exam +
 #|correction and studet answer
 #+----------------------------------------------------+
-import math
 
 import matplotlib
-import sys
-
-import pandas as pd
-from PyQt5.QtCore import  Qt
 from PyQt5 import QtWidgets
-from PyQt5.QtGui import QIcon
-from matplotlib.figure import Figure
+from PyQt5.QtWidgets import (QCheckBox, QFormLayout, QHBoxLayout, QComboBox, QGroupBox)
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as Canvas
-import matplotlib
-from PyQt5.QtWidgets import (QWidget, QLabel, QLineEdit, QPushButton,
-                             QCheckBox, QMessageBox,QFormLayout,QDialogButtonBox,QSpinBox,QHBoxLayout, QComboBox,QSlider,QGroupBox, QVBoxLayout, QGridLayout, QApplication)
-from scipy.stats import stats
-import seaborn as sns, numpy as np
-import Controller.readAMC as ReadAMC
-from Controller.studentData import StudentData
+
 from View.Charts import *
 from View.coherence_page.coherence import *
-
 
 # Ensure using PyQt5 backend
 matplotlib.use('QT5Agg')
@@ -91,10 +78,16 @@ class FirstQuestion(QDialog):
         self.show()
 
    def createFigures(self,dataX,dataY):
-       ax = self.figure.add_subplot(111)
-       ax.cla()
-       ax.scatter(dataY,dataX,color='orange')
-       self.canvas.draw()
+        ax = self.figure.add_subplot(111)
+        ax.cla()
+        ax.scatter(dataY,dataX,color='orange')
+
+        student = self.allStudents[self.currentStudent]
+        score = self.scoreTable.iloc[:, self.currentQuestion].loc[student.name]
+
+        ax.scatter(score, student.name, s=250, linewidths= 1.5, facecolors='none', edgecolors='r')
+
+        self.canvas.draw()
 
    def createBtnGroup(self):
        groupBox = QGroupBox()
@@ -184,6 +177,7 @@ class FirstQuestion(QDialog):
        self.grid.addWidget(self.formGroupBox, 1, 0)
        self.createFigures(self.dataX, self.dataY)
        self.grid.addWidget(self.canvas, 2, 0)
+
    #-------------------------navigation ------------------------------------
    def goFirst(self):
        if self.currentQuestion != 1:

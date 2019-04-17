@@ -1,5 +1,6 @@
-import os, sys
-import errno
+import os
+import sys
+
 import Controller.readAMC as ReadAMC
 
 
@@ -38,16 +39,6 @@ class PDFExport:
             f.write(rawMdContent)
             f.close()
 
-
-        # # PDF part
-        # if not os.path.exists(pdfDir):
-        #     try:
-        #         os.makedirs(pdfDir)
-        #     except OSError as exc: # To prevent race condition
-        #         if exc.errno != errno.EEXIST:
-        #             raise
-        #
-        # HTML(os.path.join(tempDir, filename)).write_pdf(os.path.join(pdfDir, filename))
 
 
 

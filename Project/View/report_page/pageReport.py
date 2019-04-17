@@ -4,25 +4,20 @@
 #| description,
 #| report data as a table, chart and teachers enable to apply coherence, weight and penalty
 #+----------------------------------------------------+
-import sys
-from PyQt5.QtWidgets import QWidget, QSlider, QGroupBox, QGridLayout, QLineEdit, \
-                            QComboBox, QPushButton, QScrollArea, QTableWidget, QTableWidgetItem,  \
-                            QVBoxLayout,QHBoxLayout, QLabel, QMainWindow, QApplication
-
-from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont
+from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget
+from PyQt5.QtWidgets import QSlider, QGroupBox, QComboBox, QScrollArea, QTableWidget, QTableWidgetItem, \
+    QHBoxLayout
 
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.figure import Figure
-# from Controller.readAMC import getNumberOfQuestions, changeWeight
-from Controller.readAMC import *
-from View.Charts import PlotCanvas
-from Controller.studentData import StudentData
-from View.coherence_page.coherence import *
-from View.setting_page.pageSetting import Settings
-from View.report_page.pageStudents import FirstQuestion
 from Controller.pdfExport import PDFExport
+from Controller.readAMC import *
+from Controller.studentData import StudentData
+from View.Charts import PlotCanvas
+from View.coherence_page.coherence import *
 from View.inputDate import DateInput
+from View.report_page.pageStudents import FirstQuestion
+from View.setting_page.pageSetting import Settings
+
 
 #+--------------main class
 class ReportPage(QWidget):
@@ -107,7 +102,8 @@ class ReportPage(QWidget):
         arrCorrectAns = self.getPercentage()
         scrollArea = QScrollArea()
         scrollArea.setWidgetResizable(True)
-        scrollArea.setWidget(BuildSlider(self.refreshInterface, arrCorrectAns=arrCorrectAns,numberOfQuestions=numberOfQuestions))
+        self.buildSlider = BuildSlider(self.refreshInterface, arrCorrectAns=arrCorrectAns,numberOfQuestions=numberOfQuestions)
+        scrollArea.setWidget(self.buildSlider)
         layout.addWidget(scrollArea, 1, 1)
 
         # ---------------------chart view --------------------
@@ -125,15 +121,17 @@ class ReportPage(QWidget):
 
     def getPercentage(self):
         listStudents = self.boxes['student'].unique()
+        listQuestions = self.boxes['question'].unique()
+        listQuestions.sort(axis = 0)
         numberOfStudents = len(listStudents)
-
+        weights = ReadAMC.getWeights()
         correctAns = []
-        for i in range(len(self.scoreTable.columns)):
-            numberOfOnes = 0
-            for j in range(len(self.scoreTable.index)):
-                if self.scoreTable.iloc[j, i] == 1:
-                    numberOfOnes += 1
-            correctAns.append(round((numberOfOnes / numberOfStudents) * 100, 0))
+        for question in listQuestions:
+            sumPointsOneQuestion = 0
+            weight = weights.loc[weights['question'] == question, 'weight'].item()
+            for student in self.scoreTable.index:
+                sumPointsOneQuestion += self.scoreTable.loc[student, question]
+            correctAns.append(round((sumPointsOneQuestion / (weight*numberOfStudents)) * 100, 2))
         return correctAns
 
     def computeMeanAndSTD(self):
@@ -207,6 +205,11 @@ class ReportPage(QWidget):
         self.comboOptions[self.selectedChart][1]()
         self.computeMeanAndSTD()
 
+        arrCorrectAns = self.getPercentage()
+
+        for i, label in enumerate(self.buildSlider.listOfLabels):
+            label.setText("Question " + str(i+1) +"  correctness: " + str(arrCorrectAns[i]) + "  %")
+
     def createBtnGroup(self):
         groupBox = QGroupBox()
         btnHome = QPushButton("Home")
@@ -214,12 +217,13 @@ class ReportPage(QWidget):
         btnSettings = QPushButton("Settings")
         btnPDF = QPushButton("Export as Markdown")
         btnCSV = QPushButton("Export as CSV")
+        btnCSV.setEnabled(False)
         btnStudent = QPushButton("Student report")
         btnHome.clicked.connect(self.showHome)
         btnCoherence.clicked.connect(self.showCoherence)
         btnSettings.clicked.connect(self.showSettings)
         btnPDF.clicked.connect(self.exportPDF)
-        btnCSV.clicked.connect(self.exportCSV)
+        # btnCSV.clicked.connect(self.exportCSV)
         btnStudent.clicked.connect(self.showStudentReport)
         hbox = QHBoxLayout()
         hbox.addWidget(btnHome)
@@ -264,8 +268,9 @@ class ReportPage(QWidget):
             pdfExport.export()
             QMessageBox.information(self, 'Export done', 'Export done', QMessageBox.Ok)
 
-    def exportCSV(self):
-        print("CSV")
+    # Not implemented yet
+    # def exportCSV(self):
+    #     print("CSV")
 
 #+--------------builder slider has been written by Arthur Lecert
 class BuildSlider(QWidget):
@@ -275,8 +280,11 @@ class BuildSlider(QWidget):
         # ---------------------weight
         self.layout = QVBoxLayout()
         self.listOfQuestions = []
+        self.listOfLabels = []
         for i in range(numberOfQuestions):
-            self.addSlider(QLabel("Question " + str(i+1) +"  correctness: " + str(arrCorrectAns[i]) + "  %"), QLabel(str(initialValue)), initialValue)
+            currentLabel = QLabel("Question " + str(i+1) +"  correctness: " + str(arrCorrectAns[i]) + "  %")
+            self.addSlider(currentLabel, QLabel(str(initialValue)), initialValue)
+            self.listOfLabels.append(currentLabel)
 
         self.b1 = QPushButton("Save weight")
         self.b1.clicked.connect(self.writeWeights)

@@ -1,16 +1,8 @@
 import sys
-import numpy as np
-from PyQt5.QtWidgets import QApplication, QMainWindow, QSizePolicy
 
-# For the charts part
+from PyQt5.QtWidgets import QApplication, QSizePolicy
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
-
-# For the violin chart
-import seaborn as sns
-import matplotlib.pyplot as plt
-
-from Controller import readAMC as ReadAMC
 
 # PlotCanvas is also a QWidget
 class PlotCanvas(FigureCanvas):

@@ -1,8 +1,11 @@
 import sys
+
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QLineEdit, QLabel, QPushButton, QGridLayout, QSpacerItem, QDialog, QMessageBox
-from Controller.logic.logic import *
+from PyQt5.QtWidgets import QApplication, QVBoxLayout, QLineEdit, QLabel, QPushButton, QGridLayout, QDialog, QMessageBox
+
 import Controller.readAMC as ReadAMC
+from Controller.logic.logic import *
+
 
 class CoherencePage(QDialog):
     def __init__(self, parent=None):
@@ -56,11 +59,9 @@ class CoherencePage(QDialog):
         listOfStudents = ReadAMC.getAllStudents()
         boxes, resultatsPoints = ReadAMC.updateData()
 
-        print('Number of student: ', len(listOfStudents))
         if not self.generalCoherenceFormula.text():
             print("No formula for exam")
         else:
-            # print(self.generalCoherenceFormula.text())
             try:
                 logic = Logic(self.generalCoherenceFormula.text(), LogicElement.Q)
             except Exception as e:
@@ -75,7 +76,6 @@ class CoherencePage(QDialog):
 
 
         for i, coherenceFormula in enumerate(self.listOfQuestions, 1):
-            # print(coherenceFormula.text())
             if not coherenceFormula.text():
                 print("No formula for question " + str(i))
             else:
@@ -96,8 +96,8 @@ class CoherencePage(QDialog):
         if not formulas:
             return
 
-        if formulas[0][0][0] == -1: # [Modifiers][Tuple][Index]
-            self.generalCoherenceFormula.setText(formulas[1][0]) # [Text][Index]
+        if formulas[0][0][0] == -1: # [Modifiers][Tuple][Index] depending on the structure of the coherenceFormula.json file
+            self.generalCoherenceFormula.setText(formulas[1][0]) # [Text][Index] depending on the structure of the coherenceFormula.json file
         for i in range(1, len(self.listOfQuestions)):
             for j in range(len(formulas[0])):
                 if formulas[0][j][0] == i:

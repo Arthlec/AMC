@@ -1,12 +1,14 @@
 
 import sys
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import QIcon, QFont
+
 from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QFont
+from PyQt5.QtWidgets import *
 
 from View.path_page.pathpage import PathPage
-from View.setting_page.pageSetting import Settings
 from View.report_page.pageReport import ReportPage
+from View.setting_page.pageSetting import Settings
+
 
 class _ListItem(QWidget):
     def __init__(self, name, path):

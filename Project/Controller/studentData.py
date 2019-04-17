@@ -10,12 +10,10 @@ class StudentData:
         df = resultPoints.values
         score_chart_int = df[-1,:].astype(int)
         score_chart_double = [round(x, 2) for x in df[-1,:]]
-        score_histo = df[-2,:]
-        # print("score_chart_int: ", score_chart_int)
+
         mark_chart = np.unique(score_chart_int)
         mark_chart_double = np.unique(score_chart_double)
-        mark_histo = np.unique(score_histo)
-        # print("mark_chart: ", mark_chart)
+
         eff_chart = []
         eff_chart_double = []
         eff_histo = []

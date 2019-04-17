@@ -7,7 +7,7 @@
 # Q1 = 1 AND Q3 = 0 IS -1
 
 from enum import Enum
-import nltk
+
 
 class _KeyWords(Enum):
     AND = 'AND'

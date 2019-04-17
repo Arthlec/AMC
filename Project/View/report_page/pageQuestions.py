@@ -6,12 +6,10 @@
 #+----------------------------------------------------+
 import sys
 
-from PyQt5.QtCore import pyqtSignal, Qt
+from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (QWidget, QLabel, QLineEdit, QPushButton,
-                             QCheckBox, QMessageBox,QFormLayout,QDialogButtonBox,QSpinBox,QHBoxLayout, QComboBox,QSlider,QGroupBox, QVBoxLayout, QGridLayout, QApplication)
-
-from Project.Controller.logic.logic import *
-from Project.Controller.readAMC import *
+                             QCheckBox, QFormLayout, QSpinBox, QHBoxLayout, QSlider, QGroupBox, QGridLayout,
+                             QApplication)
 
 
 class lstQuestion(QWidget):

@@ -1,11 +1,9 @@
-import csv
-from pathlib import Path
-import sqlite3
-import pandas as pd
 import json
-import numpy as np
 import os
+import sqlite3
+from pathlib import Path
 
+import pandas as pd
 
 WEIGHTS_FILENAME = "weights.json"
 COHERENCE_FILENAME = "coherenceFormula.json"
@@ -75,7 +73,7 @@ def setDate(date):
 
 
 def readAMCTables(dataPath):
-    # Create your connection.
+    # Create your connection and return tables needed for computation
     try:
         cnx = sqlite3.connect(dataPath + CAPTURE_FILE)
         zone = pd.read_sql_query("SELECT * FROM capture_zone", cnx)
@@ -168,18 +166,13 @@ def makeBoxes(zone, answer, var ):
 
 
 def schemeMarkingInQuestion1(boxes, arrParams ):
-    #paramsValues order data
-    #TP, FN, TN, FP
-
-    # Une Stratégie de notation :
-    #
     #       |Ticked | Non ticked |
     # True  |  1    |   -0.2     |
     # False | -0.2  |   +0.3     |
     #
     #       |Ticked | Non ticked |
-    # True  |  TP   |   FN     |
-    # False |  FP   |   TN     |
+    # True  |  TP   |    FN      |
+    # False |  FP   |    TN      |
     #
     # Adds colums 'points' and 'maxPoints' to the dataframe boxes
     # points is the number of points earned for each student and each box
@@ -193,17 +186,21 @@ def schemeMarkingInQuestion1(boxes, arrParams ):
 
 
 def MarkingQuestions(NbPointsQuestions, boxes, avoidNeg):
+    # Computes the result without coherence
     resultat, resultatsPoints, maxPoints = initResults(NbPointsQuestions, boxes, avoidNeg)
     resultatsPoints = setHeaders(resultatsPoints, maxPoints)
 
     return resultat, resultatsPoints
 
 def MarkingQuestionsWithCoherence(NbPointsQuestions, boxes, avoidNeg):
+    # Computes the result with coherence
     listStudents = boxes['student'].unique()
     listQuestions = boxes['question'].unique()
     resultat, resultatsPoints, maxPoints = initResults(NbPointsQuestions, boxes, avoidNeg)
 
     formulas = parseCoherenceFormula()
+
+    # Coherence for questions
     for i, student in enumerate(listStudents):
         # print("Student : " + str(student))
         for question in listQuestions:
@@ -212,27 +209,19 @@ def MarkingQuestionsWithCoherence(NbPointsQuestions, boxes, avoidNeg):
                     break
             if formulas[0][indexFormula][0] != question:
                 continue
-            # print("Question : " + str(question))
-            # print("indexFormula : " + str(indexFormula))
-            # print("Modifier : " + str(formulas[0][indexFormula][1]))
-            # print("Note avant : " + str(resultatsPoints.loc[question, student]))
             resultatsPoints.loc[question, student] = resultatsPoints.loc[question, student] + \
                                                      formulas[0][indexFormula + i][1]
-            # print("Note après : " + str(resultatsPoints.loc[question, student]))
 
     resultatsPoints = setHeaders(resultatsPoints, maxPoints)
 
+    # Coherence for the entire exam
     for i, student in enumerate(listStudents):
-        # print("Student : " + str(student))
-        if formulas[0][0][0] == -1: # [Modifiers][Tuple][Index]
+        if formulas[0][0][0] == -1: # [Modifiers][Tuple][Index] depending on the structure of the coherenceFormula.json file
             resultatsPoints.loc['Note/20 (avec cohérence)', student] = \
                 resultatsPoints.loc['Note/20', student] + formulas[0][i][1]
-            # print("Modifier : " + str(formulas[0][i][1]))
-            # print("Note avant : " + str(resultatsPoints.loc['Note/20', student]))
-            # print("Note après : " + str(resultatsPoints.loc['Note/20 (avec cohérence)', student]))
 
-    resultatsPoints[resultatsPoints < 0] = 0
-    resultatsPoints[resultatsPoints > 20] = 20
+    resultatsPoints[resultatsPoints < 0] = 0.0
+    resultatsPoints[resultatsPoints > 20] = 20.0
 
     return resultat, resultatsPoints
 
@@ -269,7 +258,7 @@ def initResults(NbPointsQuestions, boxes, avoidNeg):
 
 
 def setHeaders(resultatsPoints, maxPoints):
-    # Then computes the points per student
+    # Computes the points per student
     resultatsPoints.loc['Nombre Points',:] = resultatsPoints.sum()
     max_mark = 20
     min_mark = 0
@@ -279,6 +268,9 @@ def setHeaders(resultatsPoints, maxPoints):
 
 
 def manageData(option1, option2):
+    # Global function for the marking system
+    # option1 is a function which computes with weights or not (NOT A BOOLEAN)
+    # option2 is a function which computes with coherence or not (NOT A BOOLEAN)
     zone, answer, association, var,_ = readAMCTables(dataPath)
     boxes = makeBoxes(zone, answer, var )
 
@@ -291,7 +283,7 @@ def manageData(option1, option2):
     NbPointsQuestions = pd.DataFrame(index=range(1,listQuestions.shape[0] + 1), columns=['Points'])
     NbPointsQuestions['Points'] = 1
 
-    #get by user or default
+    # Final computation + mapping for student id to name
     resultat, resultatsPoints = option2(NbPointsQuestions, boxes, (not paramsValues['NegPoints']))
     studentIdToNameMapper = {association.loc[k,'student']: association.loc[k,'manual'] for k in association.index}
     resultatsPoints = resultatsPoints.rename(studentIdToNameMapper, axis=1)
@@ -323,6 +315,7 @@ def manageData(option1, option2):
 
 
 def computeDataPart(boxes):
+    # Computes with default weights
     boxes["weight"] = paramsValues['Weight'] # default weight
     weights = boxes[['question', 'weight']]
     weights = weights.drop_duplicates('question')
@@ -330,12 +323,11 @@ def computeDataPart(boxes):
 
 
 def updateDataPart(boxes):
+    # Computes with new weights from the file weights.json
     weights = getWeights()
     listQuestions = boxes['question'].unique()
     for question in listQuestions:
         boxes.loc[boxes["question"] == question, "weight"] = weights.loc[weights["question"] == question, "weight"].item()
-    # print(weights)
-    # print(boxes)
 
 
 def computeData():
@@ -369,18 +361,12 @@ def updateDataCoherence():
 def getWeights():
     rawWeights = parseWeights()
     weights = pd.read_json(rawWeights)
-    # weights = boxes.loc[boxes['student'] == 26]
-    # weights = weights[['question', 'weight']]
-    # weights = weights.drop_duplicates('question')
-    # weights = weights.sort_values(by=['question'])
     return weights
 
 def getNumberOfQuestions():
     boxes, resultatsPoints = updateData()
-
     listQuestions = boxes['question'].unique()
     numberOfQuestions = len(listQuestions)
-
     return numberOfQuestions
 
 def changeWeight(indexOfQuestion, value):
@@ -404,7 +390,7 @@ def getAllStudents():
     return listStudents
 
 def getStudentQuestionsCorrect(student, boxes):
-    # boxes, point = updateData()
+    # For each question returns true if the student answer correctly to all the choices and therefore question is correct
     studentQuestionsCorrect = []
     listQuestions = boxes['question'].unique()
 
@@ -418,10 +404,9 @@ def getStudentQuestionsCorrect(student, boxes):
     return studentQuestionsCorrect
 
 def getStudentAnswersCorrect(student, question, boxes):
-    # boxes, point = updateData()
+    # For each question, for each choice, returns true if a student answers correctly for this choice
     studentAnswersCorrect = []
     boxes_onequestion = boxes.loc[(boxes['student'] == student) & (boxes['question'] == question)]
-    # listQuestions = boxes_onequestion.unique()
     for i in range(len(boxes_onequestion)):
         value = ((boxes_onequestion['correct'].iloc[i] and boxes_onequestion['ticked'].iloc[i])
                     or (not (boxes_onequestion['correct'].iloc[i]) and not (boxes_onequestion['ticked'].iloc[i])))
@@ -440,6 +425,7 @@ def parseCoherenceFormula():
         data = json.load(f)
         f.close()
 
+    # If there is no formula
     if data == [[], []]:
         return False
 
@@ -448,22 +434,16 @@ def parseCoherenceFormula():
 def getDataPath():
     return dataPath
 
-def getDefaultDataPath():
-    return str(Path(__file__).resolve().parent.parent).replace("\\", "/") + "/Real Data/"
-
-
 
 def getStudentsAndQuestions():
+    # Returns the list of students and their id and the list of questions
     boxes, resultatsPoints = updateData()
     association = getAMCAssociations()
     questionTitle = getAMCQuestionTitle()
-    # print(questionTitle)
 
     allStudents = {}
     allQuestions = {}
 
-    studentId = -1
-    student = None
     for index, row in boxes.iterrows():
         questionId = row['question']
         studentId = row['student']
