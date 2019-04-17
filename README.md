@@ -21,4 +21,3 @@ All the files related to the GUI are in the `Project/` folder.
 * `numpy`
 * `matplotlib`
 * `pandas`
-* `seaborn`
