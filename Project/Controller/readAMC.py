@@ -1,5 +1,6 @@
 import json
 import os
+import numpy as np
 import sqlite3
 from pathlib import Path
 
@@ -32,10 +33,11 @@ class _Question():
 
 
 class _Student():
-    def __init__(self, id=None, name=''):
+    def __init__(self, id=None, name='', globalResult=None):
         self.id = id
         self.name = name
         self.questions = {}
+        self.globalResult = globalResult
 
     def addAnswer(self, questionId, answerId, ticked):
         if questionId not in self.questions:
@@ -304,7 +306,7 @@ def manageData(option1, option2):
         else:
             letter = 'A'
         letterGrade.append(letter)
-        
+
     df1 = resultatsPoints.iloc[:-2].copy()
     dfG = pd.DataFrame(np.array(letterGrade).reshape(1,23), columns=resultatsPoints.columns.values, index=['Grade'])
     df2 = resultatsPoints.iloc[-1].copy()
@@ -441,6 +443,8 @@ def getStudentsAndQuestions():
     association = getAMCAssociations()
     questionTitle = getAMCQuestionTitle()
 
+    print(resultatsPoints)
+
     allStudents = {}
     allQuestions = {}
 
@@ -450,7 +454,8 @@ def getStudentsAndQuestions():
 
         if studentId not in allStudents:
             studentInfo = association.loc[association['student'] == studentId]
-            allStudents[studentId] = _Student(id=studentId, name=studentInfo['manual'].item())
+            studentName = studentInfo['manual'].item()
+            allStudents[studentId] = _Student(id=studentId, name=studentName, globalResult=round(resultatsPoints.iloc[-1].loc[studentName], 2))
 
         allStudents[studentId].addAnswer(row['question'], row['answer'], row['ticked'])
 
