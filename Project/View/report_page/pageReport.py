@@ -204,12 +204,13 @@ class ReportPage(QWidget):
         btnSettings = QPushButton("Settings")
         btnPDF = QPushButton("Export as Markdown")
         btnCSV = QPushButton("Export as CSV")
+        btnCSV.setEnabled(False)
         btnStudent = QPushButton("Student report")
         btnHome.clicked.connect(self.showHome)
         btnCoherence.clicked.connect(self.showCoherence)
         btnSettings.clicked.connect(self.showSettings)
         btnPDF.clicked.connect(self.exportPDF)
-        btnCSV.clicked.connect(self.exportCSV)
+        # btnCSV.clicked.connect(self.exportCSV)
         btnStudent.clicked.connect(self.showStudentReport)
         hbox = QHBoxLayout()
         hbox.addWidget(btnHome)
@@ -254,8 +255,9 @@ class ReportPage(QWidget):
             pdfExport.export()
             QMessageBox.information(self, 'Export done', 'Export done', QMessageBox.Ok)
 
-    def exportCSV(self):
-        print("CSV")
+    # Not implemented yet
+    # def exportCSV(self):
+    #     print("CSV")
 
 #+--------------builder slider has been written by Arthur Lecert
 class BuildSlider(QWidget):
