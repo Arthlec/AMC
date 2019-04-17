@@ -208,7 +208,7 @@ class ReportPage(QWidget):
         btnHome = QPushButton("Home")
         btnCoherence = QPushButton("Coherence")
         btnSettings = QPushButton("Settings")
-        btnPDF = QPushButton("Export as PDF")
+        btnPDF = QPushButton("Export as Markdown")
         btnCSV = QPushButton("Export as CSV")
         btnStudent = QPushButton("Student report")
         btnHome.clicked.connect(self.showHome)
