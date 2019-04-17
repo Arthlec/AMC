@@ -78,10 +78,16 @@ class FirstQuestion(QDialog):
         self.show()
 
    def createFigures(self,dataX,dataY):
-       ax = self.figure.add_subplot(111)
-       ax.cla()
-       ax.scatter(dataY,dataX,color='orange')
-       self.canvas.draw()
+        ax = self.figure.add_subplot(111)
+        ax.cla()
+        ax.scatter(dataY,dataX,color='orange')
+
+        student = self.allStudents[self.currentStudent]
+        score = self.scoreTable.iloc[:, self.currentQuestion].loc[student.name]
+
+        ax.scatter(score, student.name, s=250, linewidths= 1.5, facecolors='none', edgecolors='r')
+
+        self.canvas.draw()
 
    def createBtnGroup(self):
        groupBox = QGroupBox()
@@ -171,6 +177,7 @@ class FirstQuestion(QDialog):
        self.grid.addWidget(self.formGroupBox, 1, 0)
        self.createFigures(self.dataX, self.dataY)
        self.grid.addWidget(self.canvas, 2, 0)
+
    #-------------------------navigation ------------------------------------
    def goFirst(self):
        if self.currentQuestion != 1:
