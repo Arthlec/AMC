@@ -42,6 +42,12 @@ class PlotCanvas(FigureCanvas):
         self.setTitle()
         self.draw()
 
+    def plot_histo(self):
+        self.axes.cla()       # Clears the axes
+        self.axes.hist(self.controller.histoX)
+        self.setTitle()
+        self.draw()
+
     def plot_pie(self):
         self.axes.cla()
         self.axes.pie(self.controller.pieY, labels=self.controller.pieX)

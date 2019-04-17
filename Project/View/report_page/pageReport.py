@@ -79,6 +79,7 @@ class ReportPage(QWidget):
             ["Violin Chart",  self.plot.plot_violin],
             ["Line Chart",    self.plot.plot_line],
             ["Pie Chart",     self.plot.plot_pie],
+            ["Histogram",     self.plot.plot_histo],
         ]
 
         self.cbChart = QComboBox()
@@ -178,7 +179,6 @@ class ReportPage(QWidget):
     def setTable(self):
         # print(self.scoreTable)
         self.sortTable()
-        print(self.scoreTable)
         nbIndex = len(self.scoreTable.index)
         nbColumns = len(self.scoreTable.columns)
 
