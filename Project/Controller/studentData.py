@@ -26,7 +26,7 @@ class StudentData:
             effective_chart_double = []
             effective_chart_double = np.count_nonzero(score_chart_double == mark_chart_double[i])
             eff_chart_double = np.append(eff_chart_double, effective_chart_double)
-            
+
         # print(eff_chart.astype(int))
         self.violinX = score_chart_int
         self.pieX = mark_chart

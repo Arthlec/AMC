@@ -246,7 +246,7 @@ class ReportPage(QWidget):
             self.refreshInterface()
 
     def showSettings(self):
-        settingsPage = Settings(self.mainWindow)
+        settingsPage = Settings(self.mainWindow, fetchData=True)
         n = settingsPage.exec_()
 
         if n == 1:

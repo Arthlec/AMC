@@ -135,13 +135,13 @@ def schemeMarkingInQuestion1(boxes, arrParams ):
     boxes.loc[ ~boxes['correct'], 'maxPoints'  ] = arrParams['TN']
 
 
-def MarkingQuestions(NbPointsQuestions, boxes, avoidNeg=True):
+def MarkingQuestions(NbPointsQuestions, boxes, avoidNeg):
     resultat, resultatsPoints, maxPoints = initResults(NbPointsQuestions, boxes, avoidNeg)
     resultatsPoints = setHeaders(resultatsPoints, maxPoints)
 
     return resultat, resultatsPoints
 
-def MarkingQuestionsWithCoherence(NbPointsQuestions, boxes, avoidNeg=True):
+def MarkingQuestionsWithCoherence(NbPointsQuestions, boxes, avoidNeg):
     listStudents = boxes['student'].unique()
     listQuestions = boxes['question'].unique()
     resultat, resultatsPoints, maxPoints = initResults(NbPointsQuestions, boxes, avoidNeg)
@@ -180,7 +180,7 @@ def MarkingQuestionsWithCoherence(NbPointsQuestions, boxes, avoidNeg=True):
     return resultat, resultatsPoints
 
 
-def initResults(NbPointsQuestions, boxes, avoidNeg = True):
+def initResults(NbPointsQuestions, boxes, avoidNeg):
     # computes the sum of points per student and question
     # result is a a dataframe of the number of points per question (row)
     # and per student (column)
@@ -235,7 +235,7 @@ def manageData(option1, option2):
     NbPointsQuestions['Points'] = 1
 
     #get by user or default
-    resultat, resultatsPoints = option2(NbPointsQuestions, boxes,avoidNeg=True)
+    resultat, resultatsPoints = option2(NbPointsQuestions, boxes, (not paramsValues['NegPoints']))
     studentIdToNameMapper = {association.loc[k,'student']: association.loc[k,'manual'] for k in association.index}
     resultatsPoints = resultatsPoints.rename(studentIdToNameMapper, axis=1)
     return boxes, resultatsPoints

@@ -29,7 +29,7 @@ class CoherencePage(QDialog):
         # self.sublayout.setColumnStretch(2, 4)
         # self.sublayout.addItem(QSpacerItem(0, 0))
         # self.sublayout.addItem(QSpacerItem(0, 0))
-        for i in range(ReadAMC.getNumberOfQuestions()[0]):
+        for i in range(ReadAMC.getNumberOfQuestions()):
             self.createQuestionBox(i)
         self.layout.addLayout(self.sublayout)
 
