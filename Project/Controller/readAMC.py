@@ -19,6 +19,36 @@ coherenceFormulaPath = ""
 paramsValues = None
 
 
+class _Question():
+    def __init__(self, id=None, title=''):
+        self.id = id
+        self.title = title
+        self.answers = {}
+
+    def addAnswer(self, answerId, correct):
+        self.answers[answerId] = correct
+
+    def defined(self, answerId):
+        return answerId in self.answers
+
+
+class _Student():
+    def __init__(self, id=None, name=''):
+        self.id = id
+        self.name = name
+        self.questions = {}
+
+    def addAnswer(self, questionId, answerId, ticked):
+        if questionId not in self.questions:
+            self.questions[questionId] = {}
+
+        self.questions[questionId][answerId] = ticked
+
+
+
+
+
+
 def initDirectories(path):
     global dataPath
     global weightPath
@@ -392,3 +422,34 @@ def getDataPath():
 
 def getDefaultDataPath():
     return str(Path(__file__).resolve().parent.parent).replace("\\", "/") + "/Real Data/"
+
+
+
+def getStudentsAndQuestions():
+    boxes, resultatsPoints = updateData()
+    association = getAMCAssociations()
+    questionTitle = getAMCQuestionTitle()
+    # print(questionTitle)
+
+    allStudents = {}
+    allQuestions = {}
+
+    studentId = -1
+    student = None
+    for index, row in boxes.iterrows():
+        questionId = row['question']
+        studentId = row['student']
+
+        if studentId not in allStudents:
+            studentInfo = association.loc[association['student'] == studentId]
+            allStudents[studentId] = _Student(id=studentId, name=studentInfo['manual'].item())
+
+        allStudents[studentId].addAnswer(row['question'], row['answer'], row['ticked'])
+
+        if questionId not in allQuestions:
+            allQuestions[questionId] = _Question(id=row['question'], title=questionTitle.iloc[row['question'] - 1]['title'].encode('latin-1').decode('utf-8'))
+
+        if not allQuestions[questionId].defined(row['answer']):
+            allQuestions[questionId].addAnswer(row['answer'], row['correct'])
+
+    return allQuestions, allStudents
