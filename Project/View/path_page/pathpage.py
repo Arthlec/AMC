@@ -29,10 +29,6 @@ class PathPage(QDialog):
 
         self.dataPathEditText = QLineEdit()
 
-        # DEBUG:
-        self.dataPathEditText.setText((path.dirname(path.abspath(sys.modules['__main__'].__file__)) + '\\Real Data\\').replace('\\', '/'))
-        # DEBUG
-
         self.dataPathEditText.resize(40, 40)
         self.layout.addWidget(self.dataPathEditText)
 
@@ -58,7 +54,7 @@ class PathPage(QDialog):
 
     def savePath(self):
         dir = self.dataPathEditText.text()
-        if ReadAMC.isValidDirectory(dir):
+        if dir != '' and ReadAMC.isValidDirectory(dir):
             ReadAMC.initDirectories(dir)
             self.done(1)
         else:

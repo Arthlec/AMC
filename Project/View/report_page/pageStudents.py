@@ -53,35 +53,24 @@ class FirstQuestion(QDialog):
        super(FirstQuestion, self).__init__(parent)
        self.setModal(True)
 
-       self.controller = StudentData()
+       self.allQuestions, self.allStudents = ReadAMC.getStudentsAndQuestions()
+
        self.scoreTable = scoreTable
        self.lstStdName=[]
 
-       listStudents = boxes['student'].unique()
-       b = boxes.groupby(['student'])['question'].value_counts().to_frame('count').sort_values("question")
-       c = pd.DataFrame(b).reset_index()
-       self.v = c.loc[c['student'] == listStudents[0]].reset_index(drop= True)
-
-       self.zone, self.answer, self.studentNames, self.var ,self.questionTitles= ReadAMC.readAMCTables(ReadAMC.dataPath)
-       self.boxes = boxes
-       nbIndex = len(self.scoreTable.index)
-       self.currentIndex = 0
-       self.lenData= len(self.v) -1
-       self.stdMark1=0
-       self.stdExamMark = 0
-       self.stdTitle=""
-       for i in range(nbIndex):
+       for i in range(len(self.allStudents)):
            self.lstStdName.append(str(self.scoreTable.index[i]))
 
-       self.stdTitle=self.lstStdName[0]
-       self.stdID=self.studentNames[self.studentNames['manual'] == self.stdTitle].student
-       self.lstQstAns=self.answer[self.answer['student'] == self.stdID.item()]
-       self.lstQstAns2=self.boxes[self.boxes['student']== self.stdID.item()]
+       self.currentQuestion = 1
+       self.lstStdName.sort()
+       for key, student in self.allStudents.items():
+           if student.name == self.lstStdName[0]:
+               self.currentStudent = student.id
 
        self.initUI()
 
    def initUI(self):
-        self.createFormGroupBox(self.currentIndex)
+        self.createFormGroupBox()
         self.grid = QGridLayout()
         self.comboStdName=QComboBox()
         self.comboStdName.addItems(self.lstStdName)
@@ -102,7 +91,6 @@ class FirstQuestion(QDialog):
         self.show()
 
    def createFigures(self,dataX,dataY):
-
        ax = self.figure.add_subplot(111)
        ax.cla()
        ax.scatter(dataY,dataX,color='orange')
@@ -128,112 +116,94 @@ class FirstQuestion(QDialog):
        groupBox.setLayout(hbox)
        return groupBox
 
-   def createFormGroupBox(self, Index):
+   def createFormGroupBox(self):
         self.formGroupBox = QGroupBox()
         layout = QFormLayout()
-        row = self.v.iloc[Index]
-        qNum = row[1]
-        qChoices = row[2]
-        self.std = self.scoreTable.loc[self.stdTitle, :]
-        self.stdMark1 =   self.scoreTable.iloc[0, Index]
-        self.stdExamMark = self.std.iloc[-1]
-        questionTitle=self.questionTitles[self.questionTitles['question']==qNum].title.reset_index(drop=True)
-        lblQuestion = QLabel('Question ' + str(qNum) +  ':  '+ questionTitle[0])
-        lblMark = QLabel("Points: " + str(round(self.stdMark1,2)))
-        lblQuestion = QLabel('Question ' + str(qNum) +  ':  '+ questionTitle[0].encode('latin-1').decode('utf-8'))
-        lblMark = QLabel(self.stdTitle +"  point: "+str(round(self.stdMark1,2)))
+        # row = self.v.iloc[Index]
+
+        student = self.allStudents[self.currentStudent]
+        question = self.allQuestions[self.currentQuestion]
+
+        globalResult = round(self.scoreTable.loc[student.name].iloc[-1], 2)
+        questionResult = round(self.scoreTable.loc[student.name, self.currentQuestion], 2)
+
+        lblQuestion = QLabel('Question {0} : {1}'.format(self.currentQuestion, question.title))
+        lblMark = QLabel("Points: {0}".format(questionResult))
         lblMark.setStyleSheet("QLabel {color : #562398; }")
-        lblMark1 = QLabel("Exam Mark : " + str(round(self.stdExamMark,2)))
+        lblMark1 = QLabel("Exam Mark : {0}".format(globalResult))
         lblMark1.setStyleSheet("QLabel {color : #933333; }")
 
         # student answers
-        lblStdAns = QLabel( self.stdTitle +" Answer")
+        lblStdAns = QLabel(student.name +" answers")
         lblStdAns.setStyleSheet("QLabel {color : #562398; }")
-
-        lstStdAns=self.lstQstAns2[self.lstQstAns2['question']==qNum].ticked.reset_index(drop=True)
-        print("lstStdAns : ", lstStdAns)
-
-        chkListStd = []
-        for i in range(qChoices):
-            ch=QCheckBox("Option " + str(i + 1))
-            ch.setEnabled(False)
-            if (lstStdAns[i] == True ):
-               ch.setChecked(True)
-            chkListStd.append(ch)
 
         # correct answers
         lblCorrectAns = QLabel("Correction")
         lblCorrectAns.setStyleSheet("QLabel {color : green; }")
 
-        lstCorrectAns = self.lstQstAns[self.lstQstAns['question'] == qNum].correct.reset_index(drop=True)
-        print("lstCorrectAns : ", lstCorrectAns)
-
+        chkListStd = []
         chkListCorrect = []
-        for i in range(qChoices):
-            ch=QCheckBox("Option " + str(i + 1))
-            ch.setEnabled(False)
-            if (lstCorrectAns[i] == 1):
-               ch.setChecked(True)
-            chkListCorrect.append(ch)
+        for i in range(len(question.answers)):
+            chStudent = QCheckBox("Option {0}".format(i + 1))
+            chCorrect = QCheckBox("Option {0}".format(i + 1))
+            chStudent.setEnabled(False)
+            chCorrect.setEnabled(False)
+            chCorrect.setChecked(question.answers[i])
+            chStudent.setChecked(student.questions[self.currentQuestion][i])
+            chkListStd.append(chStudent)
+            chkListCorrect.append(chCorrect)
 
 
 
         #data for chart
         self.dataX=self.lstStdName
-        self.dataY=self.scoreTable.iloc[:, qNum]
+        self.dataY=self.scoreTable.iloc[:, self.currentQuestion]
 
         layout.addRow(lblQuestion)
         layout.addRow(lblMark,lblMark1)
 
         layout.addRow(lblStdAns, lblCorrectAns)
-        for i in range(qChoices):
-            layout.addRow(chkListStd[i],chkListCorrect[i])
+        for i in range(len(question.answers)):
+            layout.addRow(chkListStd[i], chkListCorrect[i])
 
         self.formGroupBox.setLayout(layout)
 
    #-----------------------------function defination-----------------------
 
    def OnChangelstStdName(self):
-       self.stdTitle = self.comboStdName.currentText()
-       self.stdID = self.studentNames[self.studentNames['manual'] == self.stdTitle].student.reset_index(drop=True)
-       self.lstQstAns = self.answer[self.answer['student'] == self.stdID[0]]
-       self.currentIndex = 0
-       self.clearForm(self.currentIndex)
+       studentName = self.comboStdName.currentText()
+       for key, student in self.allStudents.items():
+           if student.name == studentName:
+               self.currentStudent = student.id
 
-   def clearForm(self,Index):
+       self.clearForm()
+
+   def clearForm(self):
        self.formGroupBox.deleteLater()
-       self.createFormGroupBox(Index)
+       self.createFormGroupBox()
        self.grid.addWidget(self.formGroupBox, 1, 0)
        self.createFigures(self.dataX, self.dataY)
        self.grid.addWidget(self.canvas, 2, 0)
    #-------------------------navigation ------------------------------------
    def goFirst(self):
-       if self.currentIndex == 0:
-           print("your are in first ")
-       else:
-           self.currentIndex = 0
-           self.clearForm(self.currentIndex)
+       if self.currentQuestion != 1:
+           self.currentQuestion = 1
+           self.clearForm()
 
    def goPre(self):
-       if self.currentIndex == 0:
-           print("your are in first ")
-       else:
-           self.currentIndex = self.currentIndex - 1
-           self.clearForm(self.currentIndex)
+       if self.currentQuestion != 1:
+           self.currentQuestion -= 1
+           self.clearForm()
 
    def goNext(self):
-       if self.currentIndex == self.lenData:
-           print("your are in last ")
-       else:
-           self.currentIndex = self.currentIndex + 1
-           self.clearForm(self.currentIndex)
+       if self.currentQuestion != len(self.allQuestions):
+           self.currentQuestion += 1
+           self.clearForm()
 
    def goLast(self):
-       if self.currentIndex == self.lenData:
-           print("your are in last ")
-       else:
-           self.currentIndex = self.lenData
-           self.clearForm(self.currentIndex)
+       if self.currentQuestion != len(self.allQuestions):
+           self.currentQuestion = len(self.allQuestions)
+           self.clearForm()
 
 
 

@@ -44,14 +44,6 @@ class Settings(QDialog):
         self.negCheckBox = QCheckBox()
         self.negLabel = QLabel('Negative points')
 
-        # DEBUG:
-        self.txtTP.setText('1.0')
-        self.txtFN.setText('-1.0')
-        self.txtTN.setText('1.0')
-        self.txtFP.setText('-1.0')
-        self.txtWeight.setText('1.0')
-        # DEBUG
-
         # -------------define buttons
         btnOK = QPushButton("OK")
         btnCancel = QPushButton("Cancel")
@@ -178,7 +170,7 @@ class Settings(QDialog):
     def cancelParams(self):
         self.close()
 
-    
+
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     ex = Settings()
