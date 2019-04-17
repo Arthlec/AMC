@@ -176,7 +176,9 @@ class ReportPage(QWidget):
 
 
     def setTable(self):
+        # print(self.scoreTable)
         self.sortTable()
+        print(self.scoreTable)
         nbIndex = len(self.scoreTable.index)
         nbColumns = len(self.scoreTable.columns)
 
@@ -188,7 +190,10 @@ class ReportPage(QWidget):
             colName.append(str(self.scoreTable.index[i]))
             for j in range(nbColumns):
                 rowName.append(str(self.scoreTable.columns[j]))
-                self.table.setItem(i, j, QTableWidgetItem(str(round(self.scoreTable.iloc[i, j], 2))))
+                value = self.scoreTable.iloc[i, j]
+                if not isinstance(value, str):
+                    value = str(round(value, 2))
+                self.table.setItem(i, j, QTableWidgetItem(value))
 
         self.table.setHorizontalHeaderLabels(rowName)
         self.table.setVerticalHeaderLabels(colName)

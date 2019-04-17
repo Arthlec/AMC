@@ -295,6 +295,29 @@ def manageData(option1, option2):
     resultat, resultatsPoints = option2(NbPointsQuestions, boxes, (not paramsValues['NegPoints']))
     studentIdToNameMapper = {association.loc[k,'student']: association.loc[k,'manual'] for k in association.index}
     resultatsPoints = resultatsPoints.rename(studentIdToNameMapper, axis=1)
+    letterGrade = []
+    for key, grade in resultatsPoints.iloc[-1].iteritems():
+        if grade < 5:
+            letter = 'F'
+        elif grade < 10:
+            letter = 'Fx'
+        elif grade < 12:
+            letter = 'E'
+        elif grade < 14:
+            letter = 'D'
+        elif grade < 16:
+            letter = 'C'
+        elif grade < 18:
+            letter = 'B'
+        else:
+            letter = 'A'
+        letterGrade.append(letter)
+        
+    df1 = resultatsPoints.iloc[:-2].copy()
+    dfG = pd.DataFrame(np.array(letterGrade).reshape(1,23), columns=resultatsPoints.columns.values, index=['Grade'])
+    df2 = resultatsPoints.iloc[-1].copy()
+    resultatsPoints = df1.append(dfG)
+    resultatsPoints = resultatsPoints.append(df2)
     return boxes, resultatsPoints
 
 

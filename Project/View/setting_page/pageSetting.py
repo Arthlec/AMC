@@ -44,6 +44,14 @@ class Settings(QDialog):
         self.negCheckBox = QCheckBox()
         self.negLabel = QLabel('Negative points')
 
+        # DEBUG:
+        self.txtTP.setText('1.0')
+        self.txtFN.setText('-1.0')
+        self.txtTN.setText('1.0')
+        self.txtFP.setText('-1.0')
+        self.txtWeight.setText('1.0')
+        # DEBUG
+
         # -------------define buttons
         btnOK = QPushButton("OK")
         btnCancel = QPushButton("Cancel")
@@ -137,7 +145,6 @@ class Settings(QDialog):
         f.close()
 
     def loadData(self, params):
-        print(bool(params[5]))
         self.txtTP.setText(str(params[0]))
         self.txtFN.setText(str(params[1]))
         self.txtTN.setText(str(params[2]))
