@@ -147,7 +147,7 @@ class FirstQuestion(QDialog):
         self.stdMark2 = self.std.iloc[-3]
         self.stdMark3 = self.std.iloc[-1]
         questionTitle=self.questionTitles[self.questionTitles['question']==qNum].title.reset_index(drop=True)
-        lblQuestion = QLabel('Question ' + str(qNum) +  ':  '+ questionTitle[0])
+        lblQuestion = QLabel('Question ' + str(qNum) +  ':  '+ questionTitle[0].encode('latin-1').decode('utf-8'))
         lblMark = QLabel(self.stdTitle +"  point: "+str(round(self.stdMark1,2)))
         lblMark.setStyleSheet("QLabel {color : #562398; }")
         lblMark1 = QLabel("Exam Mark for "+ self.stdTitle +": " + str(round(self.stdMark3,1)))
