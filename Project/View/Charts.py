@@ -30,36 +30,54 @@ class PlotCanvas(FigureCanvas):
 
     def plot_line(self):
         self.axes.cla()       # Clears the axes
+        FigureCanvas.setSizePolicy(self,
+                QSizePolicy.Expanding,
+                QSizePolicy.Expanding)
         self.axes.plot(self.controller.dataX, self.controller.dataY)
         self.setTitle()
         self.draw()
 
     def plot_histo(self):
         self.axes.cla()       # Clears the axes
-        self.axes.hist(self.controller.histoX)
+        FigureCanvas.setSizePolicy(self,
+                QSizePolicy.Expanding,
+                QSizePolicy.Expanding)
+        self.axes.hist(self.controller.histoX, range=(0,20), bins=30)
         self.setTitle()
         self.draw()
 
     def plot_pie(self):
         self.axes.cla()
+        FigureCanvas.setSizePolicy(self,
+                QSizePolicy.Expanding,
+                QSizePolicy.Expanding)
         self.axes.pie(self.controller.pieY, labels=self.controller.pieX)
         self.setTitle()
         self.draw()
 
     def plot_box(self):
         self.axes.cla()
+        FigureCanvas.setSizePolicy(self,
+                QSizePolicy.Expanding,
+                QSizePolicy.Expanding)
         self.axes.boxplot(self.controller.dataX)
         self.setTitle()
         self.draw()
 
     def plot_violin(self):
         self.axes.cla()
+        FigureCanvas.setSizePolicy(self,
+                QSizePolicy.Expanding,
+                QSizePolicy.Expanding)
         self.axes.violinplot(self.controller.violinX)
         self.setTitle()
         self.draw()
 
     def plot_histo__by_question(self):
         self.axes.cla()
+        FigureCanvas.setSizePolicy(self,
+                QSizePolicy.Expanding,
+                QSizePolicy.Expanding)
         self.axes.plot(self.controller.dataX, self.controller.pieY)
         self.setTitle()
         self.draw()
