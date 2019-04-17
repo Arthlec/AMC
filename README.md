@@ -22,5 +22,3 @@ All the files related to the GUI are in the `Project/` folder.
 * `matplotlib`
 * `pandas`
 * `seaborn`
-* `Jinja2`
-* `WeasyPrint`
