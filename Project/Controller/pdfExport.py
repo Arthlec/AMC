@@ -1,8 +1,6 @@
-from jinja2 import Environment, PackageLoader, select_autoescape
 import os, sys
 import errno
 import Controller.readAMC as ReadAMC
-# from weasyprint import HTML, CSS
 
 class _Question():
     def __init__(self, id=None, title=''):
@@ -11,10 +9,10 @@ class _Question():
         self.answers = {}
 
     def addAnswer(self, answerId, correct):
-        self.answers[str(answerId)] = correct
+        self.answers[answerId] = correct
 
     def defined(self, answerId):
-        return str(answerId) in self.answers
+        return answerId in self.answers
 
 
 class _Student():
@@ -24,47 +22,32 @@ class _Student():
         self.questions = {}
 
     def addAnswer(self, questionId, answerId, ticked):
-        id = str(questionId)
+        if questionId not in self.questions:
+            self.questions[questionId] = {}
 
-        if id not in self.questions:
-            self.questions[id] = {}
-
-        self.questions[id][str(answerId)] = ticked
+        self.questions[questionId][answerId] = ticked
 
 
 
 class PDFExport:
     def __init__(self):
-        # Loads the template
-        self.html = 'res/export_template/student.html'
-        self.css = 'res/export_template/style.css'
-        # self.data = data
-        env = Environment(
-            loader=PackageLoader('res', 'export_template'),
-            autoescape=select_autoescape(['html', 'xml'])
-        )
-
-        self.template = env.get_template('student.html')
-
         # Loads the data
         boxes, resultatsPoints = ReadAMC.updateData()
         print(boxes)
 
-        allStudents = []
+        allStudents = {}
         allQuestions = {}
 
         studentId = -1
         student = None
         for index, row in boxes.iterrows():
-            questionId = str(row['question'])
+            questionId = row['question']
+            studentId = row['student']
 
-            if row['student'] != studentId:
-                if student is not None:
-                    allStudents.append(student)
-                studentId = row['student']
-                student = _Student(id=studentId)
+            if studentId not in allStudents:
+                allStudents[studentId] = _Student(id=studentId)
 
-            student.addAnswer(row['question'], row['answer'], row['ticked'])
+            allStudents[studentId].addAnswer(row['question'], row['answer'], row['ticked'])
 
             if questionId not in allQuestions:
                 allQuestions[questionId] = _Question(id=row['question'])
@@ -74,22 +57,36 @@ class PDFExport:
 
         print(allStudents)
         print(allQuestions)
+        self.export(allStudents, allQuestions)
 
 
-    def export(self):
+    def export(self, allStudents, allQuestions):
         rootDir = os.path.dirname(os.path.abspath(sys.modules['__main__'].__file__))
         tempDir = os.path.join(rootDir, 'output/temp')
         pdfDir = os.path.join(rootDir, 'output/examTest')
 
-        filename = 'studentTest.html'
+        for studentKey, student in allStudents.items():
+            rawMdContent = 'StudentID : {0}\nStudent Name : {1}\n\n'.format(student.id, student.name)
+            rawMdContent += '# Correction of the exam of {0}\n\n'.format('02/01/2019')
 
+            for i in range(1, len(allQuestions) + 1):
+                # print("i: ", i)
+                rawMdContent += '### Question {0}\n\n'.format(i)
+                for j in range(1, len(allQuestions[i].answers)):
+                    # print('j: ', j)
+                    good = student.questions[i][j] == allQuestions[i].answers[j]
+                    color = 'green' if good else 'red'
+                    # code = '&#2713;' if good else '&#2717;'
+                    code = u'✓' if good else u'✗'
+                    checkbox = '[x]' if student.questions[i][j] else '[ ]'
+                    rawMdContent += '- {0} <span style="color:{1}">{2} {3}</span>\n'.format(checkbox, color, code, '')
 
-        render = self.template.render(self.data)
+                rawMdContent += '\n'
 
-        # HTML part
-        f = open(os.path.join(tempDir, filename), 'w')
-        f.write(render)
-        f.close()
+            f = open('{0}/{1}.md'.format(tempDir, student.id), 'w', encoding='utf-8')
+            f.write(rawMdContent)
+            f.close()
+
 
         # # PDF part
         # if not os.path.exists(pdfDir):
