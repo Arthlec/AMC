@@ -33,7 +33,9 @@ class PDFExport:
     def __init__(self):
         # Loads the data
         boxes, resultatsPoints = ReadAMC.updateData()
-        print(boxes)
+        association = ReadAMC.getAMCAssociations()
+        questionTitle = ReadAMC.getAMCQuestionTitle()
+        print(questionTitle)
 
         allStudents = {}
         allQuestions = {}
@@ -45,12 +47,13 @@ class PDFExport:
             studentId = row['student']
 
             if studentId not in allStudents:
-                allStudents[studentId] = _Student(id=studentId)
+                studentInfo = association.loc[association['student'] == studentId]
+                allStudents[studentId] = _Student(id=studentId, name=studentInfo['manual'].item())
 
             allStudents[studentId].addAnswer(row['question'], row['answer'], row['ticked'])
 
             if questionId not in allQuestions:
-                allQuestions[questionId] = _Question(id=row['question'])
+                allQuestions[questionId] = _Question(id=row['question'], title=questionTitle.iloc[row['question'] - 1]['title'].encode('latin-1').decode('utf-8'))
 
             if not allQuestions[questionId].defined(row['answer']):
                 allQuestions[questionId].addAnswer(row['answer'], row['correct'])
@@ -71,7 +74,7 @@ class PDFExport:
 
             for i in range(1, len(allQuestions) + 1):
                 # print("i: ", i)
-                rawMdContent += '### Question {0}\n\n'.format(i)
+                rawMdContent += '### Question {0} : {1}\n\n'.format(i, allQuestions[i].title)
                 for j in range(1, len(allQuestions[i].answers)):
                     # print('j: ', j)
                     good = student.questions[i][j] == allQuestions[i].answers[j]
@@ -79,11 +82,11 @@ class PDFExport:
                     # code = '&#2713;' if good else '&#2717;'
                     code = u'✓' if good else u'✗'
                     checkbox = '[x]' if student.questions[i][j] else '[ ]'
-                    rawMdContent += '- {0} <span style="color:{1}">{2} {3}</span>\n'.format(checkbox, color, code, '')
+                    rawMdContent += '- {0} <span style="color:{1}">{2} Choice {3}</span>\n'.format(checkbox, color, code, j)
 
                 rawMdContent += '\n'
 
-            f = open('{0}/{1}.md'.format(tempDir, student.id), 'w', encoding='utf-8')
+            f = open('{0}/{1}_{2}.md'.format(tempDir, student.id, student.name), 'w', encoding='utf-8')
             f.write(rawMdContent)
             f.close()
 
