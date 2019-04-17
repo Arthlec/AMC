@@ -22,6 +22,7 @@ from View.coherence_page.coherence import *
 from View.setting_page.pageSetting import Settings
 from View.report_page.pageStudents import FirstQuestion
 from Controller.pdfExport import PDFExport
+from View.inputDate import DateInput
 
 #+--------------main class
 class ReportPage(QWidget):
@@ -251,7 +252,12 @@ class ReportPage(QWidget):
             self.refreshInterface()
 
     def exportPDF(self):
-         pdfExport = PDFExport()
+        dateInput = DateInput()
+        n = dateInput.exec_()
+        if n == 1:
+            pdfExport = PDFExport()
+            pdfExport.export()
+            QMessageBox.information(self, 'Export done', 'Export done', QMessageBox.Ok)
 
     def exportCSV(self):
         print("CSV")

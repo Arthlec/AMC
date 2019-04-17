@@ -17,6 +17,7 @@ dataPath = ""
 weightPath = ""
 coherenceFormulaPath = ""
 paramsValues = None
+examDate = ""
 
 
 class _Question():
@@ -65,6 +66,10 @@ def isValidDirectory(dir):
 def setParameters(params):
     global paramsValues
     paramsValues = params
+
+def setDate(date):
+    global examDate
+    examDate = date
 
 
 
