@@ -10,24 +10,20 @@ class StudentData:
         df = resultPoints.values
         score_chart_int = df[-1,:].astype(int)
         score_chart_double = [round(x, 2) for x in df[-1,:]]
-        # print("score_chart_int: ", score_chart_int)
         mark_chart = np.unique(score_chart_int)
         mark_chart_double = np.unique(score_chart_double)
-        # print("mark_chart: ", mark_chart)
+
         eff_chart = []
         eff_chart_double = []
 
         for i in range(len(mark_chart)):
-            effective_chart = []
             effective_chart = np.count_nonzero(score_chart_int == mark_chart[i])
             eff_chart = np.append(eff_chart, effective_chart)
 
         for i in range(len(mark_chart_double)):
-            effective_chart_double = []
             effective_chart_double = np.count_nonzero(score_chart_double == mark_chart_double[i])
             eff_chart_double = np.append(eff_chart_double, effective_chart_double)
 
-        # print(eff_chart.astype(int))
         self.violinX = score_chart_int
         self.pieX = mark_chart
         self.pieY = eff_chart

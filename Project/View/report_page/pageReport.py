@@ -101,7 +101,8 @@ class ReportPage(QWidget):
         arrCorrectAns = self.getPercentage()
         scrollArea = QScrollArea()
         scrollArea.setWidgetResizable(True)
-        scrollArea.setWidget(BuildSlider(self.refreshInterface, arrCorrectAns=arrCorrectAns,numberOfQuestions=numberOfQuestions))
+        self.buildSlider = BuildSlider(self.refreshInterface, arrCorrectAns=arrCorrectAns,numberOfQuestions=numberOfQuestions)
+        scrollArea.setWidget(self.buildSlider)
         layout.addWidget(scrollArea, 1, 1)
 
         # ---------------------chart view --------------------
@@ -119,15 +120,23 @@ class ReportPage(QWidget):
 
     def getPercentage(self):
         listStudents = self.boxes['student'].unique()
+        listQuestions = self.boxes['question'].unique()
         numberOfStudents = len(listStudents)
+        weights = ReadAMC.getWeights()
 
+        print("numberOfStudents : ", numberOfStudents)
         correctAns = []
-        for i in range(len(self.scoreTable.columns)):
-            numberOfOnes = 0
-            for j in range(len(self.scoreTable.index)):
-                if self.scoreTable.iloc[j, i] == 1:
-                    numberOfOnes += 1
-            correctAns.append(round((numberOfOnes / numberOfStudents) * 100, 0))
+        for i, question in enumerate(listQuestions):
+            sumPointsOneQuestion = 0
+            weight = weights.loc[weights['question'] == question, 'weight'].item()
+            for j, student in enumerate(self.scoreTable.index):
+                print(self.scoreTable.loc[student, question])
+                sumPointsOneQuestion += self.scoreTable.loc[student, question]
+            print("question : ", question)
+            print("weight : ", weight)
+            print("sumPointsOneQuestion : ", sumPointsOneQuestion)
+            print()
+            correctAns.append(round((sumPointsOneQuestion / (weight*numberOfStudents)) * 100, 2))
         return correctAns
 
     def computeMeanAndSTD(self):
@@ -196,6 +205,11 @@ class ReportPage(QWidget):
         self.plot.refresh()
         self.comboOptions[self.selectedChart][1]()
         self.computeMeanAndSTD()
+
+        arrCorrectAns = self.getPercentage()
+
+        for i, label in enumerate(self.buildSlider.listOfLabels):
+            label.setText("Question " + str(i+1) +"  correctness: " + str(arrCorrectAns[i]) + "  %")
 
     def createBtnGroup(self):
         groupBox = QGroupBox()
@@ -267,8 +281,11 @@ class BuildSlider(QWidget):
         # ---------------------weight
         self.layout = QVBoxLayout()
         self.listOfQuestions = []
+        self.listOfLabels = []
         for i in range(numberOfQuestions):
-            self.addSlider(QLabel("Question " + str(i+1) +"  correctness: " + str(arrCorrectAns[i]) + "  %"), QLabel(str(initialValue)), initialValue)
+            currentLabel = QLabel("Question " + str(i+1) +"  correctness: " + str(arrCorrectAns[i]) + "  %")
+            self.addSlider(currentLabel, QLabel(str(initialValue)), initialValue)
+            self.listOfLabels.append(currentLabel)
 
         self.b1 = QPushButton("Save weight")
         self.b1.clicked.connect(self.writeWeights)
