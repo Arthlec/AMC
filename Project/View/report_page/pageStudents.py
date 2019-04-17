@@ -1,6 +1,6 @@
 #+----------------------------------------------------+
 #| 13/04/2019 - Report page for student
-#| Created by Sahar Hosseini
+#| Created by Sahar Hosseini and modified by Arthur Lecert
 #| description,
 #| report data for each student in each question point and total point of exam +
 #|correction and studet answer
@@ -10,6 +10,7 @@ import math
 import matplotlib
 import sys
 
+import pandas as pd
 from PyQt5.QtCore import  Qt
 from PyQt5 import QtWidgets
 from PyQt5.QtGui import QIcon
@@ -48,18 +49,25 @@ class MplWidget(QtWidgets.QWidget):
         self.setLayout(self.vbl)
 
 class FirstQuestion(QDialog):
-   def __init__(self, parent=None):
+   def __init__(self, parent=None, boxes = None):
        super(FirstQuestion, self).__init__(parent)
        self.setModal(True)
 
        self.controller = StudentData()
        self.scoreTable = self.controller.getScoreTable()  # main datalist
        self.lstStdName=[]
-       b, c, self.v = ReadAMC.computeData2()
+
+       listStudents = boxes['student'].unique()
+       b = boxes.groupby(['student'])['question'].value_counts().to_frame('count').sort_values("question")
+       print(b)
+       c = pd.DataFrame(b).reset_index()
+       self.v = c.loc[c['student'] == listStudents[0]]
+
+       # b, c, self.v = ReadAMC.computeData2()
 
        self.zone, self.answer, self.studentNames, self.var ,self.questionTitles= ReadAMC.readAMCTables(ReadAMC.dataPath)
-       self.boxes = ReadAMC.makeBoxes(self.zone, self.answer, self.var )
-       print("boxes: ", self.boxes)
+       self.boxes = boxes# ReadAMC.makeBoxes(self.zone, self.answer, self.var )
+       # print("boxes: ", self.boxes)
        nbIndex = len(self.scoreTable.index)
        self.currentIndex = 0
        self.lenData= len(self.v) -1
@@ -175,14 +183,13 @@ class FirstQuestion(QDialog):
 
 
         #data for chart
-        self.dataX=[]
+        # self.dataX=[]
         self.dataX=self.lstStdName
-        self.dataY=[]
+        # self.dataY=[]
         self.dataY=self.scoreTable.iloc[:, qNum]
 
         layout.addRow(lblQuestion)
         layout.addRow(lblMark,lblMark1)
-
 
         layout.addRow(lblStdAns, lblCorrectAns)
         for i in range(qChoices):

@@ -235,7 +235,7 @@ class ReportPage(QWidget):
         home.initUI(self.mainWindow)
 
     def showStudentReport(self):
-        studentDialog = FirstQuestion(self.mainWindow)
+        studentDialog = FirstQuestion(self.mainWindow, self.boxes)
         studentDialog.exec_()
 
     def showCoherence(self):
