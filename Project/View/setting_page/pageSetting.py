@@ -4,14 +4,13 @@
 #| description,
 #| get  AMC params for each exam and save in a csv file
 #+----------------------------------------------------+
-import csv
 import sys
-from PyQt5.QtWidgets import (QWidget, QLabel, QLineEdit, QPushButton,
-                             QCheckBox, QMessageBox,QTableWidgetItem,QHeaderView, QTableWidget,QFileDialog, QComboBox,  QGridLayout, QApplication, QFileDialog, QDialog)
 
-import pandas as pd
-from pathlib import Path
+from PyQt5.QtWidgets import (QLabel, QLineEdit, QPushButton,
+                             QCheckBox, QGridLayout, QApplication, QFileDialog, QDialog)
+
 import Controller.readAMC as ReadAMC
+
 
 class Settings(QDialog):
     def __init__(self, parent=None, fetchData=False):
@@ -141,6 +140,7 @@ class Settings(QDialog):
         self.txtTN.setText(str(params[2]))
         self.txtFP.setText(str(params[3]))
         self.txtWeight.setText(str(params[4]))
+        print(bool(params[5]))
         self.negCheckBox.setChecked(bool(params[5]))
 
     # -------------function set params auto

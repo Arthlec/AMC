@@ -1,11 +1,9 @@
-import csv
-from pathlib import Path
-import sqlite3
-import pandas as pd
 import json
-import numpy as np
 import os
+import sqlite3
+from pathlib import Path
 
+import pandas as pd
 
 WEIGHTS_FILENAME = "weights.json"
 COHERENCE_FILENAME = "coherenceFormula.json"

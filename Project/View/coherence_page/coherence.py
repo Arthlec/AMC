@@ -1,8 +1,11 @@
 import sys
+
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QLineEdit, QLabel, QPushButton, QGridLayout, QSpacerItem, QDialog, QMessageBox
-from Controller.logic.logic import *
+from PyQt5.QtWidgets import QApplication, QVBoxLayout, QLineEdit, QLabel, QPushButton, QGridLayout, QDialog, QMessageBox
+
 import Controller.readAMC as ReadAMC
+from Controller.logic.logic import *
+
 
 class CoherencePage(QDialog):
     def __init__(self, parent=None):

@@ -4,24 +4,18 @@
 #| description,
 #| report data as a table, chart and teachers enable to apply coherence, weight and penalty
 #+----------------------------------------------------+
-import sys
-from PyQt5.QtWidgets import QWidget, QSlider, QGroupBox, QGridLayout, QLineEdit, \
-                            QComboBox, QPushButton, QScrollArea, QTableWidget, QTableWidgetItem,  \
-                            QVBoxLayout,QHBoxLayout, QLabel, QMainWindow, QApplication
-
-from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont
+from PyQt5.QtWidgets import QSlider, QGroupBox, QComboBox, QScrollArea, QTableWidget, QTableWidgetItem, \
+    QHBoxLayout, QMainWindow
 
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.figure import Figure
-# from Controller.readAMC import getNumberOfQuestions, changeWeight
-from Controller.readAMC import *
-from View.Charts import PlotCanvas
-from Controller.studentData import StudentData
-from View.coherence_page.coherence import *
-from View.setting_page.pageSetting import Settings
-from View.report_page.pageStudents import FirstQuestion
 from Controller.pdfExport import PDFExport
+from Controller.readAMC import *
+from Controller.studentData import StudentData
+from View.Charts import PlotCanvas
+from View.coherence_page.coherence import *
+from View.report_page.pageStudents import FirstQuestion
+from View.setting_page.pageSetting import Settings
+from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget
 
 #+--------------main class
 class ReportPage(QWidget):

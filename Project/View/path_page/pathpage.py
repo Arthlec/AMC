@@ -1,14 +1,11 @@
-# DEBUG:
-from os import path
-# DEBUG
-
-
 import sys
+
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QLineEdit, QLabel, QPushButton,\
+from PyQt5.QtWidgets import QApplication, QVBoxLayout, QLineEdit, QLabel, QPushButton, \
     QFileDialog, QHBoxLayout, QDialog, QMessageBox
-# from Controller.readAMC import getDefaultDataPath, initDirectories
+
 import Controller.readAMC as ReadAMC
+
 
 class PathPage(QDialog):
     def __init__(self, parent=None):

@@ -1,5 +1,6 @@
-import os, sys
-import errno
+import os
+import sys
+
 import Controller.readAMC as ReadAMC
 
 
