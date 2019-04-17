@@ -49,40 +49,35 @@ class MplWidget(QtWidgets.QWidget):
         self.setLayout(self.vbl)
 
 class FirstQuestion(QDialog):
-   def __init__(self, parent=None, boxes = None):
+   def __init__(self, parent=None, boxes = None, scoreTable = None):
        super(FirstQuestion, self).__init__(parent)
        self.setModal(True)
 
        self.controller = StudentData()
-       self.scoreTable = self.controller.getScoreTable()  # main datalist
+       self.scoreTable = scoreTable
        self.lstStdName=[]
 
        listStudents = boxes['student'].unique()
        b = boxes.groupby(['student'])['question'].value_counts().to_frame('count').sort_values("question")
-       print(b)
        c = pd.DataFrame(b).reset_index()
-       self.v = c.loc[c['student'] == listStudents[0]]
-
-       # b, c, self.v = ReadAMC.computeData2()
+       self.v = c.loc[c['student'] == listStudents[0]].reset_index(drop= True)
 
        self.zone, self.answer, self.studentNames, self.var ,self.questionTitles= ReadAMC.readAMCTables(ReadAMC.dataPath)
-       self.boxes = boxes# ReadAMC.makeBoxes(self.zone, self.answer, self.var )
-       # print("boxes: ", self.boxes)
+       self.boxes = boxes
        nbIndex = len(self.scoreTable.index)
        self.currentIndex = 0
        self.lenData= len(self.v) -1
        self.stdMark1=0
-       self.stdMark2 = 0
-       self.stdMark3 = 0
+       self.stdExamMark = 0
        self.stdTitle=""
        for i in range(nbIndex):
            self.lstStdName.append(str(self.scoreTable.index[i]))
 
        self.stdTitle=self.lstStdName[0]
-       self.stdID =[]
        self.stdID=self.studentNames[self.studentNames['manual'] == self.stdTitle].student
-       self.lstQstAns=self.answer[self.answer['student'] == self.stdID[0]]
-       self.lstQstAns2=self.boxes[self.boxes['student']==self.stdID[0]]
+       self.lstQstAns=self.answer[self.answer['student'] == self.stdID.item()]
+       self.lstQstAns2=self.boxes[self.boxes['student']== self.stdID.item()]
+
        self.initUI()
 
    def initUI(self):
@@ -110,10 +105,7 @@ class FirstQuestion(QDialog):
 
        ax = self.figure.add_subplot(111)
        ax.cla()
-       print(dataY)
        ax.scatter(dataY,dataX,color='orange')
-       #ax.plot(dataY, dataX,color='green')
-       #ax.boxplot(dataY)
        self.canvas.draw()
 
    def createBtnGroup(self):
@@ -143,35 +135,37 @@ class FirstQuestion(QDialog):
         qNum = row[1]
         qChoices = row[2]
         self.std = self.scoreTable.loc[self.stdTitle, :]
-        self.stdMark1 =   self.scoreTable.iloc[0, qNum]#self.std.iloc[Index]
-        self.stdMark2 = self.std.iloc[-3]
-        self.stdMark3 = self.std.iloc[-1]
+        self.stdMark1 =   self.scoreTable.iloc[0, Index]
+        self.stdExamMark = self.std.iloc[-1]
         questionTitle=self.questionTitles[self.questionTitles['question']==qNum].title.reset_index(drop=True)
         lblQuestion = QLabel('Question ' + str(qNum) +  ':  '+ questionTitle[0])
-        lblMark = QLabel(self.stdTitle +"  point: "+str(round(self.stdMark1,2)))
+        lblMark = QLabel("Points: " + str(round(self.stdMark1,2)))
         lblMark.setStyleSheet("QLabel {color : #562398; }")
-        lblMark1 = QLabel("Exam Mark for "+ self.stdTitle +": " + str(round(self.stdMark3,1)))
+        lblMark1 = QLabel("Exam Mark : " + str(round(self.stdExamMark,2)))
         lblMark1.setStyleSheet("QLabel {color : #933333; }")
-
 
         # student answers
         lblStdAns = QLabel( self.stdTitle +" Answer")
         lblStdAns.setStyleSheet("QLabel {color : #562398; }")
 
         lstStdAns=self.lstQstAns2[self.lstQstAns2['question']==qNum].ticked.reset_index(drop=True)
+        print("lstStdAns : ", lstStdAns)
 
         chkListStd = []
         for i in range(qChoices):
             ch=QCheckBox("Option " + str(i + 1))
             ch.setEnabled(False)
-            if (lstStdAns[i] ==True ):
+            if (lstStdAns[i] == True ):
                ch.setChecked(True)
             chkListStd.append(ch)
 
         # correct answers
         lblCorrectAns = QLabel("Correction")
         lblCorrectAns.setStyleSheet("QLabel {color : green; }")
+
         lstCorrectAns = self.lstQstAns[self.lstQstAns['question'] == qNum].correct.reset_index(drop=True)
+        print("lstCorrectAns : ", lstCorrectAns)
+
         chkListCorrect = []
         for i in range(qChoices):
             ch=QCheckBox("Option " + str(i + 1))
@@ -183,9 +177,7 @@ class FirstQuestion(QDialog):
 
 
         #data for chart
-        # self.dataX=[]
         self.dataX=self.lstStdName
-        # self.dataY=[]
         self.dataY=self.scoreTable.iloc[:, qNum]
 
         layout.addRow(lblQuestion)
@@ -199,7 +191,7 @@ class FirstQuestion(QDialog):
 
    #-----------------------------function defination-----------------------
 
-   def OnChangelstStdName(self, i):
+   def OnChangelstStdName(self):
        self.stdTitle = self.comboStdName.currentText()
        self.stdID = self.studentNames[self.studentNames['manual'] == self.stdTitle].student.reset_index(drop=True)
        self.lstQstAns = self.answer[self.answer['student'] == self.stdID[0]]

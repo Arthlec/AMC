@@ -103,8 +103,6 @@ class ReportPage(QWidget):
         # ---------------------slider  weight --------------------
         numberOfQuestions = self.getNumberOfQuestions()
         arrCorrectAns = self.getPercentage()
-        print("arrCorrectAns : ", len(arrCorrectAns))
-        print(arrCorrectAns)
         scrollArea = QScrollArea()
         scrollArea.setWidgetResizable(True)
         scrollArea.setWidget(BuildSlider(self.refreshInterface, arrCorrectAns=arrCorrectAns,numberOfQuestions=numberOfQuestions))
@@ -235,7 +233,7 @@ class ReportPage(QWidget):
         home.initUI(self.mainWindow)
 
     def showStudentReport(self):
-        studentDialog = FirstQuestion(self.mainWindow, self.boxes)
+        studentDialog = FirstQuestion(self.mainWindow, self.boxes, self.scoreTable)
         studentDialog.exec_()
 
     def showCoherence(self):
