@@ -121,21 +121,15 @@ class ReportPage(QWidget):
     def getPercentage(self):
         listStudents = self.boxes['student'].unique()
         listQuestions = self.boxes['question'].unique()
+        listQuestions.sort(axis = 0)
         numberOfStudents = len(listStudents)
         weights = ReadAMC.getWeights()
-
-        print("numberOfStudents : ", numberOfStudents)
         correctAns = []
-        for i, question in enumerate(listQuestions):
+        for question in listQuestions:
             sumPointsOneQuestion = 0
             weight = weights.loc[weights['question'] == question, 'weight'].item()
-            for j, student in enumerate(self.scoreTable.index):
-                print(self.scoreTable.loc[student, question])
+            for student in self.scoreTable.index:
                 sumPointsOneQuestion += self.scoreTable.loc[student, question]
-            print("question : ", question)
-            print("weight : ", weight)
-            print("sumPointsOneQuestion : ", sumPointsOneQuestion)
-            print()
             correctAns.append(round((sumPointsOneQuestion / (weight*numberOfStudents)) * 100, 2))
         return correctAns
 
