@@ -14,8 +14,9 @@ from pathlib import Path
 import Controller.readAMC as ReadAMC
 
 class Settings(QDialog):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, fetchData=False):
         super(Settings, self).__init__(parent)
+        self.fetchData = fetchData
         self.initUI()
 
     def initUI(self):
@@ -24,7 +25,7 @@ class Settings(QDialog):
         self.lblFN = QLabel('FN: False Negative')
         self.lblTN = QLabel('TN: True Negative')
         self.lblFP = QLabel('FP: False Positive')
-        self.lblWeight = QLabel('Initial Weight: ')
+        self.lblWeight = QLabel('Initial Weight')
 
         # -------------define text box
         self.txtTP = QLineEdit()
@@ -37,6 +38,11 @@ class Settings(QDialog):
         self.txtFP.resize(20, 20)
         self.txtWeight = QLineEdit()
         self.txtWeight.resize(20, 20)
+
+
+        # -------------define the checkbox
+        self.negCheckBox = QCheckBox()
+        self.negLabel = QLabel('Negative points')
 
         # DEBUG:
         self.txtTP.setText('1.0')
@@ -53,7 +59,7 @@ class Settings(QDialog):
         btnLoad = QPushButton("Load")
         btnOK.clicked.connect(self.nextView)
         btnCancel.clicked.connect(self.cancelParams)
-        btnLoad.clicked.connect(self.loadParams)
+        btnLoad.clicked.connect(self.loadParamsFromFile)
         btnSave.clicked.connect(self.saveParams)
 
         # -------------arrange UI with labels, textboxes and buttons
@@ -75,6 +81,9 @@ class Settings(QDialog):
         self.grid.addWidget(self.lblWeight, 3, 9)
         self.grid.addWidget(self.txtWeight, 3, 10)
 
+        self.grid.addWidget(self.negLabel, 2, 9)
+        self.grid.addWidget(self.negCheckBox, 2, 10)
+
         self.grid.addWidget(btnLoad, 9, 7)
         self.grid.addWidget(btnSave, 9, 8)
         self.grid.addWidget(btnOK, 9, 9)
@@ -85,6 +94,9 @@ class Settings(QDialog):
         self.resize(350, 300)
         self.setModal(True)
         self.setWindowTitle('Settings')
+
+        if self.fetchData:
+            self.loadParamsFromData()
 
 
     def nextView(self):
@@ -97,12 +109,25 @@ class Settings(QDialog):
             "TN" : float(self.txtTN.text()),
             "FP" : float(self.txtFP.text()),
             "Weight" : float(self.txtWeight.text()),
+            "NegPoints" : self.negCheckBox.isChecked()
         }
 
         ReadAMC.setParameters(params)
         self.done(1)
 
-    def loadParams(self):
+    def loadParamsFromData(self):
+        params = ReadAMC.paramsValues
+        data = [
+            params['TP'],
+            params['FN'],
+            params['TN'],
+            params['FP'],
+            params['Weight'],
+            params['NegPoints'],
+        ]
+        self.loadData(data)
+
+    def loadParamsFromFile(self):
         fileInfo = QFileDialog.getOpenFileName(self, "Select file with your parameters", filter="CSV (*.csv)")
         fileName = fileInfo[0]
 
@@ -116,12 +141,15 @@ class Settings(QDialog):
         f.readline()    # First line is the title, we don't need it
         paramsString = f.readline()
         params = paramsString.split(',')
+        self.loadData(params)
 
-        self.txtTP.setText(params[0])
-        self.txtFN.setText(params[1])
-        self.txtTN.setText(params[2])
-        self.txtFP.setText(params[3])
-        self.txtWeight.setText(params[4])
+    def loadData(self, params):
+        self.txtTP.setText(str(params[0]))
+        self.txtFN.setText(str(params[1]))
+        self.txtTN.setText(str(params[2]))
+        self.txtFP.setText(str(params[3]))
+        self.txtWeight.setText(str(params[4]))
+        self.negCheckBox.setChecked(bool(params[5]))
 
     # -------------function set params auto
     def saveParams(self):
@@ -138,10 +166,8 @@ class Settings(QDialog):
             fileName += '.csv'
 
         f = open(fileName, 'w')
-        f.write('TP, FN, TN, FP, Weight\n'+
-                self.txtTP.text()+"," + self.txtFN.text()
-                +","+self.txtTN.text()+","+self.txtFP.text()
-                +","+self.txtWeight.text()+"\n")
+        f.write('TP, FN, TN, FP, Weight, NegPoints\n{0}, {1}, {2}, {3}, {4}, {5}'
+                    .format(self.txtTP.text(), self.txtFN.text(), self.txtTN.text(), self.txtFP.text(), self.txtWeight.text(), self.negCheckBox.isChecked()))
         f.close()
 
 
@@ -152,40 +178,7 @@ class Settings(QDialog):
     def cancelParams(self):
         self.close()
 
-    def getCSV(self):
-        filePath,_ = QFileDialog.getOpenFileName(self,
-                                                     'CSV File',
-                                                     '~/Desktop',
-                                                     '*.csv')
-        filename = Path(filePath).name
-        fileName2 = self.cbExams.currentText()
-        with open(str(filePath)) as f:
-            with open(str(fileName2), "w") as f1:
-                for line in f:
-                        f1.write(line)
-
-        f1.close()
-        f.close()
-
-    def readCSVData(self,filePath):
-         params = []
-         values = []
-         # open file
-         with open(str(filePath), 'rb') as f:
-             reader = csv.reader(f)
-
-             # read file row by row
-             rowNr = 0
-             for row in reader:
-                 # Skip the header row.
-                 if rowNr >= 1:
-                     params.append(row[0])
-                     values.append(row[1])
-
-                 # Increase the row number
-                 rowNr = rowNr + 1
-         return values,params
-
+    
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     ex = Settings()
