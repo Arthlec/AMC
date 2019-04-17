@@ -67,6 +67,28 @@ def readAMCTables(dataPath):
     return zone, answer, association, variables, questiontitle
 
 
+def getAMCQuestionTitle():
+    try:
+        cnx = sqlite3.connect(dataPath + SCORING_FILE)
+        questionTitle = pd.read_sql_query("SELECT * FROM scoring_title", cnx)
+        cnx.close()
+    except pd.io.sql.DatabaseError as e:
+         raise IOError('File {0} is missing...'.format(SCORING_FILE))
+
+    return questionTitle
+
+
+def getAMCAssociations():
+    try:
+        cnx = sqlite3.connect(dataPath + ASSOCIATION_FILE)
+        association = pd.read_sql_query("SELECT * FROM association_association", cnx)
+        cnx.close()
+    except pd.io.sql.DatabaseError as e:
+         raise IOError('File {0} is missing...'.format(ASSOCIATION_FILE))
+
+    return association
+
+
 
 def makeBoxes(zone, answer, var ):
     # Creates a table of all boxes in all copies

@@ -140,6 +140,8 @@ class FirstQuestion(QDialog):
         questionTitle=self.questionTitles[self.questionTitles['question']==qNum].title.reset_index(drop=True)
         lblQuestion = QLabel('Question ' + str(qNum) +  ':  '+ questionTitle[0])
         lblMark = QLabel("Points: " + str(round(self.stdMark1,2)))
+        lblQuestion = QLabel('Question ' + str(qNum) +  ':  '+ questionTitle[0].encode('latin-1').decode('utf-8'))
+        lblMark = QLabel(self.stdTitle +"  point: "+str(round(self.stdMark1,2)))
         lblMark.setStyleSheet("QLabel {color : #562398; }")
         lblMark1 = QLabel("Exam Mark : " + str(round(self.stdExamMark,2)))
         lblMark1.setStyleSheet("QLabel {color : #933333; }")
