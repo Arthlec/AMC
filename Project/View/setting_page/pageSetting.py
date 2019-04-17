@@ -133,6 +133,7 @@ class Settings(QDialog):
         paramsString = f.readline()
         params = paramsString.split(',')
         self.loadData(params)
+        f.close()
 
     def loadData(self, params):
         self.txtTP.setText(str(params[0]))
@@ -140,8 +141,7 @@ class Settings(QDialog):
         self.txtTN.setText(str(params[2]))
         self.txtFP.setText(str(params[3]))
         self.txtWeight.setText(str(params[4]))
-        print(bool(params[5]))
-        self.negCheckBox.setChecked(bool(params[5]))
+        self.negCheckBox.setChecked(str(params[5]) == 'True')
 
     # -------------function set params auto
     def saveParams(self):

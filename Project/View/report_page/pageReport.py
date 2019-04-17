@@ -5,17 +5,19 @@
 #| report data as a table, chart and teachers enable to apply coherence, weight and penalty
 #+----------------------------------------------------+
 from PyQt5.QtGui import QFont
+from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget
 from PyQt5.QtWidgets import QSlider, QGroupBox, QComboBox, QScrollArea, QTableWidget, QTableWidgetItem, \
-    QHBoxLayout, QMainWindow
+    QHBoxLayout
 
 from Controller.pdfExport import PDFExport
 from Controller.readAMC import *
 from Controller.studentData import StudentData
 from View.Charts import PlotCanvas
 from View.coherence_page.coherence import *
+from View.inputDate import DateInput
 from View.report_page.pageStudents import FirstQuestion
 from View.setting_page.pageSetting import Settings
-from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget
+
 
 #+--------------main class
 class ReportPage(QWidget):
@@ -245,7 +247,12 @@ class ReportPage(QWidget):
             self.refreshInterface()
 
     def exportPDF(self):
-         pdfExport = PDFExport()
+        dateInput = DateInput()
+        n = dateInput.exec_()
+        if n == 1:
+            pdfExport = PDFExport()
+            pdfExport.export()
+            QMessageBox.information(self, 'Export done', 'Export done', QMessageBox.Ok)
 
     def exportCSV(self):
         print("CSV")
