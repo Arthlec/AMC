@@ -2,6 +2,11 @@
 
 Project made by fourth year students at ESIEE Paris in 3 months.
 
+- Sahar HOSSEINI
+- Roman BLOND
+- Evrard Callot
+- Arthur LECERT
+
 Please feel free to copy this project and improve it.
 
 ## Implementation
