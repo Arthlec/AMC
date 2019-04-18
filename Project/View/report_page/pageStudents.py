@@ -83,7 +83,7 @@ class FirstQuestion(QDialog):
         ax.scatter(dataY,dataX,color='orange')
 
         student = self.allStudents[self.currentStudent]
-        score = self.scoreTable.iloc[:, self.currentQuestion].loc[student.name]
+        score = self.scoreTable.iloc[:, self.currentQuestion-1].loc[student.name]
 
         ax.scatter(score, student.name, s=250, linewidths= 1.5, facecolors='none', edgecolors='r')
 
@@ -150,7 +150,7 @@ class FirstQuestion(QDialog):
 
         #data for chart
         self.dataX=self.lstStdName
-        self.dataY=self.scoreTable.iloc[:, self.currentQuestion]
+        self.dataY=self.scoreTable.iloc[:, self.currentQuestion-1]
 
         layout.addRow(lblQuestion)
         layout.addRow(lblMark,lblMark1)
