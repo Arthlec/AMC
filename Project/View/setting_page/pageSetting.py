@@ -166,7 +166,6 @@ class Settings(QDialog):
     def checkTextBoxes(self):
         return self.txtTP.text() != "" and self.txtFN.text() != "" and self.txtTN.text() != "" and self.txtFP.text() != "" and self.txtWeight.text() != ""
 
-    # -------------function set params auto
     def cancelParams(self):
         self.close()
 
