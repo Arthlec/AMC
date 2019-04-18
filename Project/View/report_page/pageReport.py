@@ -21,7 +21,7 @@ from View.setting_page.pageSetting import Settings
 
 #+--------------main class
 class ReportPage(QWidget):
-    DEFAULT_CHART_INDEX = 3
+    DEFAULT_CHART_INDEX = 4
 
     def __init__(self, parent=None):
         super(ReportPage, self).__init__(parent)
@@ -107,7 +107,7 @@ class ReportPage(QWidget):
         layout.addWidget(scrollArea, 1, 1)
 
         # ---------------------chart view --------------------
-        self.plot.plot_pie()
+        self.plot.plot_histo()
         self.selectedChart = self.DEFAULT_CHART_INDEX
         layout.addWidget(self.plot, 1, 2)
 

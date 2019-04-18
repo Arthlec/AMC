@@ -308,7 +308,7 @@ def manageData(option1, option2):
 
     df1 = resultatsPoints.iloc[:-2].copy()
     dfG = pd.DataFrame(np.array(letterGrade).reshape(1,23), columns=resultatsPoints.columns.values, index=['Grade'])
-    df2 = resultatsPoints.iloc[-1].copy()
+    df2 = resultatsPoints.iloc[-2:].copy()
     resultatsPoints = df1.append(dfG)
     resultatsPoints = resultatsPoints.append(df2)
     return boxes, resultatsPoints
