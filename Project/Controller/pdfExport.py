@@ -23,13 +23,10 @@ class PDFExport:
             rawMdContent += '# Correction of the exam of {0}\n\n'.format(self.date)
 
             for i in range(1, len(self.allQuestions) + 1):
-                # print("i: ", i)
                 rawMdContent += '### Question {0} : {1}\n\n'.format(i, self.allQuestions[i].title)
                 for j in range(len(self.allQuestions[i].answers)):
-                    # print('j: ', j)
                     good = student.questions[i][j] == self.allQuestions[i].answers[j]
                     color = 'green' if good else 'red'
-                    # code = '&#2713;' if good else '&#2717;'
                     code = u'✓' if good else u'✗'
                     checkbox = '[x]' if student.questions[i][j] else '[ ]'
                     rawMdContent += '- {0} <span style="color:{1}">{2} Choice {3}</span>\n'.format(checkbox, color, code, j + 1)

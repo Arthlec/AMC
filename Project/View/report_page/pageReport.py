@@ -1,7 +1,7 @@
 #+----------------------------------------------------+
 #| 23/03/2019 - Report page for teachers
-#| Created by Sahar Hosseini - Roman Blond chart
-#| description,
+#| Created by Sahar Hosseini - Roman Blond
+#| chart description,
 #| report data as a table, chart and teachers enable to apply coherence, weight and penalty
 #+----------------------------------------------------+
 from PyQt5.QtGui import QFont
@@ -175,7 +175,6 @@ class ReportPage(QWidget):
 
 
     def setTable(self):
-        # print(self.scoreTable)
         self.sortTable()
         nbIndex = len(self.scoreTable.index)
         nbColumns = len(self.scoreTable.columns)
@@ -268,9 +267,6 @@ class ReportPage(QWidget):
             pdfExport.export()
             QMessageBox.information(self, 'Export done', 'Export done', QMessageBox.Ok)
 
-    # Not implemented yet
-    # def exportCSV(self):
-    #     print("CSV")
 
 #+--------------builder slider has been written by Arthur Lecert
 class BuildSlider(QWidget):

@@ -16,7 +16,6 @@ class StudentData:
 
         eff_chart = []
         eff_chart_double = []
-        eff_histo = []
 
         for i in range(len(mark_chart)):
             effective_chart = np.count_nonzero(score_chart_int == mark_chart[i])
@@ -26,19 +25,11 @@ class StudentData:
             effective_chart_double = np.count_nonzero(score_chart_double == mark_chart_double[i])
             eff_chart_double = np.append(eff_chart_double, effective_chart_double)
 
-        # for i in range(len(mark_histo)):
-        #     effective_histo = np.count_nonzero(score_histo == mark_histo[i])
-        #     eff_histo = np.append(eff_histo, effective_histo)
-
-        # print(eff_chart.astype(int))
         self.violinX = score_chart_int
         self.pieX = mark_chart
         self.pieY = eff_chart
 
         self.histoX = score_chart_double
-        self.histoY = eff_histo
-        print(self.histoX)
-        print(self.histoY)
 
         self.dataX = mark_chart_double
         self.dataY = eff_chart_double
