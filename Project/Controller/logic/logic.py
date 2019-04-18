@@ -8,7 +8,7 @@
 
 from enum import Enum
 
-
+### Enumeration of known keywords for the formula
 class _KeyWords(Enum):
     AND = 'AND'
     OR = 'OR'
@@ -16,6 +16,7 @@ class _KeyWords(Enum):
     EQUAL = '=='
     IS = 'IS'
 
+### Associates a Question/Answer id with its result
 class _Result:
     def __init__(self, id, res):
         self.id = id
@@ -24,27 +25,20 @@ class _Result:
     def isCorrect(self, res):
         return self.result == res
 
-    def _printElement(self):
-        return "Result {id: " + str(self.id) + ", result: " + str(self.result) + "}"
 
-    def __repr__(self):
-        return self._printElement()
-
-    def __str__(self):
-        return self._printElement()
-
-class _LogicElement:
-    def __init__(self, questions, ops, malus):
-        self.questions = questions
-        self.ops = ops
-        self.malus = malus
-
-
+### Enumeration of possible logical element. To distinguish
+#   a question (Q) with a Response (R)
 class LogicElement(Enum):
     Q = 'Q'
     R = 'R'
 
+### Contains the formula typed by the teacher. This formula will
+#   be analysed to detect any mistake. It will then be processed
+#   to return a malus/bonus for a student
 class Logic:
+    ### Initialisation
+    #   param: "command" (String) : the command typed by the teacher
+    #   parma: "selectionToken" (LogicElement) : indicator for a Question or a Response
     def __init__(self, command="", selectionToken=LogicElement.Q):
         if not isinstance(selectionToken, LogicElement):
             raise AssertionError('The parameter selectionToken should be an instance of LogicElement')
@@ -53,11 +47,15 @@ class Logic:
         if command != "" :
             self.interpretCommand()
 
+    ### Sets or modify the current command
     def setCommand(self, command=""):
         if command != "":
             self.command = command
 
+    ### Will process the current command to transform it
+    #   into logic values
     def interpretCommand(self):
+        # Each token (word) must be separated by a ' ' character
         tokens = self.command.split(' ')
 
         self.checkSyntaxErrors(tokens)
@@ -74,6 +72,8 @@ class Logic:
         self.tokens = firstRes
         print('PASS !')
 
+    ### Checks for any syntax error in the command
+    #   raise an Exception if a mistake is found
     def checkSyntaxErrors(self, tokens):
         containIS = False
         n = len(tokens)
@@ -121,7 +121,7 @@ class Logic:
                         raise SyntaxError('Keyword "' + _KeyWords.IS.value + '" must be followed by an interger in : ' + self.command)
 
 
-            # If the token is a digit, it must be
+            # If the token is a digit
             elif self._is_digit(token) and i != n - 1 and tokens[i + 1][0] == self.selectionToken:
                 raise SyntaxError('Missing keyword in : ' + self.command)
 
@@ -186,6 +186,3 @@ if __name__ == '__main__':
     results = [(1, 1), (2, 1), (3, 0), (4, 1)]
     # results = [(1, 1), (2, 1), (3, 2)]
     newRes = logic.checkResults(results)
-    print(newRes)
-#     # add xor
-    # print(logic.printLogic())
