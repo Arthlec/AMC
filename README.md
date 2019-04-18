@@ -1,6 +1,6 @@
 # New Marking module for AMC
 
-Project made by fourth year students at ESIEE Paris in 3 months.
+Project made by fourth year students at ESIEE Paris in 3 months from february to april 2019.
 
 - Sahar HOSSEINI
 - Roman BLOND
