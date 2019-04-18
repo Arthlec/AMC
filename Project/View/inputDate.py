@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import QDialog, QWidget, QLabel, QLineEdit, QHBoxLayout, QV
 import Controller.readAMC as ReadAMC
 
 
-
+### Dialog that asks for the date
 class DateInput(QDialog):
     def __init__(self, parent=None):
         super(DateInput, self).__init__(parent)

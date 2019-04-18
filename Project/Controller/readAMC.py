@@ -204,7 +204,6 @@ def MarkingQuestionsWithCoherence(NbPointsQuestions, boxes, avoidNeg):
 
     # Coherence for questions
     for i, student in enumerate(listStudents):
-        # print("Student : " + str(student))
         for question in listQuestions:
             for indexFormula in range(0, len(formulas[0]), len(listStudents)):
                 if formulas[0][indexFormula][0] == question:
@@ -443,7 +442,6 @@ def getStudentsAndQuestions():
     association = getAMCAssociations()
     questionTitle = getAMCQuestionTitle()
 
-    print(resultatsPoints)
 
     allStudents = {}
     allQuestions = {}

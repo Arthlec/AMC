@@ -29,7 +29,7 @@ class CoherencePage(QDialog):
         self.sublayout = QGridLayout()
         self.sublayout.setColumnStretch(1, 2)
         self.sublayout.setSpacing(20)
-        
+
         for i in range(ReadAMC.getNumberOfQuestions()):
             self.createQuestionBox(i)
         self.layout.addLayout(self.sublayout)
@@ -59,9 +59,7 @@ class CoherencePage(QDialog):
         listOfStudents = ReadAMC.getAllStudents()
         boxes, resultatsPoints = ReadAMC.updateData()
 
-        if not self.generalCoherenceFormula.text():
-            print("No formula for exam")
-        else:
+        if self.generalCoherenceFormula.text() != '':
             try:
                 logic = Logic(self.generalCoherenceFormula.text(), LogicElement.Q)
             except Exception as e:
@@ -72,13 +70,9 @@ class CoherencePage(QDialog):
                 listOfModifiers.append(tuple((-1, modifier)))
                 listOfQuestionsText.append(self.generalCoherenceFormula.text())
 
-            print('DONE')
-
 
         for i, coherenceFormula in enumerate(self.listOfQuestions, 1):
-            if not coherenceFormula.text():
-                print("No formula for question " + str(i))
-            else:
+            if coherenceFormula.text() != '':
                 try:
                     logic = Logic(coherenceFormula.text(), LogicElement.R)
                 except Exception as e:
@@ -88,6 +82,7 @@ class CoherencePage(QDialog):
                     modifier = logic.checkResults(ReadAMC.getStudentAnswersCorrect(j, i, boxes))
                     listOfModifiers.append(tuple((i, modifier)))
                     listOfQuestionsText.append(coherenceFormula.text())
+                    
         ReadAMC.writeCoherence([listOfModifiers, listOfQuestionsText])
         self.done(1)
 

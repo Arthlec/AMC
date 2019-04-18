@@ -1,6 +1,6 @@
 #+----------------------------------------------------+
 #| 23/03/2019 - Setting page
-#| Created by Sahar Hosseini
+#| Created by Evrard CALLOT & Arthur LECERT
 #| description,
 #| get  AMC params for each exam and save in a csv file
 #+----------------------------------------------------+
