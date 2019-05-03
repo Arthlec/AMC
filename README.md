@@ -21,7 +21,7 @@ All the files related to the GUI are in the `Project/` folder.
 
 ## Dependencies
 
-You need to use AMC software available freely at https://www.auto-multiple-choice.net/index.en
+You need to use AMC software freely available at https://www.auto-multiple-choice.net/index.en
 
 * `PyQt5`
 * `numpy`
